@@ -1,0 +1,16 @@
+[ Mar 30 2012 21:41:41 ] msg:: eepCache::__construct() no cache file exists [/docroot/mugo/49thshelf/extension/eep/.eepdata]
+[ Mar 30 2012 21:43:21 ] msg:: Reseting ezroot
+[ Apr 10 2012 15:56:51 ] err:: An unhandled exception occured:
+Command 'books_addcontriblookup' not recognized.
+ in F:\docroot\mugo\49thshelf\extension\eep\modules\books\index.php on line: 1274
+   run( extension\eep\eep.php books books_addcontriblookup Marsha Forchuk Skrypuch Marsha Forchuk Skrypuch )
+ in F:\docroot\mugo\49thshelf\extension\eep\eep.php on line: 134
+   require_once( F:\docroot\mugo\49thshelf\extension\eep\modules\books\index.php )
+
+[ Apr 10 2012 15:58:27 ] err:: An unhandled exception occured:
+Missing 5th parameter (replacement title)
+ in F:\docroot\mugo\49thshelf\extension\eep\modules\books\index.php on line: 1274
+   run( extension\eep\eep.php books addcontriblookup Marsha Forchuk Skrypuch Marsha Forchuk Skrypuch )
+ in F:\docroot\mugo\49thshelf\extension\eep\eep.php on line: 134
+   require_once( F:\docroot\mugo\49thshelf\extension\eep\modules\books\index.php )
+

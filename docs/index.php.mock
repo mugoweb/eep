@@ -1,0 +1,75 @@
+<?php
+/**
+ * eep/modules/<modulename>/index.php
+ */
+class <modulename>_commands
+{
+    const <modulename>_<commandone> = "<commandone>";
+    
+    //--------------------------------------------------------------------------
+    var $availableCommands = array
+    (
+        "help"
+        , self::<modulename>_<commandone>
+    );
+    var $help = ""; // used to dump the help string
+
+    //--------------------------------------------------------------------------
+    public function __construct()
+    {
+        $parts = explode( "/", __FILE__ );
+        array_pop( $parts );
+        $command = array_pop( $parts );
+        
+$this->help = <<<EOT
+<commandone>
+- <what the operation does>
+  eep <modulename> <commandone> [<other parameters>]
+    
+EOT;
+    }
+
+    //--------------------------------------------------------------------------
+    private function <modulename>_<commandone>()
+    {
+        <code>
+    }
+    
+    //--------------------------------------------------------------------------
+    public function run( $argv, $additional )
+    {
+        $command = @$argv[2];
+        $param1 = @$argv[3];
+        $param2 = @$argv[4];
+        $param3 = @$argv[5];
+
+        if( !in_array( $command, $this->availableCommands ) )
+        {
+            throw new Exception( "Command '" . $command . "' not recognized." );
+        }
+
+        $eepCache = eepCache::getInstance();
+
+        switch( $command )
+        {
+            case "help":
+                echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
+                echo "\n".$this->help."\n";
+                break;
+            
+            case self::<modulename>_<commandone>:
+                $this-><modulename>_<commandone>();
+                break;
+        }
+    } 
+}
+
+//------------------------------------------------------------------------------
+$operation = new <modulename>_commands();
+if( !isset($argv[2]) )
+{
+    $argv[2] = "help";
+}
+$additional = eep::extractAdditionalParams( $argv );
+$operation->run( $argv, $additional );
+?>
