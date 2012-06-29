@@ -1,0 +1,36 @@
+
+### install via:
+### sudo ln -s /home/dfp/eep/bash_completion/eep /etc/bash_completion.d/eep
+
+##------------------------------------------------------------------------------
+_eepmodules()
+{
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local modulepath=( "$( eep help | grep 'Modules path: ' | sed 's/Modules path: //' )" )
+    COMPREPLY=( $( compgen -W "$(ls $modulepath)" -- $cur ) )
+    return 0
+}
+
+##------------------------------------------------------------------------------
+_eep()
+{
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local prev=${COMP_WORDS[COMP_CWORD-1]}
+ 
+    if [[ 1 == "$COMP_CWORD" ]]; then
+        _eepmodules
+    fi
+
+    if [[ 2 == "$COMP_CWORD" && "$prev" == "help" ]]; then
+        _eepmodules
+    elif [[ 2 == "$COMP_CWORD" && "$prev" == "use" ]]; then
+        COMPREPLY=( $( compgen -W "$(eep use | grep 'Available keys:: ' \
+                  | sed 's/Available keys:: //' | sed 's/, / /g')" -- $cur ) )
+    elif [[ 2 == "$COMP_CWORD" ]]; then
+        COMPREPLY=( $( compgen -W "$(eep help $prev | grep 'Available commands:: ' \
+                  | sed 's/Available commands:: //' | sed 's/, / /g')" -- $cur ) )
+    fi 
+}
+
+##------------------------------------------------------------------------------
+complete -F _eep eep
