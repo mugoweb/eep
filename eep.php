@@ -87,6 +87,8 @@ if( !in_array( $argModule, $availableModuleFolders ) )
     $eepLogger->Report( $msg, "fatal" );
 }
 
+sort( $availableModuleFolders );
+
 // this is an expensive way to accomplish a global, and provides no advantage
 // unless you can eventually implement a lazy write protocol to the cache
 $eepCache->writetoCache( eepCache::misc_key_availablemodules, $availableModuleFolders );
