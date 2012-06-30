@@ -16,6 +16,9 @@ su
 cd /usr/bin
 ln -s -T /home/dfp/eep/eep.php eep
 
+ * On *nixes you can set up bash completion by:
+ * sudo ln -s /home/dfp/eep/bash_completion/eep /etc/bash_completion.d/eep 
+
  * INSTALLATION NOTE: you can override the settings by copying
  * .../eep/eepSettings.php
  * into your home folder and editing it. You will have to keep it uptodate
