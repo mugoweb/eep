@@ -4,7 +4,7 @@
  * this switches the module it executes by "require_once"ing the file where
  * the module is defined; this is done by naming the folder after the module
  * and the main implementation file is "index.php"
- * 
+ *
  * (for the eep PHP class, see /lib/eepHelpers.php :)
  *
  * INSTALLATION:
@@ -20,6 +20,12 @@ ln -s -T /home/dfp/eep/eep.php eep
  * .../eep/eepSettings.php
  * into your home folder and editing it. You will have to keep it uptodate
  * with new versions, as these settings change.
+ *
+ * WINDOWS INSTALLATION:
+ * 1/ extract to somewhere, like C:\wamp\scripts\eep
+ * 2/ make the controller executable: icacls C:\wamp\scripts\eep\eep.php /T /Q /C /RESET
+ * 3/ create a globally available link by adding eep.php to the PATH variable
+ *
  */
 
 $pathParts = pathinfo( __FILE__ );
@@ -75,7 +81,7 @@ while( false != $file )
     if( !in_array( $file , array(".", "..", ".svn") ))
     {
         $wholePath = $eepPath . "/modules/" . $file;
-        
+
         if( is_dir( $wholePath ) )
             $availableModuleFolders[] = $file;
     }
@@ -127,7 +133,7 @@ if( class_exists ( "eZScript", true ) )
             , 'use-modules' => true
             , 'use-extensions' => true
         )
-    );    
+    );
     $script->initialize();
 }
 
@@ -140,7 +146,7 @@ catch( Exception $e )
 {
     $msg = "An unhandled exception occured:\n";
     $msg .= $e->getMessage() . "\n";
-    
+
     // make the exception legible
     $details = $e->getTrace();
     foreach( $details as $frame )
@@ -166,8 +172,8 @@ catch( Exception $e )
             }
         }
         $msg .= " )\n";
-    }    
-    // and output it    
+    }
+    // and output it
     $eepLogger->Report( $msg, "error" );
 }
 
