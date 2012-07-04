@@ -8,7 +8,9 @@ class contentclass_commands
     const contentclass_deleteclass          = "deleteclass";
     const contentclass_listattributes       = "listattributes";
     const contentclass_fetchallinstances    = "fetchallinstances";
-    
+    const contentclass_appendtogroup          = "appendtogroup";
+    const contentclass_removefromgroup      = "removefromgroup";
+
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -16,16 +18,18 @@ class contentclass_commands
         , self::contentclass_listattributes
         , self::contentclass_deleteclass
         , self::contentclass_fetchallinstances
+        , self::contentclass_appendtogroup
+        , self::contentclass_removefromgroup
     );
     var $help = "";                     // used to dump the help string
-        
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 deleteclass
 - deletes all the instances of a class, and then deletes the class itself
@@ -48,32 +52,40 @@ fetchallinstances
   eep contentclass fetchallinstances
   - or -
   eep contentclass fetchallinstances <content class identifier>
+
+appendtogroup
+   eep use ezroot <path>
+   eep contentclass appendtogroup <content class identifier> <group identifier>
+
+removefromgroup
+   eep use ezroot <path>
+   eep contentclass removefromgroup <content class identifier> <group identifier>
 EOT;
     }
-    
+
     //--------------------------------------------------------------------------
     // delete a content class and all the objects that use it
     // see: eZContentClassOperations::remove( $classID )
     private function deleteClass( $classIdentifier )
     {
         $chunkSize = 1000;
-        
+
         $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
 
         $contentClass = eZContentClass::fetch( $classId );
         if( !$contentClass )
             throw new Exception( "Failed to instantiate content class. [" . $classIdentifier . "]" );
-        
+
         $totalObjectCount = eZContentObject::fetchSameClassListCount( $classId );
         echo "Deleting " . $totalObjectCount . " objects.\n";
-        
+
         $moreToDelete = 0 < $totalObjectCount;
         $totalDeleted = 0;
 
         // need to operate in a privileged account - use doug@mugo.ca
         $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
         $adminUserObject->loginCurrent();
-        
+
         while( $moreToDelete )
         {
             $params[ "IgnoreVisibility" ] = true;
@@ -86,7 +98,7 @@ EOT;
             foreach( $children as $child )
             {
                 $info = eZContentObjectTreeNode::subtreeRemovalInformation( array($child->NodeID) );
-                
+
                 if( !$info[ "can_remove_all" ] )
                 {
                     $msg = " permission is denied for nodeid=".$child->NodeID;
@@ -117,22 +129,22 @@ EOT;
             $moreToDelete = 0 < eZContentObject::fetchSameClassListCount( $classId );
         }
         echo "\nDone deleting objects.\n";
-        
+
         $adminUserObject->logoutCurrent();
-                
+
         eZContentClassClassGroup::removeClassMembers( $classId, 0 );
         eZContentClassClassGroup::removeClassMembers( $classId, 1 );
 
         // Fetch real version and remove it
         $contentClass->remove( true );
-        
+
         // this seems to mainly cause an exception, might be an idea to simply skip it
         // Fetch temp version and remove it
         $tempDeleteClass = eZContentClass::fetch( $classId, true, 1 );
         if( $tempDeleteClass != null )
             $tempDeleteClass->remove( true, 1 );
     }
-    
+
     //--------------------------------------------------------------------------
     private function fetchallinstances( $classIdentifier, $additional )
     {
@@ -146,13 +158,59 @@ EOT;
         {
             $offset = $additional["offset"];
         }
-        
+
         $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
         $allInstances = eZContentObject::fetchSameClassList( $classId, false, $offset, $limit );
         $title = "All instances of content class '" . $classIdentifier . "'";
         eep::displayNonObjectList( $allInstances, $title );
     }
-    
+
+    //--------------------------------------------------------------------------
+    private function appenToGroup( $classIdentifier, $groupIdentifier )
+    {
+        $classObject = eZContentClass::fetchByIdentifier( $classIdentifier );
+        $groupObject = eZContentClassGroup::fetchByName( $groupIdentifier );
+        if( !$classObject )
+        {
+            throw new Exception( "Invalid Class Identifier. [" .$classIdentifier. "]" );
+        }
+        if( !$groupObject )
+        {
+            throw new Exception( "Invalid Group Identifier. [" .$groupIdentifier. "]" );
+        }
+
+        if( $groupObject->appendClass($classObject) )
+        {
+            echo "Successfully appended class [" .$classIdentifier. "] to group [" .$groupIdentifier. "]";
+            return;
+        }
+        else
+        {
+            throw new Exception( "Unknown error occurred" );
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    private function removeFromGroup( $classIdentifier, $groupIdentifier )
+    {
+        $classObject = eZContentClass::fetchByIdentifier( $classIdentifier );
+        $groupObject = eZContentClassGroup::fetchByName( $groupIdentifier );
+        if( !$classObject )
+        {
+            throw new Exception( "Invalid Class Identifier. [" .$classIdentifier. "]" );
+        }
+        if( !$groupObject )
+        {
+            throw new Exception( "Invalid Group Identifier. [" .$groupIdentifier. "]" );
+        }
+
+        $db = eZDB::instance();
+        $db->begin();
+        eZContentClassClassGroup::removeGroup( $classObject->ID, null, $groupObject->ID );
+        $db->commit();
+        echo "Successfully removed class [" .$classIdentifier. "] from group [" .$groupIdentifier. "]";
+    }
+
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
@@ -166,14 +224,14 @@ EOT;
         }
 
         $eepCache = eepCache::getInstance();
-        
+
         switch( $command )
         {
             case "help":
                 echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::contentclass_listattributes:
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 if( $param1 )
@@ -182,7 +240,7 @@ EOT;
                 }
                 AttributeFunctions::listAttributes( $classIdentifier );
                 break;
-            
+
             case self::contentclass_deleteclass:
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 if( $param1 )
@@ -199,6 +257,39 @@ EOT;
                     $classIdentifier = $param1;
                 }
                 $this->fetchallinstances( $classIdentifier, $additional );
+                break;
+
+            case self::contentclass_appendtogroup:
+                $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
+                if( $param1 )
+                {
+                    $classIdentifier = $param1;
+                }
+                if( $param2 )
+                {
+                    $groupIdentifier = $param2;
+                }
+                else
+                {
+                    $groupIdentifier = null;
+                }
+                $this->appenToGroup( $classIdentifier, $groupIdentifier );
+                break;
+            case self::contentclass_removefromgroup:
+                $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
+                if( $param1 )
+                {
+                    $classIdentifier = $param1;
+                }
+                if( $param2 )
+                {
+                    $groupIdentifier = $param2;
+                }
+                else
+                {
+                    $groupIdentifier = null;
+                }
+                $this->removeFromGroup( $classIdentifier, $groupIdentifier );
                 break;
         }
     }
