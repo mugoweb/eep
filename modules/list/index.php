@@ -14,8 +14,8 @@
  *  todo list ini files on a per-siteaccess basis
  *       maybe, list them on a per extension basis
  *       are there other bases to list ini files?
- *       custom 
- *      
+ *       custom
+ *
  */
 
 class list_commands
@@ -27,7 +27,7 @@ class list_commands
     const list_allinifiles          = "allinifiles";
     const list_subtree              = "subtree";
     const list_extensions           = "extensions";
-    
+
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -41,14 +41,14 @@ class list_commands
         , self::list_subtree
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 attributes
 - list attributes of class
@@ -66,7 +66,7 @@ children
   eep list children [--offset=<N>] [--limit=<M>]
   or
   eep list children <node id> [--offset=<N>] [--limit=<M>]
-  
+
 contentclasses
 - list all content classess
   eep use ezroot <path>
@@ -76,7 +76,7 @@ extensions
 - list all the extensions
   eep use ezroot <path>
   eep list extensions
-  
+
 allinifiles
 - list all inifiles
   eep use ezroot <path>
@@ -86,7 +86,7 @@ siteaccesses
 - list all siteaccesses
   eep use ezroot <path>
   eep list siteaccesses
-  
+
 subtree
 - list all the nodes in a subtree
   supports --limit and --offset
@@ -97,7 +97,7 @@ subtree
   eep list subtree <node id>
 EOT;
     }
-    
+
     //--------------------------------------------------------------------------
     private function countObjectsPerClassId( $Id )
     {
@@ -107,11 +107,11 @@ EOT;
         $countRow = $db->arrayQuery( 'SELECT count(*) AS count FROM ezcontentobject WHERE contentclass_id='. $Id ." and status = " . eZContentObject::STATUS_PUBLISHED );
         return $countRow[0]['count'];
     }
-    
+
     //--------------------------------------------------------------------------
     private function listContentClasses()
     {
-        $contentClassList = eZContentClass::fetchAllClasses( false, false, false );
+        $contentClassList = eZContentClass::fetchAllClasses( true, false, false );
         $results = array();
         $results[] = array
         (
@@ -121,10 +121,13 @@ EOT;
             , "RemoteID"
             , "Lang"
             , "Name"
+            , "Group"
         );
         foreach( $contentClassList as $classInfo )
         {
-            $classId = $classInfo["id"];
+            $classId    = $classInfo->ID;
+            $groupList  = $classInfo->fetchGroupList();
+            $groupName  = $groupList[0]->GroupName;
             $classInstance = eZContentClass::fetch( $classId );
             $snl = unserialize( $classInstance->SerializedNameList );
             $results[] = array
@@ -135,6 +138,7 @@ EOT;
                 , $classInstance->RemoteID
                 , $snl[ "always-available" ]
                 , $snl[ $snl[ "always-available" ] ]
+                , $groupName
             );
         }
         eep::printTable( $results, "list content classes" );
@@ -157,16 +161,16 @@ EOT;
         {
             $offset = $additional["offset"];
         }
-        
+
         $params[ "Depth" ] = 1;
         //$parms[ "MainNodeOnly" ] = true;
         $params[ "IgnoreVisibility" ] = true;
         $params[ 'Limitation' ] = array();
         $params[ 'Limit' ] = $limit;
         $params[ 'Offset' ] = $offset;
-        
+
         $children = eZContentObjectTreeNode::subTreeByNodeID( $params, $parentNodeId );
-        
+
         $numberOfChildrenFetched = count( $children );
         $parentNode = eZContentObjectTreeNode::fetch( $parentNodeId );
         $pathToParent = $parentNode->PathString;
@@ -175,15 +179,15 @@ EOT;
         array_pop( $pathToParent );
         $pathToParent = implode( "/", $pathToParent ) . "/";
         $title = $numberOfChildrenFetched." children of node: ".$parentNodeId." [".$pathToParent."]";
-        
+
         eep::displayNodeList( $children, $title );
     }
-    
+
     //--------------------------------------------------------------------------
     private function listSiteAccesses()
     {
         $definedByFolder = array();
-        
+
         // get all the siteaccess folders from /settings/siteaccess
         $settingsPath = "./settings/siteaccess";
         $hDir = opendir( $settingsPath );
@@ -197,7 +201,7 @@ EOT;
             }
             $file = readdir( $hDir );
         }
-        
+
         // look for weird siteaccess folder inside an extension, so loop through
         // all the extensions and include in the list any folders in
         // <extn>/settings/siteaccess/ ...
@@ -241,11 +245,11 @@ EOT;
         $siteINI = eZINI::instance( "site.ini" );
         $available = $siteINI->variable( "SiteAccessSettings", "AvailableSiteAccessList" );
         $related = $siteINI->variable( "SiteAccessSettings", "RelatedSiteAccessList" );
-        
+
         $all = array_merge( $definedByFolder, $available, $related );
         $all = array_unique( $all );
         sort( $all );
-        
+
         $results[] = array
         (
             "folders"
@@ -253,24 +257,24 @@ EOT;
             , "RelatedSiteAccessList"
             , "defined in extension"
         );
-        
+
         foreach( $all as $n => $sa )
         {
             $results[ 1 + $n ][ 0 ] = in_array( $sa, $definedByFolder ) ? $sa : "";
             $results[ 1 + $n ][ 1 ] = in_array( $sa, $available ) ? $sa : "";
             $results[ 1 + $n ][ 2 ] = in_array( $sa, $related ) ? $sa : "";
-            $results[ 1 + $n ][ 3 ] = isset( $extensionSiteAccess[$sa] ) ? $extensionSiteAccess[$sa] : ""; 
+            $results[ 1 + $n ][ 3 ] = isset( $extensionSiteAccess[$sa] ) ? $extensionSiteAccess[$sa] : "";
             in_array( $sa, $related ) ? $sa : "";
         }
 
         eep::printTable( $results, "site accesses: folders, active and 'on same db'" );
     }
-    
+
     //--------------------------------------------------------------------------
     private function findIniFilePerDirectory( $fullPath )
     {
         echo $fullPath;
-            
+
         $files = array();
         $hDir = opendir( $fullPath );
         $file = readdir( $hDir );
@@ -290,7 +294,7 @@ EOT;
         }
         return $files;
     }
-    
+
     //--------------------------------------------------------------------------
     /*
      so here's the problem:
@@ -299,19 +303,19 @@ EOT;
      site.ini.append.php
      site.ini.append.php_PROD
      site.ini.append.php_TEST
-     
+
      etc. The last 3 might all exist in the same folder.
-     
+
      Do you:
      (a) simply keep track of a single instance in the folder of "site" ?
      (b) or do you try to indicate that there are several versions of "site" in there, somehow?
-     
+
      Supposing (a), you probably want to focus on the file with the most-correct
      name, either "site.ini" or "site.ini.append.php".
-     
+
      Which implies that you simply want to ignore any file that doesn't have a filename
      that fits the pattern.
-     
+
     */
     //--------------------------------------------------------------------------
     private function appendIniInfo( $key, $path, $filename, $fileList )
@@ -338,15 +342,15 @@ EOT;
         }
         return $fileList;
     }
-    
+
     //--------------------------------------------------------------------------
     private function allinifiles()
     {
         $eepCache = eepCache::getInstance();
         $fileList = array();
-        
+
         $instanceRoot = $eepCache->readfromCache( eepCache::use_key_ezroot );
-        
+
         // get the default ini's from settings folder:
         $path = $instanceRoot . "/settings/";
         $dirh = opendir( $path );
@@ -368,7 +372,7 @@ EOT;
             $file = readdir( $dirh );
         }
         closedir( $dirh );
-        
+
         // get all the siteaccess folders
         $siteaccessFolders = array();
         $path = $instanceRoot . "/settings/siteaccess/";
@@ -413,7 +417,7 @@ EOT;
             $file = readdir( $dirh );
         }
         closedir( $dirh );
-        
+
         // add all the settings from the extension's settings folder
         foreach( $extensionFolders as $extensionFolder )
         {
@@ -465,12 +469,12 @@ EOT;
         }
         eep::printTable( $results, "list ini files" );
     }
-    
+
     //--------------------------------------------------------------------------
     private function listSubtree( $subtreeNodeId, $additional )
     {
         $title = "All nodes in subtree [" .$subtreeNodeId. "]";
-        
+
         $params[ "Depth" ] = 0;
         $params[ "IgnoreVisibility" ] = true;
         $params[ "Limitation" ] = array();
@@ -493,10 +497,10 @@ EOT;
         if( !eepValidate::validateContentNodeId( $subtreeNodeId ) )
             throw new Exception( "This is not an node id: [" .$subtreeNodeId. "]" );
 
-        $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );        
+        $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
         eep::displayNodeList( $allchildren, $title );
     }
-    
+
     //--------------------------------------------------------------------------
     private function listExtensions()
     {
@@ -504,7 +508,7 @@ EOT;
 
         $siteINI = eZINI::instance( "site.ini" );
         $extensionPath = "./" . $siteINI->variable( "ExtensionSettings", "ExtensionDirectory" );
-        
+
         $hDir = opendir( $extensionPath );
         $file = readdir( $hDir );
         while( false != $file )
@@ -519,13 +523,13 @@ EOT;
 
         $activeExtensions = $siteINI->variable( "ExtensionSettings", "ActiveExtensions" );
         $activeAccessExtensions = $siteINI->variable( "ExtensionSettings", "ActiveAccessExtensions" );
-        
+
         $designINI = eZINI::instance( "design.ini" );
         $designExtensions = $designINI->variable( "ExtensionSettings", "DesignExtensions" );
 
         $moduleINI = eZINI::instance( "module.ini" );
         $moduleExtensions = $moduleINI->variable( "ModuleSettings", "ExtensionRepositories" );
-        
+
         $results[] = array
         (
             "folders"
@@ -537,7 +541,7 @@ EOT;
 
         // todo, there are more things that you could list here ... autoloads, cronjobs, workflow events ...
         // another thing that an extension might do is declare a siteaccess
-        
+
         foreach( $definedByFolder as $folder )
         {
             $results[] = array
@@ -551,14 +555,14 @@ EOT;
         }
         eep::printTable( $results, "list extensions" );
     }
-    
+
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
         $command = @$argv[2];
         $param1 = @$argv[3];
         $param2 = @$argv[4];
-        
+
         if( !in_array( $command, $this->availableCommands ) )
         {
             throw new Exception( "Command '" . $command . "' not recognized." );
@@ -572,11 +576,11 @@ EOT;
                 echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::list_contentclasses:
                 $this->listContentClasses();
                 break;
-            
+
             case self::list_attributes:
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 if( $param1 )
@@ -585,7 +589,7 @@ EOT;
                 }
                 AttributeFunctions::listAttributes( $classIdentifier );
                 break;
-            
+
             case self::list_children:
                 $parentNodeId = $eepCache->readFromCache( eepCache::use_key_contentnode );
                 if( $param1 )
@@ -594,15 +598,15 @@ EOT;
                 }
                 $this->listChildNodes( $parentNodeId, $additional );
                 break;
-            
+
             case self::list_siteaccesses:
                 $this->listSiteAccesses();
                 break;
-            
+
             case self::list_allinifiles:
                 $this->allinifiles();
                 break;
-            
+
             case self::list_subtree:
                 $subtreeNodeId = $eepCache->readFromCache( eepCache::use_key_contentnode );
                 if( $param1 )
@@ -611,7 +615,7 @@ EOT;
                 }
                 $this->listSubtree( $subtreeNodeId, $additional );
                 break;
-            
+
             case self::list_extensions:
                 $this->listExtensions();
                 break;
