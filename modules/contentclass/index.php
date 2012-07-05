@@ -8,7 +8,7 @@ class contentclass_commands
     const contentclass_deleteclass          = "deleteclass";
     const contentclass_listattributes       = "listattributes";
     const contentclass_fetchallinstances    = "fetchallinstances";
-    const contentclass_appendtogroup          = "appendtogroup";
+    const contentclass_appendtogroup        = "appendtogroup";
     const contentclass_removefromgroup      = "removefromgroup";
 
     //--------------------------------------------------------------------------
@@ -166,7 +166,7 @@ EOT;
     }
 
     //--------------------------------------------------------------------------
-    private function appenToGroup( $classIdentifier, $groupIdentifier )
+    private function appendToGroup( $classIdentifier, $groupIdentifier )
     {
         $classObject = eZContentClass::fetchByIdentifier( $classIdentifier );
         $groupObject = eZContentClassGroup::fetchByName( $groupIdentifier );
@@ -273,7 +273,7 @@ EOT;
                 {
                     $groupIdentifier = null;
                 }
-                $this->appenToGroup( $classIdentifier, $groupIdentifier );
+                $this->appendToGroup( $classIdentifier, $groupIdentifier );
                 break;
             case self::contentclass_removefromgroup:
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
