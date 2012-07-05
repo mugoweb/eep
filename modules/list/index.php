@@ -127,7 +127,11 @@ EOT;
         {
             $classId    = $classInfo->ID;
             $groupList  = $classInfo->fetchGroupList();
-            $groupName  = $groupList[0]->GroupName;
+            $groupNames = array();
+            foreach( $groupList as $groupName )
+            {
+                array_push( $groupNames, $groupName->GroupName);
+            }
             $classInstance = eZContentClass::fetch( $classId );
             $snl = unserialize( $classInstance->SerializedNameList );
             $results[] = array
@@ -138,7 +142,7 @@ EOT;
                 , $classInstance->RemoteID
                 , $snl[ "always-available" ]
                 , $snl[ $snl[ "always-available" ] ]
-                , $groupName
+                , implode(",",$groupNames)
             );
         }
         eep::printTable( $results, "list content classes" );
