@@ -33,6 +33,8 @@ EOT;
         $param1 = @$argv[3];
         $param2 = @$argv[4];
 
+        global $eepPath;
+        
         $eepCache = eepCache::getInstance();
 
         $availableModules = $eepCache->readFromCache( eepCache::misc_key_availablemodules );
@@ -46,6 +48,7 @@ EOT;
             case "help":
                 sort( $availableModules );
                 echo "\nAvailable modules: " . implode( $availableModules, ", " ) . "\n";
+                echo "\nModules path: " . $eepPath . "/modules/\n";
                 echo "\n". $this->help . "\n";
                 $aliases = eep::getListOfAliases();
                 $table = array();
