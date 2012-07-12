@@ -1,5 +1,11 @@
 #!/usr/bin/php
 <?php
+/*
+EEP is a command line tool to support developers using ezpublish
+Copyright © 2012  Mugo Web
+GNU GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+*/
 /**
  * this switches the module it executes by "require_once"ing the file where
  * the module is defined; this is done by naming the folder after the module
