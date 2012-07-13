@@ -10,7 +10,7 @@ class eep
     const NOATTRIBUTE = 0;
     const REVRELATED = true;
     const FORRELATED = false;
-    
+
     static function printTable( $table, $description="" )
     {
         // calc column widths
@@ -29,7 +29,7 @@ class eep
                 }
             }
         }
-        
+
         // build the horizontal line
         $horParts = array();
         foreach( $widths as $width )
@@ -73,12 +73,12 @@ class eep
     static function extractParameters( $xml )
     {
         $params = array();
-        
+
         libxml_use_internal_errors( true );
         $simpleXML = simplexml_load_string( $xml );
-        
+
         //var_dump( $simpleXML );
-        
+
         if( false === $simpleXML )
         {
             $errMsg = "Failed to parse the XML\n";
@@ -88,7 +88,7 @@ class eep
                 throw new Exception( $errMsg );
             }
         }
-    
+
         foreach( $simpleXML as $index => $element )
         {
             $value = trim( (string )$element );
@@ -96,7 +96,7 @@ class eep
             {
                 if( "null" == $value )
                     $value = null;
-            }        
+            }
             elseif( "required" == $element->attributes()->required )
             {
                 if( "" == $value )
@@ -109,7 +109,7 @@ class eep
                 if( $errorMessage )
                     throw new Exception( "There is a problem with: '" . $index . "': " . $errorMessage );
             }
-            
+
             if( $value == "additional_for_specific_datatype" )
             {
                 // currently ignoring this
@@ -131,21 +131,21 @@ class eep
             default:
                 echo "There is currently no code for validating: '" . $validationType . "'\n";
                 break;
-            
+
             case "none":
                 break;
-            
+
             case "bit":
                 if( !in_array( $value, array( "0", "1" ) ) )
                     return "Value should be '0' or '1'";
                 break;
-            
+
             case "identifier":
                 $cleaned = preg_replace( "/[^a-z0-9_]/", "", $value );
                 if( $cleaned != $value )
                     return "Invalid identifier. Instead of '" .$value. "' use '" .$cleaned. "'";
                 break;
-            
+
             case "language":
                 if( !in_array( $value, AttributeFunctions::$someLanguages ) )
                     return "'" .$value. "' is not a valid language";
@@ -154,7 +154,7 @@ class eep
         // signal that there are no problems
         return "";
     }
- 
+
     //--------------------------------------------------------------------------
     static function getListOfAliases()
     {
@@ -167,12 +167,13 @@ class eep
             , "kb"  => "knowledgebase"
             , "ats"  => "attributes"
             , "ccs"  => "contentclasses"
+            , "ccg" => "contentclassgroup"
             , "cos"  => "contentobjects"
             , "cns"  => "contentnodes"
         );
         return $aliases;
     }
-    
+
     //--------------------------------------------------------------------------
     static function expandAliases( $alias )
     {
@@ -186,9 +187,9 @@ class eep
             return $alias;
         }
     }
-    
+
     //--------------------------------------------------------------------------
-    /*    
+    /*
      * Fetch the number of (reverse) related objects
      *
      * @param int $attributeID
@@ -292,7 +293,7 @@ class eep
         $rows = $db->arrayQuery( $query );
         return $rows[0]['count'];
     }
-    
+
     //--------------------------------------------------------------------------
     // eep::displayNodeList( $list, $title )
     static function displayNodeList( $list, $title )
@@ -308,11 +309,11 @@ class eep
             , "H/I"
             , "RR"
             , "Name"
-        );        
+        );
         foreach( $list as $objectNode )
         {
             $obj = eZContentObject::fetch($objectNode->ContentObjectID);
-            
+
             $results[] = array
             (
                 $objectNode->ContentObjectID
@@ -328,7 +329,7 @@ class eep
         }
         eep::printTable( $results, $title );
     }
-    
+
     //--------------------------------------------------------------------------
     // a non-object is the array of data that you get when you fetch an object
     // but say that you don't actually want the object
@@ -343,7 +344,7 @@ class eep
             , "Remote Id"
             , "Name"
         );
-        
+
         foreach( $list as $lightObject )
         {
             $results[] = array
@@ -357,7 +358,7 @@ class eep
         }
         eep::printTable( $results, $title );
     }
-    
+
     //--------------------------------------------------------------------------
     static function displayObjectList( $list, $title )
     {
@@ -372,7 +373,7 @@ class eep
             , "Class Id"
             , "Name"
         );
-        
+
         foreach( $list as $n => $object )
         {
             $results[] = array
@@ -385,17 +386,17 @@ class eep
                 , $object->contentClassIdentifier()
                 , (strlen($object->Name)>60)?substr($object->Name,0,57)."...":$object->Name
             );
-            
+
             //unset($object);
             //unset( $list[$n] );
-            
+
             //unset( $GLOBALS[ 'eZContentObjectContentObjectCache' ] );
             //unset( $GLOBALS[ 'eZContentObjectDataMapCache' ] );
-            //unset( $GLOBALS[ 'eZContentObjectVersionCache' ] );                        
+            //unset( $GLOBALS[ 'eZContentObjectVersionCache' ] );
         }
         eep::printTable( $results, $title );
     }
-    
+
     //--------------------------------------------------------------------------
     // returns key value pairs based on any params to the command line that
     // match: --key=value
@@ -416,15 +417,15 @@ class eep
         }
         return $additionalParams;
     }
-    
+
     //--------------------------------------------------------------------------
     static function addTask( $taskType, $task, $priority=500 )
     {
         $priority = (integer )$priority;
         if( 0 == $priority ) return false;
-        
+
         $db = eZDB::instance();
-        
+
         // delete any previous instances of this task - this is a performance
         // killer
         // todo, decide if it is worth exposing a switch for this
@@ -468,7 +469,7 @@ class eep
             );
         }
     }
-    
+
     //--------------------------------------------------------------------------
     // this is just for testing
     static function convertStringToRot13( $str )
@@ -491,7 +492,7 @@ class eep
         }
         return $integer;
     }
-    
+
     //--------------------------------------------------------------------------
     // this cleans many common forms of XML corruption, and ultimately forces
     // character encoding - this can render some remaining characters as
@@ -505,18 +506,18 @@ class eep
             echo $xml;
             echo "\n\n";
         }
-        
+
         // hack to deal with escaped CDATA markers
         $xml = str_replace( array( "&lt;![CDATA[", "]]&gt;" ), array( "<![CDATA[", "]]>" ), $xml );
-        
+
         // strip the CDATA tags
         $xml = str_replace( array( "<![CDATA[", "]]>" ), array( "", "" ), $xml );
-                
+
         // fix double escaped ampersands
         $xml = str_replace( "&amp;amp;", "&amp;", $xml );
         // fix double escaped carats
         $xml = str_replace( "&amp;lt;", "&lt;", $xml );
-        $xml = str_replace( "&amp;gt;", "&gt;", $xml );        
+        $xml = str_replace( "&amp;gt;", "&gt;", $xml );
         // fix double escaped decimal entities
         $xml = preg_replace( "/&amp;#([\d]{2,5});/", "&#$1;", $xml );
         // fix double escaped hex entities
@@ -525,16 +526,16 @@ class eep
         $xml = preg_replace( "/&amp;#([\d]{2,5})/", "&#$1;", $xml );
         // fix double escaped hex entities with missing semi-colon
         $xml = preg_replace( "/&amp;#x([0-9a-fA-F]{2,5})/", "&#x$1;", $xml );
-        // this shows up in NSP data which is important to us        
+        // this shows up in NSP data which is important to us
         $xml = str_replace( "compact type=\"disc\"", "", $xml );
 
         // fix unterminated linebreaks
         $xml = str_replace( "<br>", "<br/>", $xml );
         $xml = str_replace( "<BR>", "<br/>", $xml );
-                
+
         // fix paras that have extra space between them - which ez puffs into an extra, empty para
         $xml = preg_replace( "/&lt;\/p&gt;[\s]+&lt;p&gt;/", "&lt;/p&gt;&lt;p&gt;", $xml );
-                
+
         // crazy fancy characters:
         $xml = str_replace( "’", "&#8217;", $xml );
         $xml = str_replace( "•", "&#8226;", $xml );
@@ -592,7 +593,7 @@ class eep
         {
             $xml = str_replace( $rule["targets"], $rule["new"], $xml );
         }
-        
+
         // and the ultimate: make damn sure that it's UTF8: this harshly trashes
         // unusual characters BUT it does convert standard usable characters,
         // eg, e ague, into a viable format ALSO, take care to not double encode
@@ -611,7 +612,7 @@ class eep
             // ok, just force it
             $xml = utf8_encode( $xml );
         }
-        
+
         if( $verbose )
         {
             echo "\nAFTER eep::fix()\n";
@@ -620,7 +621,7 @@ class eep
         }
         return $xml;
     }
-    
+
     //--------------------------------------------------------------------------
     // this is how you fix the bad question marks that have been introduced by
     // forcing the encoding to utf8 -- fix some of the crappy question-mark
@@ -632,37 +633,37 @@ class eep
     {
         $count = 0;
         $corruptionLevel = 0;
-        
+
         // <character>?s
         $xml = preg_replace( "/([a-zA-Z0-9])\?s/", "$1's", $xml, -1, $count );
         $corruptionLevel += $count;
-        
+
         // <digit>?<digit>
         $xml = preg_replace( "/([\d]+)\?([\d]+)/", "$1&#8211;$2", $xml, -1, $count );
         $corruptionLevel += $count;
-        
+
         // opening (left) double quote
         $xml = preg_replace( "/\>[\?]([^ ])/", ">&#8220;$1", $xml, -1, $count );
         $corruptionLevel += $count;
         $xml = preg_replace( "/[ ][\?]([^ ])/", " &#8220;$1", $xml, -1, $count );
         $corruptionLevel += $count;
-        
+
         // mdash between spaces
         $xml = preg_replace( "/[ ][\?][ ]/", " &#8212; ", $xml, -1, $count );
         $corruptionLevel += $count;
-        
+
         // closing double quote -- although these might be real question marks ...
         if( 4 < $corruptionLevel )
         {
             $xml = preg_replace( "/([^ ])[\?]\</", "$1&#8221;<", $xml, -1, $count );
             $xml = preg_replace( "/([^ ])[\?] /", "$1&#8221; ", $xml, -1, $count );
         }
-        
+
         if( 6 < $corruptionLevel )
         {
             // mdash between characters -- this might be anything, but almost for sure its not a question mark
             $xml = preg_replace( "/([a-zA-Z0-9])[\?]([a-zA-Z0-9])/", "$1&#8212;$2", $xml, -1, $count );
-        }        
+        }
         return $xml;
     }
 }
