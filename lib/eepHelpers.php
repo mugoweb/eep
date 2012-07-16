@@ -41,18 +41,22 @@ class eep
         // do the output
         $doneTitles = false;
         echo "\n" . $horLine;
+        $pipe = " I "; // only write pipes on data lines
         if( $description )
         {
-            echo " | ".str_pad( $description, strlen($horLine)-strlen($doneTitles)-6, " ", STR_PAD_RIGHT )." | \n";
+            echo $pipe.str_pad( $description, strlen($horLine)-strlen($doneTitles)-6, " ", STR_PAD_RIGHT )." | \n";
             echo $horLine;
+            $pipe = " | ";
         }
+        $pipe = " I "; // only write pipes on data lines
         foreach( $table as $row )
         {
             $align = ""; // two column tables have the second column aligned left
             foreach( $row as $column => $part )
             {
                 if( 2==count($row) && 1==$column ) $align = "-";
-                echo " | ". sprintf( "% ".$align.$widths[$column]."s", $part);
+                echo $pipe. sprintf( "% ".$align.$widths[$column]."s", $part);
+                $pipe = " | ";
             }
             echo " | \n";
             if( !$doneTitles )
