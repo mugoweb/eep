@@ -28,6 +28,7 @@ class list_commands
 {
     const list_contentclasses       = "contentclasses";
     const list_attributes           = "attributes";
+    const list_all_attributes       = "allattributes";
     const list_children             = "children";
     const list_siteaccesses         = "siteaccesses";
     const list_allinifiles          = "allinifiles";
@@ -39,6 +40,7 @@ class list_commands
     (
         "help"
         , self::list_attributes
+        , self::list_all_attributes
         , self::list_children
         , self::list_contentclasses
         , self::list_extensions
@@ -63,6 +65,11 @@ attributes
   eep list attributes
   or
   eep list attributes <class identifier>
+
+allattributes
+- list all attributes present in the system
+  eep use ezroot <path>
+  eep list allattributes
 
 children
 - list children of node
@@ -153,6 +160,51 @@ EOT;
         }
         eep::printTable( $results, "list content classes" );
         //var_dump($classInstance);
+    }
+
+    private function listAllAttributes()
+    {
+        $attributeList = eZContentClassAttribute::fetchList();
+        $contentClassList   = eZContentClass::fetchAllClasses( true, false, false );
+        $classDictionary    = array();
+        foreach( $contentClassList as $classInfo )
+        {
+            $classId    = $classInfo->ID;
+            $classDictionary[$classInfo->ID] = $classInfo->Identifier;
+        }
+
+        $results = array();
+        $results[] = array
+        (
+            "ID"
+            , "Identifier"
+            , "Data Type"
+            , "Content Class ID"
+            , "Content Class Name"
+        );
+
+        foreach( $attributeList as $attributeInfo )
+        {
+            $attributeId    = $attributeInfo->ID;
+            $ContentClassID = $attributeInfo->ContentClassID;
+//            $groupList  = $classInfo->fetchGroupList();
+//            $groupNames = array();
+//            foreach( $groupList as $groupName )
+//            {
+//                array_push( $groupNames, $groupName->GroupName);
+//            }
+            echo $classDictionary[$attributeInfo->ContentClassID];
+            $results[] = array
+            (
+                $attributeId
+                , $attributeInfo->Identifier
+                , $attributeInfo->DataTypeString
+                , $attributeInfo->ContentClassID
+                , (isset($classDictionary[$attributeInfo->ContentClassID]))?$classDictionary[$attributeInfo->ContentClassID]:"Doesn't exist"
+            );
+        }
+
+        eep::printTable( $results, "list content classes" );
     }
 
     //--------------------------------------------------------------------------
@@ -598,6 +650,10 @@ EOT;
                     $classIdentifier = $param1;
                 }
                 AttributeFunctions::listAttributes( $classIdentifier );
+                break;
+
+            case self::list_all_attributes:
+                $this->listAllAttributes();
                 break;
 
             case self::list_children:
