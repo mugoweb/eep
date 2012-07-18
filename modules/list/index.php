@@ -504,7 +504,11 @@ EOT;
 
         if( isset($additional["offset"]) )
         {
-            $params[ "Offset" ] = $additional["offset"];
+            //for breadthfirst search, just get everything and limit it on display
+            if( !isset( $additional["order"] ) || strcmp( $additional["order"], "breadthfirst" ) )
+            {
+                $params[ "Offset" ] = $additional["offset"];
+            }
             $title .= " (Offset=" . $params[ "Offset" ] . ")";
         }
 
@@ -516,47 +520,125 @@ EOT;
         $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
 
         //compare function used when sorting the results
-        $cmp = function ($a, $b) {
-                    //debug => all function
-                    $aArray = explode("/", $a->PathString);
-                    $bArray = explode("/", $b->PathString);
-                    if ( count( $aArray  ) < count( $bArray  ) )
+        $depthFirstSortCmp = function ( $a, $b ) {
+            $aArray = explode("/", $a->PathString);
+            $bArray = explode("/", $b->PathString);
+
+            //if a is a child of b (of any order)
+            if( strpos( $a->PathString, $b->PathString ) !== false )
+            {
+                //then a > b and b is displayed first
+                return -1;
+            }
+            else if( strpos( $b->PathString, $a->PathString ) !== false )
+            {
+                return 1;
+            }
+            //if we have the same # of elements, just ascending by numbers
+            else if( count($aArray) == count($bArray) )
+            {
+                for($i = 0; $i < count($aArray); $i++ )
+                {
+                    if( (int)$aArray[$i] < (int)$bArray[$i] )
                     {
                         return -1;
                     }
-                    else if( count( $aArray  ) > count( $bArray  ) )
+                    else if( (int)$aArray[$i] > (int)$bArray[$i] )
                     {
                         return 1;
                     }
-                    else
+                }
+            }
+            //if on different levels, dsplay in order of ascending common parents
+            else if( count($aArray) > count($bArray) )
+            {
+                for($i = 0; $i < count($bArray); $i++ )
+                {
+                    if( (int)$aArray[$i] < (int)$bArray[$i] )
                     {
-                        for($i = 0; $i < count($aArray); $i++ )
-                        {
-                            if( (int)$aArray[$i] < (int)$bArray[$i] )
-                            {
-                                return -1;
-                            }
-                            else if( (int)$aArray[$i] > (int)$bArray[$i] )
-                            {
-                                return 1;
-                            }
-                        }
+                        return -1;
                     }
-                    return 0;
+                    else if( (int)$aArray[$i] > (int)$bArray[$i] )
+                    {
+                        return 1;
+                    }
+                }
+            }
+            else if( count($aArray) < count($bArray) )
+            {
+                for($i = 0; $i < count($bArray); $i++ )
+                {
+                    if( (int)$aArray[$i] < (int)$bArray[$i] )
+                    {
+                        return -1;
+                    }
+                    else if( (int)$aArray[$i] > (int)$bArray[$i] )
+                    {
+                        return 1;
+                    }
+                }
+            }
+            return 0;
         };
 
-        //breadth first
+        //compare function used when sorting the results for breadthfirst output
+        $breadthFirstSortCmp = function ($a, $b) {
+            //debug => all function
+            $aArray = explode("/", $a->PathString);
+            $bArray = explode("/", $b->PathString);
+            if ( count( $aArray  ) < count( $bArray  ) )
+            {
+                return -1;
+            }
+            else if( count( $aArray  ) > count( $bArray  ) )
+            {
+                return 1;
+            }
+            else
+            {
+                for($i = 0; $i < count($aArray); $i++ )
+                {
+                    if( (int)$aArray[$i] < (int)$bArray[$i] )
+                    {
+                        return -1;
+                    }
+                    else if( (int)$aArray[$i] > (int)$bArray[$i] )
+                    {
+                        return 1;
+                    }
+                }
+            }
+            return 0;
+        };
+
+        //breadth first => need to execute limit and offset, since the fetch was depthfirst
         if( isset( $additional["order"] ) && strcmp( $additional["order"], "breadthfirst" ) == 0 )
         {
-            if( !uasort( $allchildren, $cmp ) )
+            if( !uasort( $allchildren, $breadthFirstSortCmp ) )
             {
                 throw new Exception( "Internal error: couldn't sort array" );
+            }
+            if( isset($additional["offset"]) && 0!= $additional["offset"] )
+            {
+                $allchildren = array_slice( $allchildren, $additional["offset"] );
             }
             if( isset($additional["limit"]) && 0!= $additional["limit"] )
             {
                 $allchildren = array_slice( $allchildren, 0, (int)$additional["limit"] );
             }
         }
+        //depth first, limit and offset were built into the fetch
+        else
+        {
+            if( !uasort( $allchildren, $depthFirstSortCmp ) )
+            {
+                throw new Exception( "Internal error: couldn't sort array" );
+            }
+        }
+
+        $rootNode = eZContentObjectTreeNode::fetch($subtreeNodeId);
+
+        array_unshift( $allchildren, $rootNode );
         eep::displayNodeList( $allchildren, $title );
     }
 
