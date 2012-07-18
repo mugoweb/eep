@@ -493,7 +493,11 @@ EOT;
         {
             if( 0 != $additional["limit"] )
             {
-                $params[ "Limit" ] = $additional["limit"];
+                //for breadthfirst search, just get everything and limit it on display
+                if( !isset( $additional["order"] ) || strcmp( $additional["order"], "breadthfirst" ) )
+                {
+                    $params[ "Limit" ] = $additional["limit"];
+                }
                 $title .= " (Limit=" . $params[ "Limit" ] . ")";
             }
         }
@@ -547,6 +551,10 @@ EOT;
             if( !uasort( $allchildren, $cmp ) )
             {
                 throw new Exception( "Internal error: couldn't sort array" );
+            }
+            if( isset($additional["limit"]) && 0!= $additional["limit"] )
+            {
+                $allchildren = array_slice( $allchildren, 0, (int)$additional["limit"] );
             }
         }
         eep::displayNodeList( $allchildren, $title );
