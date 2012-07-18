@@ -13,28 +13,6 @@ Version 3, 29 June 2007
  *
  * (for the eep PHP class, see /lib/eepHelpers.php :)
  *
- * INSTALLATION:
- * 1/ extract to somewhere, like /home/dfp/eep
- * 2/ make the controller executable: chmod +x eep.php
- * 3/ create a globally available link, like,
-
-su
-cd /usr/bin
-ln -s -T /home/dfp/eep/eep.php eep
-
- * On *nixes you can set up bash completion by:
- * sudo ln -s /home/dfp/eep/bash_completion/eep /etc/bash_completion.d/eep
-
- * INSTALLATION NOTE: you can override the settings by copying
- * .../eep/eepSettings.php
- * into your home folder and editing it. You will have to keep it uptodate
- * with new versions, as these settings change.
- *
- * WINDOWS INSTALLATION:
- * 1/ extract to somewhere, like C:\wamp\scripts\eep
- * 2/ make the controller executable: icacls C:\wamp\scripts\eep\eep.php /T /Q /C /RESET
- * 3/ create a globally available link by adding eep.php to the PATH variable
- *
  */
 
 $pathParts = pathinfo( __FILE__ );

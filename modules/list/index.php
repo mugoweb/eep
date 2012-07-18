@@ -187,13 +187,6 @@ EOT;
         {
             $attributeId    = $attributeInfo->ID;
             $ContentClassID = $attributeInfo->ContentClassID;
-//            $groupList  = $classInfo->fetchGroupList();
-//            $groupNames = array();
-//            foreach( $groupList as $groupName )
-//            {
-//                array_push( $groupNames, $groupName->GroupName);
-//            }
-            echo $classDictionary[$attributeInfo->ContentClassID];
             $results[] = array
             (
                 $attributeId
