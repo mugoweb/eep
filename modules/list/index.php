@@ -664,10 +664,6 @@ EOT;
                 {
                     $subtreeNodeId = $param1;
                 }
-                if( $param2 )
-                {
-                    $searchOrder = strtolower( $param2 );
-                }
                 $this->listSubtree( $subtreeNodeId, $additional, $searchOrder );
                 break;
 
