@@ -1,0 +1,31 @@
+
+Linux installation:
+-------------------
+
+1/ extract to somewhere, like /home/dfp/eep
+2/ make the controller executable: chmod +x eep.php
+3/ create a globally available link, like,
+su
+cd /usr/bin
+ln -s -T /home/dfp/eep/eep.php eep
+
+Command line completion:
+------------------------
+
+On linuxes you can set up bash completion (which is highly convenient) by:
+sudo ln -s /home/dfp/eep/bash_completion/eep /etc/bash_completion.d/eep
+
+Windows installation:
+---------------------
+
+1/ extract to somewhere, like C:\wamp\scripts\eep
+2/ make the controller executable: icacls C:\wamp\scripts\eep\eep.php /T /Q /C /RESET
+3/ create a globally available link by adding eep.php to the PATH variable
+
+Installation note:
+------------------
+
+you can override the settings by copying
+.../eep/eepSettings.php
+into your home folder and editing it. You may have to keep it uptodate
+with new versions, as these settings change.
