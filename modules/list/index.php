@@ -664,7 +664,7 @@ EOT;
                 {
                     $subtreeNodeId = $param1;
                 }
-                $this->listSubtree( $subtreeNodeId, $additional, $searchOrder );
+                $this->listSubtree( $subtreeNodeId, $additional );
                 break;
 
             case self::list_extensions:
