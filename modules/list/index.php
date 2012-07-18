@@ -180,7 +180,7 @@ EOT;
             , "Identifier"
             , "Data Type"
             , "Content Class ID"
-            , "Content Class Name"
+            , "Content class identifier"
         );
 
         foreach( $attributeList as $attributeInfo )
