@@ -95,7 +95,7 @@ siteaccesses
 
 subtree
 - list all the nodes in a subtree
-  supports --limit and --offset
+  supports --order=[breadthfirst|depthfirst] --limit=<number> and --offset=<number>
   eep use ezroot <path>
   eep use contentnode <node id>
   eep list subtree
@@ -505,9 +505,50 @@ EOT;
         }
 
         if( !eepValidate::validateContentNodeId( $subtreeNodeId ) )
+        {
             throw new Exception( "This is not an node id: [" .$subtreeNodeId. "]" );
+        }
 
         $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
+
+        //compare function used when sorting the results
+        $cmp = function ($a, $b) {
+                    //debug => all function
+                    $aArray = explode("/", $a->PathString);
+                    $bArray = explode("/", $b->PathString);
+                    if ( count( $aArray  ) < count( $bArray  ) )
+                    {
+                        return -1;
+                    }
+                    else if( count( $aArray  ) > count( $bArray  ) )
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        for($i = 0; $i < count($aArray); $i++ )
+                        {
+                            if( (int)$aArray[$i] < (int)$bArray[$i] )
+                            {
+                                return -1;
+                            }
+                            else if( (int)$aArray[$i] > (int)$bArray[$i] )
+                            {
+                                return 1;
+                            }
+                        }
+                    }
+                    return 0;
+        };
+
+        //breadth first
+        if( isset( $additional["order"] ) && strcmp( $additional["order"], "breadthfirst" ) == 0 )
+        {
+            if( !uasort( $allchildren, $cmp ) )
+            {
+                throw new Exception( "Internal error: couldn't sort array" );
+            }
+        }
         eep::displayNodeList( $allchildren, $title );
     }
 
@@ -623,7 +664,11 @@ EOT;
                 {
                     $subtreeNodeId = $param1;
                 }
-                $this->listSubtree( $subtreeNodeId, $additional );
+                if( $param2 )
+                {
+                    $searchOrder = strtolower( $param2 );
+                }
+                $this->listSubtree( $subtreeNodeId, $additional, $searchOrder );
                 break;
 
             case self::list_extensions:
