@@ -164,7 +164,7 @@ EOT;
 
     private function listAllAttributes()
     {
-        $attributeList = eZContentClassAttribute::fetchList();
+        $attributeList = @eZContentClassAttribute::fetchList();
         $contentClassList   = eZContentClass::fetchAllClasses( true, false, false );
         $classDictionary    = array();
         foreach( $contentClassList as $classInfo )
