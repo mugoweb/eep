@@ -595,7 +595,7 @@ EOT;
         }
         else
         {
-            //
+            //depthfirst
             $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
         }
         $rootNode = eZContentObjectTreeNode::fetch($subtreeNodeId);
