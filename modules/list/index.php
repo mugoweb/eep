@@ -489,35 +489,10 @@ EOT;
         $params[ "IgnoreVisibility" ] = true;
         $params[ "Limitation" ] = array();
 
-        if( isset($additional["limit"]) )
-        {
-            if( 0 != $additional["limit"] )
-            {
-                //for breadthfirst search, just get everything and limit it on display
-                if( !isset( $additional["order"] ) || strcmp( $additional["order"], "breadthfirst" ) )
-                {
-                    $params[ "Limit" ] = $additional["limit"];
-                }
-                $title .= " (Limit=" . $params[ "Limit" ] . ")";
-            }
-        }
-
-        if( isset($additional["offset"]) )
-        {
-            //for breadthfirst search, just get everything and limit it on display
-            if( !isset( $additional["order"] ) || strcmp( $additional["order"], "breadthfirst" ) )
-            {
-                $params[ "Offset" ] = $additional["offset"];
-            }
-            $title .= " (Offset=" . $params[ "Offset" ] . ")";
-        }
-
         if( !eepValidate::validateContentNodeId( $subtreeNodeId ) )
         {
             throw new Exception( "This is not an node id: [" .$subtreeNodeId. "]" );
         }
-
-        $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
 
         //compare function used when sorting the results
         $depthFirstSortCmp = function ( $a, $b ) {
@@ -611,9 +586,24 @@ EOT;
             return 0;
         };
 
-        //breadth first => need to execute limit and offset, since the fetch was depthfirst
+        $allchildren = array();
         if( isset( $additional["order"] ) && strcmp( $additional["order"], "breadthfirst" ) == 0 )
         {
+            //breadthfirst
+            $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
+
+        }
+        else
+        {
+            //
+            $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
+        }
+        $rootNode = eZContentObjectTreeNode::fetch($subtreeNodeId);
+
+        //breadth first => need to execute limit and offset & add root node to output
+        if( isset( $additional["order"] ) && strcmp( $additional["order"], "breadthfirst" ) == 0 )
+        {
+            array_unshift( $allchildren, $rootNode );
             if( !uasort( $allchildren, $breadthFirstSortCmp ) )
             {
                 throw new Exception( "Internal error: couldn't sort array" );
@@ -626,19 +616,32 @@ EOT;
             {
                 $allchildren = array_slice( $allchildren, 0, (int)$additional["limit"] );
             }
+            else if( isset($additional["limit"]) && 0 == $additional["limit"] )
+            {
+                $allchildren = array();
+            }
         }
         //depth first, limit and offset were built into the fetch
         else
         {
+            array_push( $allchildren, $rootNode );
             if( !uasort( $allchildren, $depthFirstSortCmp ) )
             {
                 throw new Exception( "Internal error: couldn't sort array" );
             }
+            if( isset($additional["offset"]) && 0!= $additional["offset"] )
+            {
+                $allchildren = array_slice( $allchildren, $additional["offset"] );
+            }
+            if( isset($additional["limit"]) && 0!= $additional["limit"] )
+            {
+                $allchildren = array_slice( $allchildren, 0, (int)$additional["limit"] );
+            }
+            else if( isset($additional["limit"]) && 0 == $additional["limit"] )
+            {
+                $allchildren = array();
+            }
         }
-
-        $rootNode = eZContentObjectTreeNode::fetch($subtreeNodeId);
-
-        array_unshift( $allchildren, $rootNode );
         eep::displayNodeList( $allchildren, $title );
     }
 
