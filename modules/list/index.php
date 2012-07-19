@@ -486,12 +486,20 @@ EOT;
         $title = "All nodes in subtree [" .$subtreeNodeId. "]";
 
         $params[ "Depth" ] = 0;
+        $params[ 'AsObject' ] = false;
         $params[ "IgnoreVisibility" ] = true;
         $params[ "Limitation" ] = array();
 
         if( !eepValidate::validateContentNodeId( $subtreeNodeId ) )
         {
             throw new Exception( "This is not an node id: [" .$subtreeNodeId. "]" );
+        }
+
+        if( isset($additional["limit"]) && 0 == $additional["limit"] )
+        {
+                $allchildren = array();
+                eep::displayNodeList( $allchildren, $title );
+                return;
         }
 
         //compare function used when sorting the results
@@ -587,18 +595,8 @@ EOT;
         };
 
         $allchildren = array();
-        if( isset( $additional["order"] ) && strcmp( $additional["order"], "breadthfirst" ) == 0 )
-        {
-            //breadthfirst
-            $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
-
-        }
-        else
-        {
-            //depthfirst
-            $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
-        }
-        $rootNode = eZContentObjectTreeNode::fetch($subtreeNodeId);
+        $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
+        $rootNode = eZContentObjectTreeNode::fetch($subtreeNodeId, false, false);
 
         //breadth first => need to execute limit and offset & add root node to output
         if( isset( $additional["order"] ) && strcmp( $additional["order"], "breadthfirst" ) == 0 )
@@ -615,10 +613,6 @@ EOT;
             if( isset($additional["limit"]) && 0!= $additional["limit"] )
             {
                 $allchildren = array_slice( $allchildren, 0, (int)$additional["limit"] );
-            }
-            else if( isset($additional["limit"]) && 0 == $additional["limit"] )
-            {
-                $allchildren = array();
             }
         }
         //depth first, limit and offset were built into the fetch
@@ -637,12 +631,9 @@ EOT;
             {
                 $allchildren = array_slice( $allchildren, 0, (int)$additional["limit"] );
             }
-            else if( isset($additional["limit"]) && 0 == $additional["limit"] )
-            {
-                $allchildren = array();
-            }
         }
-        eep::displayNodeList( $allchildren, $title );
+        eep::displayNonObjectList( $allchildren, $title );
+        //eep::displayNodeList( $allchildren, $title );
     }
 
     //--------------------------------------------------------------------------
