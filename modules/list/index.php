@@ -97,7 +97,7 @@ siteaccesses
 
 subtree
 - list all the nodes in a subtree
-  supports --limit=<number> and --offset=<number>
+  supports --limit=<number> --offset=<number> and --truncate=<number>
   eep use ezroot <path>
   eep use contentnode <node id>
   eep list subtree
@@ -547,6 +547,15 @@ EOT;
             throw new Exception( "This is not an node id: [" .$subtreeNodeId. "]" );
         }
 
+        $truncate = 0;
+        if( isset( $additional[ "truncate" ] ) )
+        {
+            if( 0 < $additional[ "truncate" ]  )
+            {
+                $truncate = $additional[ "truncate" ];
+            }
+        }
+
         if( isset($additional["limit"]) && 0 == $additional["limit"] )
         {
             $allchildren = array();
@@ -680,19 +689,26 @@ EOT;
             //for some reason sometimes the $db returns null rows
             if( !$result )continue;
 
-            $evalPathIdentString = substr( $result[ "path_identification_string" ], strrpos( $result[ "path_identification_string" ], "/" ) );
-            if( strlen($evalPathIdentString) > 30 )
+            $pathString = $result[ "path_string" ];
+            $pathIdentificationString = $result[ "path_identification_string" ];
+            if( $truncate > 0 )
             {
-                $evalPathIdentString = substr($evalPathIdentString, 0, 30);
-                $evalPathIdentString = $evalPathIdentString."[...]";
+                if( strlen($pathString) > $truncate )
+                {
+                    $pathString = "...".substr( $pathString, strlen( $pathString ) - $truncate );
+                }
+                if( strlen($pathIdentificationString) > $truncate )
+                {
+                    $pathIdentificationString = "...".substr( $pathIdentificationString, strlen( $pathIdentificationString ) - $truncate );
+                }
             }
 
             array_push($allchildren, array(
                 "node_id"               => $result[ "node_id" ]
                 , "contentobject_id"    => $result[ "contentobject_id" ]
                 , "class_identifier"    => $result[ "class_identifier" ]
-                , "path_identification_string" => $evalPathIdentString
-                , "path_string"         => $result[ "path_string" ]
+                , "path_identification_string" => $pathIdentificationString
+                , "path_string"         => $pathString
                 , "hidden_invisible"    => $result[ "is_hidden" ]."/".$result[ "is_invisible" ]
                 , "remote_id"           => $result[ "remote_id" ]
             ));
