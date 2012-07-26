@@ -33,6 +33,7 @@ class list_commands
     const list_siteaccesses         = "siteaccesses";
     const list_allinifiles          = "allinifiles";
     const list_subtree              = "subtree";
+    const list_subtreeordered       = "subtreeordered";
     const list_extensions           = "extensions";
 
     //--------------------------------------------------------------------------
@@ -47,6 +48,7 @@ class list_commands
         , self::list_allinifiles
         , self::list_siteaccesses
         , self::list_subtree
+        , self::list_subtreeordered
     );
     var $help = "";                     // used to dump the help string
 
@@ -102,12 +104,23 @@ siteaccesses
 
 subtree
 - list all the nodes in a subtree
-  supports --order=[breadthfirst|depthfirst] --limit=<number> and --offset=<number>
+  supports --limit=<number> --offset=<number> and --truncate=<number>
   eep use ezroot <path>
   eep use contentnode <node id>
   eep list subtree
   or
   eep list subtree <node id>
+
+subtreeordered
+- like "list subtree" but works on more nodes and uses depthfirst(postfix) and breadthfirst displays
+- supports --order=<[depthfirst|breadthfirst]> --limit=<number> and --offset=<number>
+- please note: here the limit is on display not on the fetch, may not work correctly on more than 30000 nodes
+  eep use ezroot <path>
+  eep use contentnode <node id>
+  eep list subtreeordered
+  or
+  eep list subtreeordered <node id>
+
 EOT;
     }
 
@@ -525,7 +538,6 @@ EOT;
         eep::printTable( $results, "list ini files" );
     }
 
-    //--------------------------------------------------------------------------
     private function listSubtree( $subtreeNodeId, $additional )
     {
         $title = "All nodes in subtree [" .$subtreeNodeId. "]";
@@ -538,11 +550,7 @@ EOT;
         {
             if( 0 != $additional["limit"] )
             {
-                //for breadthfirst search, just get everything and limit it on display
-                if( !isset( $additional["order"] ) || strcmp( $additional["order"], "breadthfirst" ) )
-                {
-                    $params[ "Limit" ] = $additional["limit"];
-                }
+                $params[ "Limit" ] = $additional["limit"];
                 $title .= " (Limit=" . $params[ "Limit" ] . ")";
             }
         }
@@ -554,55 +562,233 @@ EOT;
         }
 
         if( !eepValidate::validateContentNodeId( $subtreeNodeId ) )
+            throw new Exception( "This is not an node id: [" .$subtreeNodeId. "]" );
+
+        $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
+        eep::displayNodeList( $allchildren, $title );
+    }
+
+    //--------------------------------------------------------------------------
+    private function listSubtreeOrdered( $subtreeNodeId, $additional )
+    {
+        $title = "All nodes in subtree [" .$subtreeNodeId. "]";
+
+        $params[ "Depth" ] = 0;
+        $params[ 'AsObject' ] = false;
+        $params[ "IgnoreVisibility" ] = true;
+        $params[ "Limitation" ] = array();
+
+        $titleRow = array(
+            "contentobject_id"      => "Object"
+            , "node_id"             => "Node"
+            , "class_identifier"    => "Class"
+            , "path_identification_string" => "Path identification string"
+            , "path_string"         => "Path string"
+            , "hidden_invisible"    => "H/I"
+            , "remote_id"           => "Remote ID"
+        );
+        if( !eepValidate::validateContentNodeId( $subtreeNodeId ) )
         {
             throw new Exception( "This is not an node id: [" .$subtreeNodeId. "]" );
         }
 
-        $allchildren = eZContentObjectTreeNode::subTreeByNodeID( $params, $subtreeNodeId );
+        $truncate = 0;
+        if( isset( $additional[ "truncate" ] ) )
+        {
+            if( 0 < $additional[ "truncate" ]  )
+            {
+                $truncate = $additional[ "truncate" ];
+            }
+        }
 
-        //compare function used when sorting the results
-        $cmp = function ($a, $b) {
-                    //debug => all function
-                    $aArray = explode("/", $a->PathString);
-                    $bArray = explode("/", $b->PathString);
-                    if ( count( $aArray  ) < count( $bArray  ) )
+        if( isset($additional["limit"]) && 0 == $additional["limit"] )
+        {
+            $allchildren = array();
+            //display first row (the title)
+            array_unshift($allchildren, $titleRow);
+            eep::printTable( $allchildren, $title );
+            return;
+        }
+
+        //compare function used when sorting the results for depthfirst output
+        $depthFirstSortCmp = function ( $a, $b )
+        {
+            $aArray = explode("/", $a[ "path_string" ]);
+            $bArray = explode("/", $b[ "path_string" ]);
+
+            //if a is a child of b (of any order)
+            if( strpos( $a[ "path_string" ], $b[ "path_string" ] ) !== false )
+            {
+                //then a > b and b is displayed first
+                return -1;
+            }
+            else if( strpos( $b[ "path_string" ], $a[ "path_string" ] ) !== false )
+            {
+                return 1;
+            }
+            //if we have the same # of elements, just ascending by numbers
+            else if( count($aArray) == count($bArray) )
+            {
+                for($i = 0; $i < count($aArray); $i++ )
+                {
+                    if( (int)$aArray[$i] < (int)$bArray[$i] )
                     {
                         return -1;
                     }
-                    else if( count( $aArray  ) > count( $bArray  ) )
+                    else if( (int)$aArray[$i] > (int)$bArray[$i] )
                     {
                         return 1;
                     }
-                    else
+                }
+            }
+            //if on different levels, dsplay in order of ascending common parents
+            else if( count($aArray) > count($bArray) )
+            {
+                for($i = 0; $i < count($bArray); $i++ )
+                {
+                    if( (int)$aArray[$i] < (int)$bArray[$i] )
                     {
-                        for($i = 0; $i < count($aArray); $i++ )
-                        {
-                            if( (int)$aArray[$i] < (int)$bArray[$i] )
-                            {
-                                return -1;
-                            }
-                            else if( (int)$aArray[$i] > (int)$bArray[$i] )
-                            {
-                                return 1;
-                            }
-                        }
+                        return -1;
                     }
-                    return 0;
+                    else if( (int)$aArray[$i] > (int)$bArray[$i] )
+                    {
+                        return 1;
+                    }
+                }
+            }
+            else if( count($aArray) < count($bArray) )
+            {
+                for($i = 0; $i < count($bArray); $i++ )
+                {
+                    if( (int)$aArray[$i] < (int)$bArray[$i] )
+                    {
+                        return -1;
+                    }
+                    else if( (int)$aArray[$i] > (int)$bArray[$i] )
+                    {
+                        return 1;
+                    }
+                }
+            }
+            return 0;
         };
 
-        //breadth first
-        if( isset( $additional["order"] ) && strcmp( $additional["order"], "breadthfirst" ) == 0 )
+        //compare function used when sorting the results for breadthfirst output
+        $breadthFirstSortCmp = function ($a, $b)
         {
-            if( !uasort( $allchildren, $cmp ) )
+            //debug => all function
+            $aArray = explode("/", $a[ "path_string" ]);
+            $bArray = explode("/", $b[ "path_string" ]);
+
+            if ( count( $aArray  ) < count( $bArray  ) )
+            {
+                return -1;
+            }
+            else if( count( $aArray  ) > count( $bArray  ) )
+            {
+                return 1;
+            }
+            else
+            {
+                for($i = 0; $i < count($aArray); $i++ )
+                {
+                    if( (int)$aArray[$i] < (int)$bArray[$i] )
+                    {
+                        return -1;
+                    }
+                    else if( (int)$aArray[$i] > (int)$bArray[$i] )
+                    {
+                        return 1;
+                    }
+                }
+            }
+            return 0;
+        };
+
+        $allchildren = array();
+
+        $rootNode = eZContentObjectTreeNode::fetch($subtreeNodeId, false, false);
+        //fetch nodes
+        $query = "SELECT DISTINCT
+                       ezcontentobject.contentclass_id,
+                       ezcontentobject_tree.node_id,
+                       ezcontentobject_tree.contentobject_id,
+                       ezcontentobject_tree.path_identification_string,
+                       ezcontentobject_tree.path_string,
+                       ezcontentobject_tree.is_hidden,
+                       ezcontentobject_tree.is_invisible,
+                       ezcontentobject_tree.remote_id,
+                       ezcontentclass.identifier as class_identifier
+                   FROM
+                      ezcontentobject_tree, ezcontentclass, ezcontentobject
+                   WHERE
+                       ezcontentobject_tree.path_string like '".$rootNode[ "path_string" ]."%'
+                       and ezcontentclass.version=0
+                       and ezcontentclass.id = ezcontentobject.contentclass_id
+                       and ezcontentobject_tree.contentobject_id = ezcontentobject.id
+                 ORDER BY  path_string ASC";
+        $db = eZDB::instance();
+        $dbChildrenResults = $db->arrayQuery( $query, array() );
+        foreach($dbChildrenResults as $result)
+        {
+            //for some reason sometimes the $db returns null rows
+            if( !$result )continue;
+
+            $pathString = $result[ "path_string" ];
+            $pathIdentificationString = $result[ "path_identification_string" ];
+            if( $truncate > 0 )
+            {
+                if( strlen($pathString) > $truncate )
+                {
+                    $pathString = "...".substr( $pathString, strlen( $pathString ) - $truncate );
+                }
+                if( strlen($pathIdentificationString) > $truncate )
+                {
+                    $pathIdentificationString = "...".substr( $pathIdentificationString, strlen( $pathIdentificationString ) - $truncate );
+                }
+            }
+
+            array_push($allchildren, array(
+                "node_id"               => $result[ "node_id" ]
+                , "contentobject_id"    => $result[ "contentobject_id" ]
+                , "class_identifier"    => $result[ "class_identifier" ]
+                , "path_identification_string" => $pathIdentificationString
+                , "path_string"         => $pathString
+                , "hidden_invisible"    => $result[ "is_hidden" ]."/".$result[ "is_invisible" ]
+                , "remote_id"           => $result[ "remote_id" ]
+            ));
+        }
+        if( !isset( $additional[ "order"] ) || strcmp( $additional[ "order"], "depthfirst" ) == 0 )
+        {
+            if( !uasort( $allchildren, $depthFirstSortCmp ) )
             {
                 throw new Exception( "Internal error: couldn't sort array" );
             }
-            if( isset($additional["limit"]) && 0!= $additional["limit"] )
+        }
+        else
+        {
+            if( !uasort( $allchildren, $breadthFirstSortCmp ) )
             {
-                $allchildren = array_slice( $allchildren, 0, (int)$additional["limit"] );
+                throw new Exception( "Internal error: couldn't sort array" );
             }
         }
-        eep::displayNodeList( $allchildren, $title );
+
+        //display title first row
+        array_unshift( $allchildren, $titleRow  );
+        if( isset( $additional["offset"]) && 0!= $additional["offset"] )
+        {
+            //+1 for the title row
+            $allchildren = array_slice( $allchildren, $additional["offset"] + 1 );
+
+            //put the title back in
+            array_unshift( $allchildren, $titleRow );
+        }
+        if( isset( $additional["limit"]  ) && 0!= $additional["limit"] )
+        {
+            //+1 for the title row
+            $allchildren = array_slice( $allchildren, 0, (int)$additional["limit"] + 1 );
+        }
+        eep::printTable( $allchildren, $title );
     }
 
     //--------------------------------------------------------------------------
@@ -722,6 +908,15 @@ EOT;
                     $subtreeNodeId = $param1;
                 }
                 $this->listSubtree( $subtreeNodeId, $additional );
+                break;
+
+            case self::list_subtreeordered:
+                $subtreeNodeId = $eepCache->readFromCache( eepCache::use_key_contentnode );
+                if( $param1 )
+                {
+                    $subtreeNodeId = $param1;
+                }
+                $this->listSubtreeOrdered( $subtreeNodeId, $additional );
                 break;
 
             case self::list_extensions:
