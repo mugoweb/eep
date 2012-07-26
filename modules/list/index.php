@@ -159,7 +159,6 @@ EOT;
             );
         }
         eep::printTable( $results, "list content classes" );
-        //var_dump($classInstance);
     }
 
     private function listAllAttributes()
