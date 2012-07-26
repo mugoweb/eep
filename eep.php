@@ -111,6 +111,8 @@ else
 // operating on an ez instance, we have to loadup the ez context
 if( class_exists ( "eZScript", true ) )
 {
+    // this isn't init'd in 4.6, or maybe it's something to do with cluster, anyway, initing it here prevents an ugly warning
+    $GLOBALS['eZContentClassAttributeCacheListFull'] = null;
     $script = eZScript::instance
     (
         array
@@ -122,6 +124,7 @@ if( class_exists ( "eZScript", true ) )
         )
     );
     $script->initialize();
+    
 }
 
 // do the main piece of work according to the index.php file in the requested folder
