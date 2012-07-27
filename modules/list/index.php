@@ -112,7 +112,7 @@ subtree
   eep list subtree <node id>
 
 subtreeordered
-- like "list subtree" but works on more nodes and uses depthfirst(postfix) and breadthfirst displays
+- like "list subtree" but works on more nodes; can order results in depthfirst(postorder) or breadthfirst order
 - supports --order=<[depthfirst|breadthfirst]> --limit=<number> --offset=<number> and --truncate=<number>
 - please note: here the limit is on display not on the fetch, may not work correctly on more than 30000 nodes
   eep use ezroot <path>
@@ -577,6 +577,13 @@ EOT;
         $params[ "IgnoreVisibility" ] = true;
         $params[ "Limitation" ] = array();
 
+        $sortOrder="depthfirst";
+        if( isset( $additional[ "order"] ) && strcmp( $additional[ "order"], "breadthfirst" ) == 0 )
+        {
+            $sortOrder = "breadthfirst";
+        }
+        $title .= " ".$sortOrder;
+
         $titleRow = array(
             "contentobject_id"      => "Object"
             , "node_id"             => "Node"
@@ -594,17 +601,15 @@ EOT;
         $truncate = 0;
         if( isset( $additional[ "truncate" ] ) )
         {
-            if( 0 < $additional[ "truncate" ]  )
+            if( 0 < $additional[ "truncate" ] )
             {
+                $title .= " (Truncate=" . $additional[ "truncate" ] . ")";
                 $truncate = $additional[ "truncate" ];
-            }
-            else
-            {
-                $truncate  = 0;
             }
         }
         else
         {
+            $title .= " (Truncate=30)";
             $truncate = 30;
         }
 
@@ -617,7 +622,7 @@ EOT;
             return;
         }
 
-        //compare function used when sorting the results for depthfirst output
+        //compare function used when sorting the results for depthfirst (postorder) output
         $depthFirstSortCmp = function ( $a, $b )
         {
             $aArray = explode("/", $a[ "path_string" ]);
@@ -784,6 +789,7 @@ EOT;
         array_unshift( $allchildren, $titleRow  );
         if( isset( $additional["offset"]) && 0!= $additional["offset"] )
         {
+            $title .= " (Offset=" . $additional[ "offset" ] . ")";
             //+1 for the title row
             $allchildren = array_slice( $allchildren, $additional["offset"] + 1 );
 
@@ -792,6 +798,7 @@ EOT;
         }
         if( isset( $additional["limit"]  ) && 0!= $additional["limit"] )
         {
+            $title .= " (Limit=" . $additional[ "limit" ] . ")";
             //+1 for the title row
             $allchildren = array_slice( $allchildren, 0, (int)$additional["limit"] + 1 );
         }
