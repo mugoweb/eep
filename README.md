@@ -12,6 +12,12 @@ classes for future modifications:
     eep use ezroot .
     eep list contentclasses
 
+To create a new content object and fill it with random data:
+
+    eep use contentclass <class identifier>
+    eep use contentnode <parent node id>
+    eep create content anObject
+
 For help:
 
     eep help
@@ -42,7 +48,11 @@ Plug-and-play installation style:
 
 1. copy the eep repository to your server
 2. set a terminal path alias for the eep command
-3. enjoy
+3. for each ezpublish instance you want to use:
+
+    eep use ezroot .
+
+4. enjoy
 
 Author & Licensing
 ------------------
