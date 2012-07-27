@@ -12,7 +12,7 @@ classes for future modifications:
     eep use ezroot .
     eep list contentclasses
 
-For additional help:
+For help:
 
     eep help
     eep <module> help
@@ -46,9 +46,9 @@ Plug-and-play installation style:
 
 Author & Licensing
 ------------------
-author = "Mugo Web"
-copyright = "Copyright © 2012  Mugo Web"
-license = "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
+* Author = "Mugo Web"
+* Copyright = "Copyright © 2012  Mugo Web"
+* License = "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
 
 Contributing
 ------------
