@@ -6,11 +6,14 @@ EEP is a command line tool to support developers using ezpublish
 Usage
 -----
 
-To set the ezpublish instance used with eep and list some content classes for future modifications:
+To set the ezpublish instance used with eep and list some content
+classes for future modifications:
+
     eep use ezroot .
     eep list contentclasses
 
-For help:
+For additional help:
+
     eep help
     eep <module> help
     eep help <module>
