@@ -1,6 +1,0 @@
-"""EEP is a command line tool to support developers using ezpublish"""
-
-__author__ = "Mugo Web"
-__copyright__ = "Copyright © 2012  Mugo Web"
-__license__ = "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
-__version__ = "0.1"
