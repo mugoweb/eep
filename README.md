@@ -1,5 +1,5 @@
 EEP
-=============
+===
 
 EEP is a command line tool to support developers using ezpublish
 
