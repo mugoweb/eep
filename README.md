@@ -48,10 +48,7 @@ Plug-and-play installation style:
 
 1. copy the eep repository to your server
 2. set a terminal path alias for the eep command
-3. for each ezpublish instance you want to use:
-
-    eep use ezroot .
-
+3. execute "eep use ezroot ." for each ezpublish instance you want to use:
 4. enjoy
 
 Author & Licensing
