@@ -104,7 +104,7 @@ siteaccesses
 
 subtree
 - list all the nodes in a subtree
-  supports --limit=<number> --offset=<number> and --truncate=<number>
+  supports --limit=<number> --offset=<number>
   eep use ezroot <path>
   eep use contentnode <node id>
   eep list subtree
@@ -113,7 +113,7 @@ subtree
 
 subtreeordered
 - like "list subtree" but works on more nodes and uses depthfirst(postfix) and breadthfirst displays
-- supports --order=<[depthfirst|breadthfirst]> --limit=<number> and --offset=<number>
+- supports --order=<[depthfirst|breadthfirst]> --limit=<number> --offset=<number> and --truncate=<number>
 - please note: here the limit is on display not on the fetch, may not work correctly on more than 30000 nodes
   eep use ezroot <path>
   eep use contentnode <node id>
@@ -598,6 +598,14 @@ EOT;
             {
                 $truncate = $additional[ "truncate" ];
             }
+            else
+            {
+                $truncate  = 0;
+            }
+        }
+        else
+        {
+            $truncate = 30;
         }
 
         if( isset($additional["limit"]) && 0 == $additional["limit"] )
