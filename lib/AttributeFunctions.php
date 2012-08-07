@@ -346,14 +346,14 @@ $params['default_row_count'] = 0;
         }
         // remove the attribute from the class
         $attributes = $contentClass->fetchAttributes();
-    	foreach( $attributes as $index => $attribute )
-    	{
+        foreach( $attributes as $index => $attribute )
+        {
             if( $attribute->attribute( "identifier" ) == $attributeIdentifier )
             {
                 $attributes[ $index ]->removeThis();
                 break;
             }
-    	}
+        }
         echo "Done removing attribute.\n";
     }
     

@@ -51,11 +51,11 @@ EOT;
     {
         $engine = new eZSolr();
         $object = eZContentObject::fetch( $objectId );
-		if( $object )
-		{
-			$result = $engine->addObject( $object, false );
+        if( $object )
+        {
+            $result = $engine->addObject( $object, false );
             $engine->commit();
-		}
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -92,7 +92,7 @@ EOT;
         
         $query .= "rows=10";
         
-		$result = eZFunctionHandler::execute
+        $result = eZFunctionHandler::execute
         (
             'ezfind'
             , 'rawSolrRequest'
@@ -102,8 +102,8 @@ EOT;
                 , 'request' => $query
             )
         );
-	
-		var_dump($result);
+
+        var_dump($result);
     }
 
     //--------------------------------------------------------------------------
