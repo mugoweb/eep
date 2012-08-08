@@ -15,6 +15,13 @@ Command line completion:
 On linuxes you can set up bash completion (which is highly convenient) by:
 sudo ln -s /home/dfp/eep/bash_completion/eep /etc/bash_completion.d/eep
 
+Note that on CentOS, you might have to:
+sudo yum install bash-completion
+
+In order to insert the eep commandline completion script into the current bash
+session, you have to:
+. /etc/bash_completion
+
 Windows installation:
 ---------------------
 

@@ -5,7 +5,10 @@
 ##------------------------------------------------------------------------------
 _eepmodules()
 {
-    local cur=${COMP_WORDS[COMP_CWORD]}
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
     local modulepath=( "$( eep help | grep 'Modules path: ' | sed 's/Modules path: //' )" )
     COMPREPLY=( $( compgen -W "$(ls $modulepath)" -- $cur ) )
     return 0
@@ -14,8 +17,9 @@ _eepmodules()
 ##------------------------------------------------------------------------------
 _eep()
 {
-    local cur=${COMP_WORDS[COMP_CWORD]}
-    local prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
  
     if [[ 1 == "$COMP_CWORD" ]]; then
         _eepmodules
