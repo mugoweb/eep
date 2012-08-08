@@ -498,6 +498,13 @@ class eep
     }
 
     //--------------------------------------------------------------------------
+    static function convertTrim( $str )
+    {
+        $str = trim( $str );
+        return $str;
+    }
+
+    //--------------------------------------------------------------------------
     // this cleans many common forms of XML corruption, and ultimately forces
     // character encoding - this can render some remaining characters as
     // question marks, but many of those can be fixed too

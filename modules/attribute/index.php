@@ -62,7 +62,7 @@ tostring
 migrate
 - copies data from one attribute to another within a content class
 - todo, report available conversions
-  currently supported are "rot13" for testing and "time2integer"
+  currently supported are "rot13" for testing and "time2integer" and "trim"
   
   eep use ezroot <path>
   eep use contentclass <class identifier>
@@ -115,6 +115,10 @@ EOT;
             
             case "time2integer":
                 $conversionFunc = "convertTimeToInteger";
+                break;
+
+            case "trim":
+                $conversionFunc = "convertTrim";
                 break;
         }
         
