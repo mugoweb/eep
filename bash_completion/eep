@@ -2,7 +2,6 @@
 ##------------------------------------------------------------------------------
 _eep()
 {
-echo "run" >> ~/foo.txt
     COMPREPLY=()
     local cur prev
     local standardmodules
