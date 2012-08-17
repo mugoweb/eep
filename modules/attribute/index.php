@@ -66,13 +66,7 @@ tostring
 migrate
 - copies data from one attribute to another within a content class
 - todo, report available conversions
-<<<<<<< HEAD
-  currently supported are "rot13" for testing and "time2integer"
-
-=======
   currently supported are "rot13" for testing and "time2integer" and "trim"
-  
->>>>>>> origin
   eep use ezroot <path>
   eep use contentclass <class identifier>
   eep attribute migrate <src attribute> <conversion> <dest attribute>
