@@ -15,10 +15,13 @@ class eep
     {
         // calc column widths
         $widths = array();
-        foreach( $table as $row )
+        foreach( $table as $r => $row )
         {
             foreach( $row as $column => $part )
             {
+                // trim the value
+                $table[ $r ][ $column ] = trim( $part );
+                // and calc the widths
                 if( !isset( $widths[$column] ) )
                 {
                     $widths[ $column ] = strlen( $part );
@@ -495,6 +498,13 @@ class eep
             $integer = 0;
         }
         return $integer;
+    }
+
+    //--------------------------------------------------------------------------
+    static function convertTrim( $str )
+    {
+        $str = trim( $str );
+        return $str;
     }
 
     //--------------------------------------------------------------------------
