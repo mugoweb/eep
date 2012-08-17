@@ -38,7 +38,7 @@ bit         == 0 or 1
     </is_required>
     <is_searchable validation="bit">
         0
-    </is_searchable>    
+    </is_searchable>
     <is_information_collector validation="bit">
         0
     </is_information_collector>
@@ -51,13 +51,13 @@ bit         == 0 or 1
         null
     </content>
 
-    <additional_for_specific_datatype>    
+    <additional_for_specific_datatype>
         <ezboolean>
             <default_value>
                 0
             </default_value>
         </ezboolean>
-        
+
         <ezobjectrelation>
             <selection_type>
                 0
@@ -70,13 +70,13 @@ bit         == 0 or 1
                 0
             </default_selection_node>
         </ezobjectrelation>
-        
+
         <ezmatrix>
             <default_row_count>
                 3
             </default_row_count>
         </ezmatrix>
-    </additional_for_specific_datatype>    
+    </additional_for_specific_datatype>
 </newattribute>
 AttributeFunctions_XML;
 
@@ -84,7 +84,7 @@ class AttributeFunctions
 {
     public static $someLanguages = array("cat-ES","chi-CN","chi-HK","chi-TW","cro-HR","cze-CZ","dan-DK","dut-NL","ell-GR","eng-AU","eng-CA","eng-GB","eng-NZ","eng-US","esl-ES","esl-MX","fin-FI","fre-BE","fre-CA","fre-FR","ger-DE","heb-IL","hin-IN","hun-HU","ind-ID","ita-IT","jpn-JP","kor-KR","nno-NO","nor-NO","pol-PL","por-BR","por-MZ","por-PT","rus-RU","ser-SR","slk-SK","srp-RS","swe-SE","tur-TR","ukr-UA");
     public static $newAttributeXML = null;
-    
+
     //--------------------------------------------------------------------------
     function __construct()
     {
@@ -116,7 +116,7 @@ $params['default_row_count'] = 0;
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         if( !$contentClass )
             throw new Exception( "Failed to instantiate content class [" . $classIdentifier . "]" );
-        
+
         $classDataMap = $contentClass->attribute('data_map' );
         if( !isset( $classDataMap[ $parameters[ 'identifier' ] ] ) )
         {
@@ -140,8 +140,8 @@ $params['default_row_count'] = 0;
     //
     static function addAttributeToClass( $contentClass, $data )
     {
-        $classID = $contentClass->attribute( "id" );        
-        
+        $classID = $contentClass->attribute( "id" );
+
         // create new attribute
         $attributeCreationInfo = array
         (
@@ -152,13 +152,13 @@ $params['default_row_count'] = 0;
             , "is_searchable"               => $data[ "is_searchable" ]
             , "is_information_collector"    => $data[ "is_information_collector" ]
         );
-        
+
         $newAttribute = eZContentClassAttribute::create( $classID, $data[ "datatypestring" ], $attributeCreationInfo  );
         $dataType = $newAttribute->dataType();
         if( !$dataType )
         {
             throw new Exception( "Unknow datatype: [ " .$datatype. " ]" );
-        }        
+        }
         $dataType->initializeClassAttribute( $newAttribute );
         $newAttribute->store();
         AttributeFunctions::updateParameters( $newAttribute, $data );
@@ -188,9 +188,9 @@ $params['default_row_count'] = 0;
             $attribute->storeDefined();
         }
         $classAttributeID = $newAttribute->attribute( "id" );
-        
+
         echo  "\n\nAttribute with ID " .$classAttributeID . " added\n\n";
-        
+
         return $classAttributeID;
     }
 
@@ -201,7 +201,7 @@ $params['default_row_count'] = 0;
     static function updateParameters( $classAttribute, $params )
     {
         $content = $classAttribute->content();
-        
+
         switch( $classAttribute->DataTypeString )
         {
             case "ezboolean":
@@ -243,7 +243,7 @@ $params['default_row_count'] = 0;
                     $classAttribute->store();
                 }
                 break;
-            
+
             case "ezmatrix":
                 {
                     $matrix = new eZMatrixDefinition();
@@ -259,11 +259,11 @@ $params['default_row_count'] = 0;
                     $classAttribute->store();
                 }
                 break;
-                
+
             default:
         }
     }
-    
+
     /**
      * update all the objects with the new attribute info
      * todo; this might have to support processing in batches
@@ -286,7 +286,7 @@ $params['default_row_count'] = 0;
                 {
                     $translations = $objectVersion->translations( false );
                     $version = $objectVersion->attribute( "version" );
-                    $dataMap = $objectVersion->attribute( "data_map" );                
+                    $dataMap = $objectVersion->attribute( "data_map" );
                     if( $identifier && isset( $dataMap[ $identifier ] ) )
                     {
                        // Attribute already exists for this object version
@@ -313,7 +313,7 @@ $params['default_row_count'] = 0;
         }
         echo "\n";
     }
-    
+
     //--------------------------------------------------------------------------
     static function deleteAttribute( $classIdentifier, $attributeIdentifier )
     {
@@ -324,7 +324,7 @@ $params['default_row_count'] = 0;
         $classDataMap = $contentClass->attribute( "data_map" );
         if( !isset( $classDataMap[ $attributeIdentifier ] ) )
             throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $attributeIdentifier . "]" );
-           
+
         // remove the attribute from all the objects that have it
         $classAttribute = $classDataMap[ $attributeIdentifier ];
         $objectAttributeInstances = eZContentObjectAttribute::fetchSameClassAttributeIDList( $classAttribute->attribute( "id" ) );
@@ -356,17 +356,17 @@ $params['default_row_count'] = 0;
     	}
         echo "Done removing attribute.\n";
     }
-    
+
     //--------------------------------------------------------------------------
     static function listAttributes( $classIdentifier )
     {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         if( !$contentClass )
             throw new Exception( "This content class does not exist: [" . $classIdentifier . "]" );
-        
+
         $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
         $attributeList = eZContentClassAttribute::fetchListByClassID( $classId );
-        
+
         $results = array();
         $results[] = array
         (
@@ -398,7 +398,7 @@ $params['default_row_count'] = 0;
         }
         eep::printTable( $results, "list attributes of class: ".$classIdentifier );
     }
-    
+
     //--------------------------------------------------------------------------
     public static function fromString( $contentObjectId, $attributeIdentifier, $value )
     {
@@ -412,10 +412,10 @@ $params['default_row_count'] = 0;
         {
             throw new Exception( "This is not an attribute identifer [" .$attributeIdentifier. "] on content class '" . $contentObject->ClassIdentifier . "'"  );
         }
-        
+
         $dataMap[ $attributeIdentifier ]->FromString( $value );
         $dataMap[ $attributeIdentifier ]->store();
-        
+
         eep::republishObject( $contentObjectId );
     }
 
@@ -433,6 +433,86 @@ $params['default_row_count'] = 0;
             throw new Exception( "This is not an attribute identifer [" .$attributeIdentifier. "] on content class '" . $contentObject->ClassName . "'"  );
         }
         return $dataMap[ $attributeIdentifier ]->ToString();
+    }
+
+    //--------------------------------------------------------------------------
+    public static function setField( $classIdentifier, $attributeIdentifier, $fieldIdentifier, $fieldValue )
+    {
+        if( !isset( $fieldValue ) || $fieldValue == null)
+        {
+            $fieldValue = "";
+        }
+        $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
+
+        if( !$contentClass )
+            throw new Exception( "Failed to instantiate content class [" . $classIdentifier . "]" );
+
+        $classDataMap = $contentClass->attribute( "data_map" );
+
+        if( !isset( $classDataMap[ $attributeIdentifier ] ) )
+            throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $attributeIdentifier . "]" );
+
+        $previousvalue = $classDataMap[ $attributeIdentifier ]->attribute( $fieldIdentifier );
+        if( is_array( $previousvalue ) )
+        {
+            switch( $fieldIdentifier )
+            {
+                case "display_info":
+                    echo "Changing $fieldIdentifier is not currently supported";
+//                    $classAttribute->DisplayInfo = unserialize( $fieldValue );
+                    break;
+                case "nameList":
+                    echo "Changing $fieldIdentifier is not currently supported";
+                    break;
+                case "descriptionList":
+                    echo "Changing $fieldIdentifier is not currently supported";
+                    break;
+                default:
+                    echo "Changing $fieldIdentifier is not currently supported";
+                    return;
+            }
+//            $classAttribute->store( $fieldIdentifier );
+        }
+        else
+        {
+            $classAttribute = $classDataMap[ $attributeIdentifier ];
+            $classAttribute->setAttribute( $fieldIdentifier, $fieldValue );
+            $classAttribute->store( $fieldIdentifier );
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    public static function info( $classIdentifier, $attributeIdentifier, $fieldIdentifier, $fieldValue )
+    {
+        $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
+        if( !$contentClass )
+            throw new Exception( "Failed to instantiate content class [" . $classIdentifier . "]" );
+
+        $classDataMap = $contentClass->attribute( "data_map" );
+        if( !isset( $classDataMap[ $attributeIdentifier ] ) )
+            throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $attributeIdentifier . "]" );
+
+        $fieldList = $classDataMap[ $attributeIdentifier ]->attributes();
+
+        $results[] = array("Field Name", "Field Value", "Value Type" );
+        foreach($fieldList as $fieldName)
+        {
+            $value = $classDataMap[ $attributeIdentifier ]->attribute( $fieldName );
+            $type  = "string";
+            if( is_array( $value ) )
+            {
+                $value = serialize($value);
+                $type  = "Array";
+            }
+
+            $results[]=array(
+                        $fieldName
+                    ,   $value
+                    ,   $type
+                    );
+        }
+
+        eep::printTable( $results, "Class attribute fields");
     }
 }
 ?>

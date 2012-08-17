@@ -17,7 +17,9 @@ class attribute_commands
     const attribute_update          = "update";
     const attribute_fromstring      = "fromstring";
     const attribute_tostring        = "tostring";
-    
+    const attribute_setfield        = "setfield";
+    const attribute_info      = "info";
+
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -28,30 +30,32 @@ class attribute_commands
         , self::attribute_migrate
         , self::attribute_newattributexml
         , self::attribute_update
+        , self::attribute_setfield
+        , self::attribute_info
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 delete
 - deletes an attribute from class and objects
   eep use ezroot <path>
   eep use contentclass <class identifier>
   eep attribute delete <attribute identifier>
-  
+
 fromstring
 - calls FromString() on the attribute
   eep use contentobject  <object id>
   eep attribute fromstring <attribute identifier> <new value>
   or
   eep attribute fromstring <content object id> <attribute identifier> <new value>
-  
+
 tostring
 - calls ToString on the attribute
   eep use contentobject  <object id>
@@ -63,11 +67,11 @@ migrate
 - copies data from one attribute to another within a content class
 - todo, report available conversions
   currently supported are "rot13" for testing and "time2integer"
-  
+
   eep use ezroot <path>
   eep use contentclass <class identifier>
   eep attribute migrate <src attribute> <conversion> <dest attribute>
-                  
+
 newattributexml
 - dumps xml that can be edited and then imported
   eep attribute newattributexml
@@ -78,9 +82,21 @@ update
   eep use ezroot <path>
   eep use contentclass <class identifier>
   eep attribute update <path to newattributexml file>
+
+setfield
+- directly sets one of the attribute fields (e.g. data_int, data_text1 etc.)
+  eep use ezroot <path>
+  eep use contentclass <class identifier>
+  eep attribute setfield <attributename> <fieldname> <fieldvalue>
+
+info
+- displays all attribute fields (e.g. data_int, data_text1 etc.)
+  eep use ezroot <path>
+  eep use contentclass <class identifier>
+  eep attribute info <attributename> <fieldname>
 EOT;
     }
-    
+
     //--------------------------------------------------------------------------
     private function attribute_migrate( $classIdentifier, $srcAttribute, $conversion, $destAttribute )
     {
@@ -89,18 +105,18 @@ EOT;
             throw new Exception( "Failed to instantiate content class [" . $classIdentifier . "]" );
 
         $classDataMap = $contentClass->attribute( "data_map" );
-        
+
         if( !isset( $classDataMap[ $srcAttribute ] ) )
             throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $srcAttribute . "]" );
-        
+
         if( !isset( $classDataMap[ $destAttribute ] ) )
             throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $destAttribute . "]" );
 
         $classId = $contentClass->attribute( "id" );
-        
+
         $objects = eZContentObject::fetchSameClassList( $classId, false );
         $numObjects = count( $objects );
-        
+
         $conversionFunc = null;
         switch( $conversion )
         {
@@ -112,12 +128,12 @@ EOT;
             case "rot13";
                 $conversionFunc = "convertStringToRot13";
                 break;
-            
+
             case "time2integer":
                 $conversionFunc = "convertTimeToInteger";
                 break;
         }
-        
+
         foreach( $objects as $n => $object )
         {
             $object = eZContentObject::fetch( $object[ "id" ] );
@@ -129,7 +145,7 @@ EOT;
                 $dest = $dataMap[ $destAttribute ];
                 $dest->fromString( eep::$conversionFunc( $src->toString() ) );
                 $dest->store();
-                
+
                 // publish to get changes recognized, eg object title updated
                 eep::republishObject( $object->attribute( "id" ) );
             }
@@ -142,7 +158,7 @@ EOT;
         }
         echo "\n";
     }
-    
+
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
@@ -164,17 +180,17 @@ EOT;
                 echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::attribute_delete:
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 AttributeFunctions::deleteAttribute( $classIdentifier, $param1 );
                 break;
-            
+
             case self::attribute_newattributexml:
                 $attr = new AttributeFunctions();
                 echo $attr->newAttributeXML;
                 break;
-            
+
             case self::attribute_update:
                 $xml = file_get_contents( $param1 );
                 if( false === $xml )
@@ -185,7 +201,18 @@ EOT;
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 AttributeFunctions::updateAttribute( $classIdentifier, $parameters );
                 break;
-            
+
+            case self::attribute_setfield:
+                $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
+                AttributeFunctions::setField( $classIdentifier, $param1, $param2, $param3 );
+                break;
+
+            case self::attribute_info:
+                $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
+                AttributeFunctions::info( $classIdentifier, $param1, $param2);
+                break;
+
+
             case self::attribute_migrate:
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 $this->attribute_migrate( $classIdentifier, $param1, $param2, $param3 );
