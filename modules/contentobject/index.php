@@ -20,6 +20,7 @@ class contentobject_commands
     const contentobject_republish        = "republish";
     const contentobject_sitemapxml       = "sitemapxml";
     const contentobject_deleteversions   = "deleteversions";
+    const contentobject_fetchbyremoteid  = "fetchbyremoteid";
     
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -34,6 +35,7 @@ class contentobject_commands
         , self::contentobject_republish
         , self::contentobject_reverserelated
         , self::contentobject_sitemapxml
+        , self::contentobject_fetchbyremoteid
     );
     var $help = "";                     // used to dump the help string
     
@@ -90,6 +92,10 @@ info
   or
   eep contentobject info <object id>
 
+fetchbyremoteid
+  eep use ezroot <path>
+  eep contentobject fetchbyremoteid <remoteid>
+  
 republish
 - republishes an object
   eep use ezroot <path>
@@ -116,9 +122,9 @@ sitemapxml
   eep contentobject sitemapxml <object id> <domain> [<change frequency> [<priority>]]
 EOT;
     }
-    
+
     //--------------------------------------------------------------------------
-    private function fetchContentObjectFromId( $contentobjectId )
+    private function dumpContentObjectInfo( &$contentObject )
     {
         $keepers = array
         (
@@ -137,11 +143,9 @@ EOT;
         );
 
         $results[] = array( "key",      "value" );
-        
-        $contentobject = eZContentObject::fetch( $contentobjectId );
         foreach( $keepers as $key )
         {
-            $value = $contentobject->$key;
+            $value = $contentObject->$key;
             // fix false as empty string
             if( false === $value )
             {
@@ -155,9 +159,9 @@ EOT;
             $results[] = array( $key, $value );
         }
         // other values ...
-        $results[] = array( "MainNodeID", $contentobject->mainNodeID() );
+        $results[] = array( "MainNodeID", $contentObject->mainNodeID() );
         // additional locations, only show if there is more than the main node
-        $assignedNodes = $contentobject->attribute( 'assigned_nodes' );
+        $assignedNodes = $contentObject->attribute( 'assigned_nodes' );
         //var_dump( $assignedNodes );
         if( 0 < count($assignedNodes ) )
         {
@@ -169,7 +173,14 @@ EOT;
             }
         }
 
-        eep::printTable( $results, "contentobject id [" .$contentobjectId. "]" );
+        eep::printTable( $results, "contentobject id [" .$contentObject->ID. "]" );
+    }
+    
+    //--------------------------------------------------------------------------
+    private function fetchContentObjectFromId( $contentobjectId )
+    {
+        $contentobject = eZContentObject::fetch( $contentobjectId );
+        $this->dumpContentObjectInfo( $contentobject );
     }
 
     //--------------------------------------------------------------------------
@@ -373,6 +384,13 @@ EOT;
     }
     
     //--------------------------------------------------------------------------
+    private function fetchbyremoteid( $remoteId )
+    {
+        $contentObject = eZContentObject::fetchByRemoteID( $remoteId );
+        $this->dumpContentObjectInfo( $contentObject );
+    }
+    
+    //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
         $command = @$argv[2];
@@ -490,6 +508,10 @@ EOT;
                 if( !eepValidate::validateContentObjectId( $objectId ) )
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 $this->deleteversions( $objectId );
+                break;
+            
+            case self::contentobject_fetchbyremoteid:
+                $this->fetchbyremoteid( $param1 );
                 break;
         }
     }
