@@ -18,7 +18,8 @@ class attribute_commands
     const attribute_fromstring      = "fromstring";
     const attribute_tostring        = "tostring";
     const attribute_setfield        = "setfield";
-    const attribute_info      = "info";
+    const attribute_info            = "info";
+    const attribute_createalias     = "createalias";
 
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -32,6 +33,7 @@ class attribute_commands
         , self::attribute_update
         , self::attribute_setfield
         , self::attribute_info
+        , self::attribute_createalias
     );
     var $help = "";                     // used to dump the help string
 
@@ -93,6 +95,10 @@ info
   eep use ezroot <path>
   eep use contentclass <class identifier>
   eep attribute info <attributename> <fieldname>
+
+createalias
+- for an image attribute it creates a given alias manually
+  eep attribute createalias <content object id> <attribute identifier> <alias name>
 EOT;
     }
 
@@ -253,6 +259,12 @@ EOT;
                     $attributeIdentifier = $param1;
                 }
                 echo AttributeFunctions::toString( $contentObjectId, $attributeIdentifier ) . "\n";
+                break;
+            case self::attribute_createalias:
+                $contentObjectId        = $param1;
+                $attributeIdentifier    = $param2;
+                $aliasName              = $param3;
+                echo AttributeFunctions::createAlias( $contentObjectId, $attributeIdentifier, $aliasName ) . "\n";
                 break;
         }
     }

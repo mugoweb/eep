@@ -436,6 +436,25 @@ $params['default_row_count'] = 0;
     }
 
     //--------------------------------------------------------------------------
+    public static function createAlias( $contentObjectId, $attributeIdentifier, $aliasName )
+    {
+        $contentObject = eZContentObject::fetch( $contentObjectId );
+        if( !is_object( $contentObject ) )
+        {
+            throw new Exception( "This is not an object id [" .$contentObjectId. "]" );
+        }
+        $dataMap = $contentObject->DataMap();
+        if( !isset( $dataMap[ $attributeIdentifier ] ) )
+        {
+            throw new Exception( "This is not an attribute identifer [" .$attributeIdentifier. "] on content class '" . $contentObject->ClassName . "'"  );
+        }
+        $imgAttribute       = $dataMap[ $attributeIdentifier ];
+        $imageAliasHandler = new eZImageAliasHandler( $imgAttribute );
+        $result = $imageAliasHandler->imageAlias( $aliasName );
+        return "Command executed successfully \n";
+    }
+
+    //--------------------------------------------------------------------------
     public static function setField( $classIdentifier, $attributeIdentifier, $fieldIdentifier, $fieldValue )
     {
         if( !isset( $fieldValue ) || $fieldValue == null)
