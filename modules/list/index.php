@@ -244,7 +244,7 @@ EOT;
         array_pop( $pathToParent );
         array_pop( $pathToParent );
         $pathToParent = implode( "/", $pathToParent ) . "/";
-        $title = $numberOfChildrenFetched." children of node: ".$parentNodeId." [".$pathToParent."]";
+        $title = $numberOfChildrenFetched." children of node: ".$parentNodeId." [".$pathToParent."] [" .$parentNode->Name. "]";
 
         eep::displayNodeList( $children, $title );
     }
