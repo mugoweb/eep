@@ -315,6 +315,7 @@ class eep
             , "Cont"
             , "H/I"
             , "RR"
+            , "P"
             , "Name"
         );
         foreach( $list as $objectNode )
@@ -331,6 +332,7 @@ class eep
                 , $objectNode->classIsContainer()
                 , $objectNode->IsHidden ."/". $objectNode->IsInvisible
                 , eep::fastRelatedObjectCount( $objectNode->ContentObjectID, $objectNode->ContentObjectVersion, eep::NOATTRIBUTE, eep::REVRELATED, array( "IgnoreVisibility"=>true, "AllRelations"=>true) )
+                , $objectNode->Priority
                 , (strlen($objectNode->Name)>20)?substr($objectNode->Name,0,17)."...":$objectNode->Name
             );
         }
