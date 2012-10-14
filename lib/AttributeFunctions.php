@@ -501,7 +501,7 @@ $params['default_row_count'] = 0;
     }
 
     //--------------------------------------------------------------------------
-    public static function info( $classIdentifier, $attributeIdentifier, $fieldIdentifier, $fieldValue )
+    public static function info( $classIdentifier, $attributeIdentifier, $fieldIdentifier )
     {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         if( !$contentClass )

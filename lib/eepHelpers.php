@@ -19,16 +19,16 @@ class eep
         {
             foreach( $row as $column => $part )
             {
-                // trim the value
-                $table[ $r ][ $column ] = trim( $part );
-                // and calc the widths
+                // trim the value - suppress the warning if looking at an object
+                $table[ $r ][ $column ] = @trim( $part );
+                // and calc the widths - continue to suppress warnings
                 if( !isset( $widths[$column] ) )
                 {
-                    $widths[ $column ] = strlen( $part );
+                    $widths[ $column ] = @strlen( $part );
                 }
-                elseif( $widths[ $column ] < strlen( $part ) )
+                elseif( $widths[ $column ] < @strlen( $part ) )
                 {
-                    $widths[ $column ] = strlen( $part );
+                    $widths[ $column ] = @strlen( $part );
                 }
             }
         }
@@ -506,6 +506,13 @@ class eep
     static function convertTrim( $str )
     {
         $str = trim( $str );
+        return $str;
+    }
+    
+    //--------------------------------------------------------------------------
+    static function dateToTS( $str )
+    {
+        $str = strtotime( $str );
         return $str;
     }
 
