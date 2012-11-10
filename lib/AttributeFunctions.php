@@ -157,7 +157,7 @@ $params['default_row_count'] = 0;
         $dataType = $newAttribute->dataType();
         if( !$dataType )
         {
-            throw new Exception( "Unknow datatype: [ " .$datatype. " ]" );
+            throw new Exception( "Unknown datatype: [ " .$datatype. " ]" );
         }
         $dataType->initializeClassAttribute( $newAttribute );
         $newAttribute->store();
@@ -205,7 +205,7 @@ $params['default_row_count'] = 0;
         switch( $classAttribute->DataTypeString )
         {
             case "ezboolean":
-                if( $params[ "default_value" ] !== false  )
+                if( isset( $params[ "default_value" ] ) && $params[ "default_value" ] !== false  )
                 {
                     $classAttribute->setAttribute( "data_int3", $params[ "default_value" ] );
                 }
