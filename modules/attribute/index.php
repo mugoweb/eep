@@ -265,6 +265,7 @@ EOT;
                 }
                 echo AttributeFunctions::toString( $contentObjectId, $attributeIdentifier ) . "\n";
                 break;
+            
             case self::attribute_createalias:
                 $contentObjectId        = $param1;
                 $attributeIdentifier    = $param2;
