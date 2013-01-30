@@ -346,8 +346,13 @@ EOT;
     //--------------------------------------------------------------------------
     private function move( $nodeId, $parentNodeId )
     {
-        $node = eZContentObjectTreeNode::fetch( $nodeId );
-        $node->move( $parentNodeId );
+        if( !eepValidate::validateContentNodeId( $nodeId ) )
+            throw new Exception( "This is not an node id: [" .$nodeId. "]" );
+
+        if( !eepValidate::validateContentNodeId( $parentNodeId ) )
+            throw new Exception( "This is not an node id: [" .$parentNodeId. "]" );
+
+        eZContentObjectTreeNodeOperations::move( $nodeId, $parentNodeId );
     }
 
     //--------------------------------------------------------------------------
