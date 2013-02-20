@@ -208,7 +208,7 @@ EOT;
             );
         }
 
-        eep::printTable( $results, "list content classes" );
+        eep::printTable( $results, "list all attributes" );
     }
 
     //--------------------------------------------------------------------------
