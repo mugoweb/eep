@@ -22,10 +22,10 @@ _eep()
                       | sed 's/Available keys:: //' | sed 's/, / /g')" -- $cur ) )
         else
             COMPREPLY=( $( compgen -W "$(eep help $prev | grep 'Available commands:: ' \
-                      | sed 's/Available commands:: //' | sed 's/, / /g')" -- $cur ) )
+                      | sed 's/Available commands:: help//' | sed 's/, / /g')" -- $cur ) )
         fi 
     fi
 }
 
 ##------------------------------------------------------------------------------
-complete -F _eep eep
+complete -o default -o bashdefault -o nospace -F _eep eep
