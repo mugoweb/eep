@@ -1,4 +1,3 @@
-
 Linux installation:
 -------------------
 
@@ -8,6 +7,7 @@ Linux installation:
 su
 cd /usr/bin
 ln -s -T /home/dfp/eep/eep.php eep
+4/ edit eepSetting.php to update the path to the cache file to somewhere that is writable on your system, like /var/tmp/
 
 Command line completion:
 ------------------------
