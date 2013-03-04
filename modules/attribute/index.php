@@ -47,54 +47,37 @@ class attribute_commands
 $this->help = <<<EOT
 delete
 - deletes an attribute from class and objects
-  eep use ezroot <path>
-  eep use contentclass <class identifier>
-  eep attribute delete <attribute identifier>
+  eep attribute delete <class identifier> <attribute identifier>
 
 fromstring
 - calls FromString() on the attribute
-  eep use contentobject  <object id>
-  eep attribute fromstring <attribute identifier> <new value>
-  or
   eep attribute fromstring <content object id> <attribute identifier> <new value>
 
 tostring
 - calls ToString on the attribute
-  eep use contentobject  <object id>
-  eep attribute tostring <attribute identifier>
-  or
   eep attribute tostring <content object id> <attribute identifier>
 
 migrate
 - copies data from one attribute to another within a content class
 - todo, report available conversions
-  currently supported are "rot13" for testing and "time2integer" and "trim"
-    and "date2ts"
-  eep use ezroot <path>
-  eep use contentclass <class identifier>
-  eep attribute migrate <src attribute> <conversion> <dest attribute>
+- currently supported are "rot13" for testing and "time2integer" and "trim" and "date2ts"
+  eep attribute migrate <class identifier> <src attribute> <conversion> <dest attribute>
 
 newattributexml
 - dumps xml that can be edited and then imported
   eep attribute newattributexml
 
 update
-- updates objects with new attribute and also the class; will resume after a
-  partial update.
-  eep use ezroot <path>
+- updates objects with new attribute and also the class; will resume after a partial update.
   eep attribute update <class identifier> <path to newattributexml file>
 
 setfield
 - directly sets one of the attribute fields (e.g. data_int, data_text1 etc.)
-  eep use ezroot <path>
-  eep use contentclass <class identifier>
-  eep attribute setfield <attributename> <fieldname> <fieldvalue>
+  eep attribute setfield <class identifier> <attributename> <fieldname> <fieldvalue>
 
 info
 - displays all attribute fields (e.g. data_int, data_text1 etc.)
-  eep use ezroot <path>
-  eep use contentclass <class identifier>
-  eep attribute info <attributename> <fieldname>
+  eep attribute info <class identifier> <attributename> <fieldname>
 
 createalias
 - for an image attribute it creates a given alias manually
@@ -195,9 +178,9 @@ EOT;
                 break;
 
             case self::attribute_delete:
-                // todo, remove this use of eepCache::use_key_contentclass -- this model is irritating
-                $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
-                AttributeFunctions::deleteAttribute( $classIdentifier, $param1 );
+                $classIdentifier = $param1;
+                $attributeIdentifier = $param2;
+                AttributeFunctions::deleteAttribute( $classIdentifier, $attributeIdentifier );
                 break;
 
             case self::attribute_newattributexml:
@@ -224,61 +207,46 @@ EOT;
                 break;
 
             case self::attribute_setfield:
-                // todo, remove this use of eepCache::use_key_contentclass -- this model is irritating
-                $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
-                AttributeFunctions::setField( $classIdentifier, $param1, $param2, $param3 );
+                $classIdentifier = $param1;
+                $attributeIdentifier = $param2;
+                $fieldIdentifier = $param3;
+                $fieldValue = $param3;
+                AttributeFunctions::setField( $classIdentifier, $attributeIdentifier, $fieldIdentifier, $fieldValue );
                 break;
 
             case self::attribute_info:
-                // todo, remove this use of eepCache::use_key_contentclass -- this model is irritating
-                $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
-                AttributeFunctions::info( $classIdentifier, $param1, $param2);
+                $classIdentifier = $param1;
+                $attributeIdentifier = $param2;
+                $fieldIdentifier = $param3;
+                AttributeFunctions::info( $classIdentifier, $attributeIdentifier, $fieldIdentifier );
                 break;
 
             case self::attribute_migrate:
-                // todo, remove this use of eepCache::use_key_contentclass -- this model is irritating
+                $classIdentifier = $param1;
+                $srcAttribute = $param2;
+                $conversion = $param3;
+                $destAttribute = $param4;
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
-                $this->attribute_migrate( $classIdentifier, $param1, $param2, $param3 );
+                $this->attribute_migrate( $classIdentifier, $srcAttribute, $conversion, $destAttribute );
                 break;
 
             case self::attribute_fromstring:
-                if( $param1 == (integer )$param1 )
-                {
-                    // using all-in-one version
-                    $contentObjectId = $param1;
-                    $attributeIdentifier = $param2;
-                    $newValue = $param3;
-                }
-                else
-                {
-                    // using previously set object id
-                    $contentObjectId = $eepCache->readFromCache( eepCache::use_key_object );
-                    $attributeIdentifier = $param1;
-                    $newValue = $param2;
-                }
+                $contentObjectId = $param1;
+                $attributeIdentifier = $param2;
+                $newValue = $param3;
                 AttributeFunctions::fromString( $contentObjectId, $attributeIdentifier, $newValue );
                 break;
 
             case self::attribute_tostring:
-                if( $param1 == (integer )$param1 )
-                {
-                    // using all-in-one version
-                    $contentObjectId = $param1;
-                    $attributeIdentifier = $param2;
-                }
-                else
-                {
-                    // using previously set object id
-                    $contentObjectId = $eepCache->readFromCache( eepCache::use_key_object );
-                    $attributeIdentifier = $param1;
-                }
+                $contentObjectId = $param1;
+                $attributeIdentifier = $param2;
                 echo AttributeFunctions::toString( $contentObjectId, $attributeIdentifier ) . "\n";
                 break;
             
             case self::attribute_createalias:
-                $contentObjectId        = $param1;
-                $attributeIdentifier    = $param2;
-                $aliasName              = $param3;
+                $contentObjectId = $param1;
+                $attributeIdentifier = $param2;
+                $aliasName = $param3;
                 echo AttributeFunctions::createAlias( $contentObjectId, $attributeIdentifier, $aliasName ) . "\n";
                 break;
         }
