@@ -152,7 +152,10 @@ class AttributeFunctions
         $attributeCreationInfo = array
         (
             "identifier"                    => $xmlValues[ "identifier" ]
-            , "serialized_name_list"        => serialize( array( $xmlValues[ "language" ] => $xmlValues[ "display_name" ], $xmlValues[ "language" ] ) ) 
+            , "serialized_name_list"        => serialize( array(
+                                                            $xmlValues[ "language" ]    => $xmlValues[ "display_name" ]
+                                                            , "always-available"        => $xmlValues[ "language" ]
+                                                        ) ) 
             , "can_translate"               => $xmlValues[ "can_translate" ]
             , "is_required"                 => $xmlValues[ "is_required" ]
             , "is_searchable"               => $xmlValues[ "is_searchable" ]
@@ -226,7 +229,7 @@ class AttributeFunctions
                     for( $m=0; $m<$numberOfOptions; $m+=1 )
                     {
                         $optionNode = $optionsNode->childNodes->item( $m );
-                        echo "child value:" . trim( $optionNode->nodeValue ) . "\n";
+                        //echo "child value:" . trim( $optionNode->nodeValue ) . "\n";
                         $eZOptionNode = $doc->createElement( "option" );
                         $eZOptionNode->setAttribute( 'id', $m );
                         $eZOptionNode->setAttribute( 'name', trim( $optionNode->nodeValue ) );
