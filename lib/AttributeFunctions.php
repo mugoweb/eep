@@ -11,51 +11,56 @@ Version 3, 29 June 2007
 
 $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-Validation:
-identifier  == lowercase letters and underscore
-display     == letters, numbers, simple special chars
-bit         == 0 or 1
--->
 <newattribute>
-    <identifier required="required" validation="identifier">
+    <identifier>
         parrot_says
     </identifier>
-    <displayname required="required" validation="display">
+    <displayname>
         Who's a pretty polly?
     </displayname>
-    <!-- ezstring ezobjectrelationlist -->
-    <!-- see content.ini for list of avilable types -->
-    <datatypestring required="required" validation="identifier">
+    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection -->
+    <!-- see content.ini for full list of avilable types -->
+    <datatypestring>
         ezstring
     </datatypestring>
-    <!-- eng-GB eng-CA eng-US -->
-    <language required="required" validation="language">
+    <!-- some examples: eng-GB eng-CA eng-US -->
+    <language>
         eng-CA
     </language>
-    <is_required validation="bit">
+    <is_required>
         0
     </is_required>
-    <is_searchable validation="bit">
+    <is_searchable>
         0
     </is_searchable>
-    <is_information_collector validation="bit">
+    <is_information_collector>
         0
     </is_information_collector>
-    <can_translate validation="bit">
+    <can_translate>
         0
     </can_translate>
 
-    <!-- unclear just what this is -->
-    <content required="nullable">
-        null
-    </content>
+    <!-- "eep-no-content" is recognized to mean "no content" -->
+    <content>eep-no-content</content>
 
     <additional_for_specific_datatype>
-        <ezboolean>
-            <default_value>
+        <ezselection>
+            <is_multi_select>
                 0
-            </default_value>
+            </is_multi_select>
+            <options>
+                <option>Class</option>
+                <option>Order</option>
+                <option>Family</option>
+                <option>Subfamily</option>
+                <option>Genus</option>
+                <option>Species</option>
+                <option>IncertaeSedis</option>
+            </options>
+        </ezselection>
+        
+        <ezboolean>
+            <default_value>eep-no-content</default_value>
         </ezboolean>
 
         <ezobjectrelation>
@@ -65,17 +70,19 @@ bit         == 0 or 1
             <fuzzy_match>
                 false
             </fuzzy_match>
+            <!-- node id, url path, or "eep-no-content" -->
             <default_selection_node>
-                <!-- integer, 0 means "not set" -->
-                0
+                eep-no-content
             </default_selection_node>
         </ezobjectrelation>
 
+        <!-- not fully supported
         <ezmatrix>
             <default_row_count>
                 3
             </default_row_count>
         </ezmatrix>
+        -->
     </additional_for_specific_datatype>
 </newattribute>
 AttributeFunctions_XML;
@@ -92,45 +99,30 @@ class AttributeFunctions
         $this->newAttributeXML = $AttributeFunctions_newAttributeXML;
     }
 
-
-/*
-
-todo, add these to the xml and confirm that they are interpreted correctly upon
-attribute creation
-
-// ezmatrix specific values
-$params['matrix'] = array();
-$params['matrix']['type'] = 'Type';
-$params['matrix']['path'] = 'Path';
-$params['matrix']['title'] = 'Title';
-$params['matrix']['site_name'] = 'Site Name';
-$params['default_row_count'] = 0;
-
-
-*/
-
     //--------------------------------------------------------------------------
-    // this is the entry point for creating a new attribute
-    static public function updateAttribute( $classIdentifier, $parameters )
+    // this is the entry point for creating a new attribute    
+    static public function updateAttribute( $classIdentifier, $newAttributeXPath )
     {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         if( !$contentClass )
             throw new Exception( "Failed to instantiate content class [" . $classIdentifier . "]" );
 
+        $newAttributeIdentifier = trim( $newAttributeXPath->query( "//newattribute/identifier" )->item( 0 )->nodeValue );
+
         $classDataMap = $contentClass->attribute('data_map' );
-        if( !isset( $classDataMap[ $parameters[ 'identifier' ] ] ) )
+        if( !isset( $classDataMap[ $newAttributeIdentifier ] ) )
         {
             // attribute is not set in the class, so add it to the class
-            $classAttributeID = AttributeFunctions::addAttributeToClass( $contentClass, $parameters );
+            $classAttributeID = AttributeFunctions::addAttributeToClass( $contentClass, $newAttributeXPath );
             // update all the objects with the new attribute
-            AttributeFunctions::updateContentObjectAttributes( $contentClass, $classAttributeID, $parameters[ 'identifier' ] );
+            AttributeFunctions::updateContentObjectAttributes( $contentClass, $classAttributeID, $newAttributeIdentifier );
         }
         else
         {
             // in case we're repairing an attribute that was added in the ui and
             // timed out before all the objects were updated
-            $classAttributeID = $classDataMap[ $parameters[ 'identifier' ] ]->attribute( 'id' );
-            AttributeFunctions::updateContentObjectAttributes( $contentClass, $classAttributeID, $parameters[ 'identifier' ] );
+            $classAttributeID = $classDataMap[ $newAttributeIdentifier ]->attribute( 'id' );
+            AttributeFunctions::updateContentObjectAttributes( $contentClass, $classAttributeID, $newAttributeIdentifier );
         }
     }
 
@@ -138,22 +130,36 @@ $params['default_row_count'] = 0;
     // note that $contentClass is the return from:
     // $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
     //
-    static function addAttributeToClass( $contentClass, $data )
+    static function addAttributeToClass( $contentClass, $newAttributeXPath )
     {
         $classID = $contentClass->attribute( "id" );
+        
+        // extracting from the xml, it's gross, but it's better than from an assoc array
+        $xmlValues = array
+        (
+            "identifier"                    => trim( $newAttributeXPath->query( "//newattribute/identifier" )->item( 0 )->nodeValue )
+            , "display_name"                => trim( $newAttributeXPath->query( "//newattribute/displayname" )->item( 0 )->nodeValue )
+            , "language"                    => trim( $newAttributeXPath->query( "//newattribute/language" )->item( 0 )->nodeValue )
+            , "can_translate"               => trim( $newAttributeXPath->query( "//newattribute/can_translate" )->item( 0 )->nodeValue )
+            , "is_required"                 => trim( $newAttributeXPath->query( "//newattribute/is_required" )->item( 0 )->nodeValue )
+            , "is_searchable"               => trim( $newAttributeXPath->query( "//newattribute/is_searchable" )->item( 0 )->nodeValue )
+            , "is_information_collector"    => trim( $newAttributeXPath->query( "//newattribute/is_information_collector" )->item( 0 )->nodeValue )
+            , "datatypestring"              => trim( $newAttributeXPath->query( "//newattribute/datatypestring" )->item( 0 )->nodeValue )
+            , "content"                     => trim( $newAttributeXPath->query( "//newattribute/content" )->item( 0 )->nodeValue )
+        );
 
         // create new attribute
         $attributeCreationInfo = array
         (
-            "identifier"                    => $data[ "identifier" ]
-            , "serialized_name_list"        => serialize( array( $data[ "language" ] => $data[ "displayname" ], "always-available" => $data[ "language" ] ) )
-            , "can_translate"               => $data[ "can_translate" ]
-            , "is_required"                 => $data[ "is_required" ]
-            , "is_searchable"               => $data[ "is_searchable" ]
-            , "is_information_collector"    => $data[ "is_information_collector" ]
+            "identifier"                    => $xmlValues[ "identifier" ]
+            , "serialized_name_list"        => serialize( array( $xmlValues[ "language" ] => $xmlValues[ "display_name" ], $xmlValues[ "language" ] ) ) 
+            , "can_translate"               => $xmlValues[ "can_translate" ]
+            , "is_required"                 => $xmlValues[ "is_required" ]
+            , "is_searchable"               => $xmlValues[ "is_searchable" ]
+            , "is_information_collector"    => $xmlValues[ "is_information_collector" ]
         );
 
-        $newAttribute = eZContentClassAttribute::create( $classID, $data[ "datatypestring" ], $attributeCreationInfo  );
+        $newAttribute = eZContentClassAttribute::create( $classID, $xmlValues[ "datatypestring" ], $attributeCreationInfo  );
         $dataType = $newAttribute->dataType();
         if( !$dataType )
         {
@@ -161,12 +167,13 @@ $params['default_row_count'] = 0;
         }
         $dataType->initializeClassAttribute( $newAttribute );
         $newAttribute->store();
-        AttributeFunctions::updateParameters( $newAttribute, $data );
+        AttributeFunctions::updateParameters( $newAttribute, $newAttributeXPath );
         $newAttribute->sync();
 
-        if( $data[ "content" ] )
+        $content = $xmlValues[ "content" ];
+        if( "eep-no-content" != $content )
         {
-            $newAttribute->setContent( $data[ "content" ] );
+            $newAttribute->setContent( $content );
         }
 
         // store attribute, update placement, etc...
@@ -198,41 +205,85 @@ $params['default_row_count'] = 0;
     /*
      * Update optional attribute parameters like selection_type for objectrelations
      */
-    static function updateParameters( $classAttribute, $params )
+    static function updateParameters( $classAttribute, $newAttributeXPath )
     {
-        $content = $classAttribute->content();
-
         switch( $classAttribute->DataTypeString )
         {
-            case "ezboolean":
-                if( isset( $params[ "default_value" ] ) && $params[ "default_value" ] !== false  )
+            case "ezselection":
+                // ripped off from kernel/classes/datatypes/ezselection/ezselectiontype.php
+                // build the internal XML representation of the options list, first, build a new xml doc
+                $doc = new DOMDocument( '1.0', 'utf-8' );
+                $root = $doc->createElement( "ezselection" );
+                $doc->appendChild( $root );
+                $options = $doc->createElement( "options" );
+                $root->appendChild( $options );
+                // then loop through all the options specified in the new attribute xml and update the xml doc
+                $nodeList = $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezselection/options" );
+                $optionsNode = $nodeList->item( 0 );
+                $numberOfOptions = $optionsNode->childNodes->length;
+                if( 1 < $numberOfOptions )
                 {
-                    $classAttribute->setAttribute( "data_int3", $params[ "default_value" ] );
+                    for( $m=0; $m<$numberOfOptions; $m+=1 )
+                    {
+                        $optionNode = $optionsNode->childNodes->item( $m );
+                        echo "child value:" . trim( $optionNode->nodeValue ) . "\n";
+                        $eZOptionNode = $doc->createElement( "option" );
+                        $eZOptionNode->setAttribute( 'id', $m );
+                        $eZOptionNode->setAttribute( 'name', trim( $optionNode->nodeValue ) );
+                        $options->appendChild( $eZOptionNode );
+                    }
+                }
+                // save the options data
+                $eZXML = $doc->saveXML();
+                $classAttribute->setAttribute( "data_text5", $eZXML );
+                // set multi-select versus single selection
+                if( 0 == trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezselection/is_multi_select" )->item( 0 )->nodeValue ) )
+                {
+                    $classAttribute->setAttribute( "data_int1", 1 );
+                }
+                else
+                {
+                    $classAttribute->setAttribute( "data_int1", 0 );                
+                }
+                break;
+            
+            case "ezboolean":
+                $defaultValue = trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezboolean/default_value" )->item( 0 )->nodeValue );
+                if( "eep-no-content" != $defaultValue )
+                {
+                    $classAttribute->setAttribute( "data_int3", $defaultValue );
                 }
                 break;
 
             case "ezobjectrelation":
                 {
-                    $content[ "selection_type" ] = 0;
-                    if ( isset( $params[ "selection_type" ] ) )
-                    {
-                        $content[ "selection_type" ] = $params[ "selection_type" ];
-                    }
+                    $content = $classAttribute->content();
+                    // extract the xml
+                    $xmlValues = array
+                    (
+                        "selection_type"            => trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelation/selection_type" )->item( 0 )->nodeValue )
+                        , "fuzzy_match"             => trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelation/fuzzy_match" )->item( 0 )->nodeValue )
+                        , "default_selection_node"  => trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelation/default_selection_node" )->item( 0 )->nodeValue )
+                    );
+                    
+                    $content[ "selection_type" ] = $xmlValues[ "selection_type" ];
+                    
                     $content[ "fuzzy_match" ] = false;
-                    if ( isset( $params[ "fuzzy_match" ] ) )
+                    if( "false" != $xmlValues[ "fuzzy_match" ] )
                     {
-                        $content[ "fuzzy_match" ] = $params[ "fuzzy_match" ];
+                        $content[ "fuzzy_match" ] = true;
                     }
+                    
                     $content[ "default_selection_node" ] = false;
-                    if ( isset( $params[ "default_selection_node" ] ) )
+                    if( "eep-no-content" != $xmlValues[ "default_selection_node" ] )
                     {
-                        if( is_numeric( $params[ "default_selection_node" ] ) )
+                        if( is_numeric( $xmlValues[ "default_selection_node" ] ) )
                         {
-                            $content[ "default_selection_node" ] = $params[ "default_selection_node" ];
+                            $content[ "default_selection_node" ] = $xmlValues[ "default_selection_node" ];
                         }
                         else
                         {
-                            $node = eZContentObjectTreeNode::fetchByURLPath( $params[ "default_selection_node" ] );
+                            $node = eZContentObjectTreeNode::fetchByURLPath( $xmlValues[ "default_selection_node" ] );
                             if( $node )
                             {
                                 $content[ "default_selection_node" ] = $node->attribute( "node_id" );
@@ -245,6 +296,20 @@ $params['default_row_count'] = 0;
                 break;
 
             case "ezmatrix":
+                /*
+                todo, add these to the xml and confirm that they are interpreted correctly upon
+                attribute creation
+                
+                // ezmatrix specific values
+                $params['matrix'] = array();
+                $params['matrix']['type'] = 'Type';
+                $params['matrix']['path'] = 'Path';
+                $params['matrix']['title'] = 'Title';
+                $params['matrix']['site_name'] = 'Site Name';
+                $params['default_row_count'] = 0;
+                */
+                /*
+                note that $params is wrong, and has been replaced by the xpath data
                 {
                     $matrix = new eZMatrixDefinition();
                     if( !empty( $params[ "matrix" ] ) )
@@ -258,9 +323,11 @@ $params['default_row_count'] = 0;
                     $classAttribute->setAttribute( "data_int1", $params[ "default_row_count" ] );
                     $classAttribute->store();
                 }
+                */
                 break;
 
             default:
+                break;
         }
     }
 

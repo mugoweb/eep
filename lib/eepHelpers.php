@@ -77,7 +77,8 @@ class eep
     //   required
     //   validation
     // used to validate XML inputs to complex operations
-    static function extractParameters( $xml )
+    //static function extractParameters( $xml ) no longer used
+    /*
     {
         $params = array();
 
@@ -126,12 +127,14 @@ class eep
         }
         return $params;
     }
+    */
 
     //--------------------------------------------------------------------------
     // helper for extractParameters()
     // simply makes a check on the provided value against a rule associated with
     // the validationtype and returns a message if there is a problem
-    function attemptValidationOnParameter( $value, $validationType )
+    //function attemptValidationOnParameter( $value, $validationType ) no longer used
+    /*
     {
         switch( $validationType )
         {
@@ -161,6 +164,7 @@ class eep
         // signal that there are no problems
         return "";
     }
+    */
 
     //--------------------------------------------------------------------------
     static function getListOfAliases()

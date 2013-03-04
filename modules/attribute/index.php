@@ -80,10 +80,9 @@ newattributexml
 
 update
 - updates objects with new attribute and also the class; will resume after a
-  partial update
+  partial update.
   eep use ezroot <path>
-  eep use contentclass <class identifier>
-  eep attribute update <path to newattributexml file>
+  eep attribute update <class identifier> <path to newattributexml file>
 
 setfield
 - directly sets one of the attribute fields (e.g. data_int, data_text1 etc.)
@@ -196,6 +195,7 @@ EOT;
                 break;
 
             case self::attribute_delete:
+                // todo, remove this use of eepCache::use_key_contentclass -- this model is irritating
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 AttributeFunctions::deleteAttribute( $classIdentifier, $param1 );
                 break;
@@ -206,28 +206,37 @@ EOT;
                 break;
 
             case self::attribute_update:
-                $xml = file_get_contents( $param1 );
+                $classIdentifier = $param1;
+                $xml = file_get_contents( $param2 );
                 if( false === $xml )
                 {
-                    throw new Exception( "Failed to locate parameter xml file: '" . $param1 . "'" );
+                    throw new Exception( "Failed to locate parameter xml file: '" . $param2 . "'" );
                 }
-                $parameters = eep::extractParameters( $xml );
-                $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
-                AttributeFunctions::updateAttribute( $classIdentifier, $parameters );
+                $dom = new DOMDocument();
+                $dom->preserveWhiteSpace = false;
+                $loadResult = $dom->loadXML( $xml );
+                if( false === $loadResult )
+                {
+                    throw new Exception( "XML file '" . $param2 . "' does not contain valid XML" );
+                }
+                $xpath = new DOMXPath( $dom );
+                AttributeFunctions::updateAttribute( $classIdentifier, $xpath );
                 break;
 
             case self::attribute_setfield:
+                // todo, remove this use of eepCache::use_key_contentclass -- this model is irritating
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 AttributeFunctions::setField( $classIdentifier, $param1, $param2, $param3 );
                 break;
 
             case self::attribute_info:
+                // todo, remove this use of eepCache::use_key_contentclass -- this model is irritating
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 AttributeFunctions::info( $classIdentifier, $param1, $param2);
                 break;
 
-
             case self::attribute_migrate:
+                // todo, remove this use of eepCache::use_key_contentclass -- this model is irritating
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 $this->attribute_migrate( $classIdentifier, $param1, $param2, $param3 );
                 break;
