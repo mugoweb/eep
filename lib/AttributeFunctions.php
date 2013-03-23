@@ -204,7 +204,7 @@ class AttributeFunctions
         {
             $attribute->storeDefined();
         }
-        $classAttributeID = $newAttribute->attribute( "id" );eep at newattributexml | sed "s/additional_for_specific_datatype/twitter/"
+        $classAttributeID = $newAttribute->attribute( "id" );
 
         echo  "\n\nAttribute with ID " .$classAttributeID . " added\n\n";
 
