@@ -13,10 +13,10 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
 <?xml version="1.0" encoding="UTF-8"?>
 <newattribute>
     <identifier>
-        parrot_says
+        the_identifier
     </identifier>
     <displayname>
-        Who's a pretty polly?
+        Display Name
     </displayname>
     <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext -->
     <!-- see content.ini for full list of avilable types -->
@@ -204,7 +204,7 @@ class AttributeFunctions
         {
             $attribute->storeDefined();
         }
-        $classAttributeID = $newAttribute->attribute( "id" );
+        $classAttributeID = $newAttribute->attribute( "id" );eep at newattributexml | sed "s/additional_for_specific_datatype/twitter/"
 
         echo  "\n\nAttribute with ID " .$classAttributeID . " added\n\n";
 
