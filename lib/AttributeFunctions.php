@@ -18,27 +18,18 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
     <displayname>
         Display Name
     </displayname>
-    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext -->
+    
+    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext and probably others -->
     <!-- see content.ini for full list of avilable types -->
-    <datatypestring>
-        ezstring
-    </datatypestring>
+    <datatypestring>ezxmltext</datatypestring>
+    
     <!-- some examples: eng-GB eng-CA eng-US -->
-    <language>
-        eng-CA
-    </language>
-    <is_required>
-        0
-    </is_required>
-    <is_searchable>
-        0
-    </is_searchable>
-    <is_information_collector>
-        0
-    </is_information_collector>
-    <can_translate>
-        0
-    </can_translate>
+    <language>eng-CA</language>
+    
+    <is_required>0</is_required>
+    <is_searchable>1</is_searchable>
+    <is_information_collector>0</is_information_collector>
+    <can_translate>0</can_translate>
 
     <!-- "eep-no-content" is recognized to mean "no content" -->
     <content>eep-no-content</content>
@@ -61,9 +52,7 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
         
         <ezxmltext>
             <!-- numberoflines is capped at 30 by a sanity check in the code -->
-            <numberoflines>
-                10
-            </numberoflines>
+            <numberoflines>10</numberoflines>
         </ezxmltext>
         
         <ezboolean>
