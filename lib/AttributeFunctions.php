@@ -18,7 +18,7 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
     <displayname>
         Who's a pretty polly?
     </displayname>
-    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection -->
+    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext -->
     <!-- see content.ini for full list of avilable types -->
     <datatypestring>
         ezstring
@@ -58,6 +58,13 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
                 <option>IncertaeSedis</option>
             </options>
         </ezselection>
+        
+        <ezxmltext>
+            <!-- numberoflines is capped at 30 by a sanity check in the code -->
+            <numberoflines>
+                10
+            </numberoflines>
+        </ezxmltext>
         
         <ezboolean>
             <default_value>eep-no-content</default_value>
@@ -212,6 +219,19 @@ class AttributeFunctions
     {
         switch( $classAttribute->DataTypeString )
         {
+            case "ezxmltext":
+                $numberOfLines = (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezxmltext/numberoflines" )->item( 0 )->nodeValue );
+                if( $numberOfLines < 1 )
+                {
+                    $numberOfLines = 1;
+                }
+                elseif( $numberOfLines > 30 )
+                {
+                    $numberOfLines = 30;
+                }
+                $classAttribute->setAttribute( "data_int1", $numberOfLines );
+                break;
+            
             case "ezselection":
                 // ripped off from kernel/classes/datatypes/ezselection/ezselectiontype.php
                 // build the internal XML representation of the options list, first, build a new xml doc
