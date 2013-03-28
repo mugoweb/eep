@@ -475,6 +475,7 @@ EOT;
                 if( !eepValidate::validateContentObjectId( $objectId ) )
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 eep::republishObject( $objectId );
+                echo "republished " . $objectId . "\n";
                 break;
             
             case self::contentobject_clearcache:
