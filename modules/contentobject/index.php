@@ -294,11 +294,11 @@ EOT;
         $adminUserObject->logoutCurrent();
         if( $result )
         {
-            echo "Deleted ok\n";
+            echo "Deleted " . $objectId . "\n";
         }
         else
         {
-            echo "Failed to delete\n";
+            echo "Failed to delete " .$objectId. "\n";
         }
     }
     

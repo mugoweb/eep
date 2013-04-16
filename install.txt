@@ -19,8 +19,9 @@ Note that on CentOS, you might have to:
 sudo yum install bash-completion
 
 In order to insert the eep commandline completion script into the current bash
-session, you have to:
+session, you have to either:
 . /etc/bash_completion
+or start a new shell (like on CentOS)
 
 Windows installation:
 ---------------------

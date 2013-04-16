@@ -121,11 +121,11 @@ EOT;
         $info = eZContentObjectTreeNode::subtreeRemovalInformation( array($subtreeNodeId) );
         if( !$info[ "can_remove_all" ] )
         {
-            var_dump($info);
+            //var_dump($info);
             echo "Permission is denied for the '" . $subtreeName . "' subtree [nodeid=". $subtreeNodeId . "]\n";
             return false; // not that anyone is checking the return value ...
         }
-        */
+        //*/
 
         // do the removal
         $removeResult = eZContentObjectTreeNode::removeSubtrees( array($subtreeNodeId), false, false );

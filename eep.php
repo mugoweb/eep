@@ -15,6 +15,8 @@ Version 3, 29 June 2007
  *
  */
 
+mb_internal_encoding( "UTF-8" );
+
 $pathParts = pathinfo( __FILE__ );
 $eepPath = $pathParts["dirname"];
 

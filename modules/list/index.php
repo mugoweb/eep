@@ -536,6 +536,7 @@ EOT;
         eep::printTable( $results, "list ini files" );
     }
 
+    //--------------------------------------------------------------------------
     private function listSubtree( $subtreeNodeId, $additional )
     {
         $title = "All nodes in subtree [" .$subtreeNodeId. "]";
@@ -650,8 +651,8 @@ EOT;
             }
         }
         $rootNodeRow = array(
-                "node_id"               => $rootNode[ "node_id" ]
-                , "contentobject_id"    => $rootNode[ "contentobject_id" ]
+                "contentobject_id"      => $rootNode[ "contentobject_id" ]
+                , "node_id"             => $rootNode[ "node_id" ]
                 , "class_identifier"    => $rootNode[ "class_identifier" ]
                 , "path_identification_string" => $pathIdentificationString
                 , "path_string"         => $pathString
