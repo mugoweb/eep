@@ -162,6 +162,7 @@ EOT;
         $param1 = @$argv[3];
         $param2 = @$argv[4];
         $param3 = @$argv[5];
+        $param4 = @$argv[6];
 
         if( !in_array( $command, $this->availableCommands ) )
         {
@@ -210,7 +211,7 @@ EOT;
                 $classIdentifier = $param1;
                 $attributeIdentifier = $param2;
                 $fieldIdentifier = $param3;
-                $fieldValue = $param3;
+                $fieldValue = $param4;
                 AttributeFunctions::setField( $classIdentifier, $attributeIdentifier, $fieldIdentifier, $fieldValue );
                 break;
 
