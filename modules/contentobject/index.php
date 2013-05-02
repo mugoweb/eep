@@ -463,7 +463,7 @@ EOT;
                 }
                 if( !eepValidate::validateContentObjectId( $objectId ) )
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
-                echo $this->convertToNodeId( $objectId );
+                echo $this->convertToNodeId( $objectId ) . "\n";
                 break;
             
             case self::contentobject_republish:
