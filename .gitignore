@@ -1,0 +1,17 @@
+eep.komodoproject
+
+modules/amphib
+
+## biblio tools, symlinked
+modules/books/
+modules/onixdownload
+modules/oniximport
+lib/customcategory.php
+lib/onixbisaccodes.php
+lib/onixcontributor.php
+lib/onixlib.php
+lib/onixpublisher.php
+lib/onixseries.php
+lib/onixsettings.php
+lib/onixtitle.php
+lib/purchaselinks.php

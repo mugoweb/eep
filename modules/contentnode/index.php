@@ -18,6 +18,7 @@ class contentnode_commands
     const contentnode_find               = "find";
     const contentnode_deletesubtree      = "deletesubtree";
     const contentnode_move               = "move";
+    const contentnode_setsortorder       = "setsortorder";
     
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -30,6 +31,7 @@ class contentnode_commands
         , self::contentnode_info
         , self::contentnode_location
         , self::contentnode_move
+        , self::contentnode_setsortorder
     );
     var $help = "";                     // used to dump the help string
     
@@ -87,6 +89,27 @@ move
   eep contentnode move <new parent node id>
   or
   eep contentnode move <node id> <new parent node id>
+  
+setsortorder
+- set the sort order for children of this node
+- (you may have to republish the object to make the change visible)
+- the available orderings are:
+    PATH
+    PUBLISHED
+    MODIFIED
+    SECTION
+    DEPTH
+    CLASS_IDENTIFIER
+    CLASS_NAME
+    PRIORITY
+    NAME
+    MODIFIED_SUBNODE
+    NODE_ID
+    CONTENTOBJECT_ID
+- the available directions are:
+    DESC
+    ASC
+  eep contentnode setsortorder <node id> <sort ordering> <sort direction>
 EOT;
     }
 
@@ -100,7 +123,7 @@ EOT;
         }
         
         if( !eepValidate::validateContentNodeId( $subtreeNodeId ) )
-            throw new Exception( "This is not an node id: [" .$subtreeNodeId. "]" );
+            throw new Exception( "This is not a node id: [" .$subtreeNodeId. "]" );
             
         // need to operate in a privileged account
         $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
@@ -144,7 +167,7 @@ EOT;
     private function fetchNodeInfoFromId( $nodeId )
     {
         if( !eepValidate::validateContentNodeId( $nodeId ) )
-            throw new Exception( "This is not an node id: [" .$nodeId. "]" );
+            throw new Exception( "This is not a node id: [" .$nodeId. "]" );
         
         $keepers = array
         (
@@ -266,7 +289,7 @@ EOT;
             throw new Exception( "This content class does not exist: [" . $classIdentifier . "]" );
             
         if( !eepValidate::validateContentNodeId( $parentNodeId ) )
-            throw new Exception( "This is not an node id: [" .$parentNodeId. "]" );
+            throw new Exception( "This is not a node id: [" .$parentNodeId. "]" );
         
         $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
         $attributeList = eZContentClassAttribute::fetchListByClassID( $classId );
@@ -327,7 +350,7 @@ EOT;
             throw new Exception( "This is not an object id: [" .$objectId. "]" );
         
         if( !eepValidate::validateContentNodeId( $parentNodeId ) )
-            throw new Exception( "This is not an node id: [" .$parentNodeId. "]" );
+            throw new Exception( "This is not a node id: [" .$parentNodeId. "]" );
         
         $object = eZContentObject::fetch( $objectId );
         $object->addLocation( $parentNodeId );
@@ -347,10 +370,10 @@ EOT;
     private function move( $nodeId, $parentNodeId )
     {
         if( !eepValidate::validateContentNodeId( $nodeId ) )
-            throw new Exception( "This is not an node id: [" .$nodeId. "]" );
+            throw new Exception( "This is not a node id: [" .$nodeId. "]" );
 
         if( !eepValidate::validateContentNodeId( $parentNodeId ) )
-            throw new Exception( "This is not an node id: [" .$parentNodeId. "]" );
+            throw new Exception( "This is not a node id: [" .$parentNodeId. "]" );
 
         eZContentObjectTreeNodeOperations::move( $nodeId, $parentNodeId );
     }
@@ -387,7 +410,50 @@ EOT;
             foreach ( $objectIDList as $objectID )
                 eZContentCacheManager::clearContentCacheIfNeeded( $objectID );
         }
-
+    }
+    
+    //--------------------------------------------------------------------------
+    private function setSortOrder( $nodeId, $sortField, $sortOrder )
+    {
+        $availableSortFields = array
+        (
+            "PATH"                => eZContentObjectTreeNode::SORT_FIELD_PATH
+            , "PUBLISHED"           => eZContentObjectTreeNode::SORT_FIELD_PUBLISHED
+            , "MODIFIED"            => eZContentObjectTreeNode::SORT_FIELD_MODIFIED
+            , "SECTION"             => eZContentObjectTreeNode::SORT_FIELD_SECTION
+            , "DEPTH"               => eZContentObjectTreeNode::SORT_FIELD_DEPTH
+            , "CLASS_IDENTIFIER"    => eZContentObjectTreeNode::SORT_FIELD_CLASS_IDENTIFIER
+            , "CLASS_NAME"          => eZContentObjectTreeNode::SORT_FIELD_CLASS_NAME
+            , "PRIORITY"            => eZContentObjectTreeNode::SORT_FIELD_PRIORITY
+            , "NAME"                => eZContentObjectTreeNode::SORT_FIELD_NAME
+            , "MODIFIED_SUBNODE"    => eZContentObjectTreeNode::SORT_FIELD_MODIFIED_SUBNODE
+            , "NODE_ID"             => eZContentObjectTreeNode::SORT_FIELD_NODE_ID
+            , "CONTENTOBJECT_ID"    => eZContentObjectTreeNode::SORT_FIELD_CONTENTOBJECT_ID
+        );
+        
+        $availableSortDirections = array
+        (
+            "DESC"                  => eZContentObjectTreeNode::SORT_ORDER_DESC
+            , "ASC"                 => eZContentObjectTreeNode::SORT_ORDER_ASC
+        );
+        
+        if( !eepValidate::validateContentNodeId( $nodeId ) )
+            throw new Exception( "This is not a node id: [" .$nodeId. "]" );
+        
+        if( !isset( $availableSortFields[ $sortField ] ) )
+            throw new Exception( "This sort field is not recognized: [" . $sortField . "]" );
+        
+        if( !isset( $availableSortDirections[ $sortOrder ] ) )
+            throw new Exception( "This sort field is not recognized: [" . $sortOrder . "]" );
+        
+        $node = eZContentObjectTreeNode::fetch( $nodeId );
+        
+        $node->setAttribute( 'sort_field', $availableSortFields[ $sortField ] );
+        $node->setAttribute( 'sort_order', $availableSortDirections[ $sortOrder ] );
+        
+        $node->store();
+        
+        echo "set sort order on node id: " . $nodeId . " on attribute: " . $sortField . " to " . $sortOrder . "\n";
     }
 
     //--------------------------------------------------------------------------
@@ -474,6 +540,13 @@ EOT;
                     $nodeId = $param1;
                 }
                 echo $this->clearSubtreeCache( $nodeId );
+                break;
+            
+            case self::contentnode_setsortorder:
+                $nodeId = (integer )$param1;
+                $sortField = $param2;
+                $sortOrder = $param3;
+                $this->setSortOrder( $nodeId, $sortField, $sortOrder );
                 break;
         }
     }
