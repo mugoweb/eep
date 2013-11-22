@@ -11,8 +11,10 @@ Version 3, 29 June 2007
 
 class contentclass_commands
 {
+    const contentclass_createclass          = "createclass";
     const contentclass_deleteclass          = "deleteclass";
     const contentclass_listattributes       = "listattributes";
+    const contentclass_setclassobjectidentifier   = "setclassobjectidentifier";
     const contentclass_fetchallinstances    = "fetchallinstances";
     const contentclass_appendtogroup        = "appendtogroup";
     const contentclass_removefromgroup      = "removefromgroup";
@@ -21,8 +23,10 @@ class contentclass_commands
     var $availableCommands = array
     (
         "help"
-        , self::contentclass_listattributes
+        , self::contentclass_createclass
         , self::contentclass_deleteclass
+        , self::contentclass_listattributes
+        , self::contentclass_setclassobjectidentifier
         , self::contentclass_fetchallinstances
         , self::contentclass_appendtogroup
         , self::contentclass_removefromgroup
@@ -37,6 +41,13 @@ class contentclass_commands
         $command = array_pop( $parts );
 
 $this->help = <<<EOT
+createclass
+- create a stub content class with an automatic content class identifier and
+  default string for object-naming; uses the "admin" user to create
+  the class; returns the class identifier so that attributes can then be added
+  and the default naming be updated
+  eep createclass <Display name> <Content class group identifier>
+
 deleteclass
 - deletes all the instances of a class, and then deletes the class itself
   eep use ezroot <path>
@@ -50,6 +61,11 @@ listattributes
   eep use ezroot <path>
   eep use contentclass <class identifier>
   eep contentclass listattributes
+  
+setclassobjectidentifier
+- set the string used to name instances of the class, uses the same syntax as in
+  the admin ui
+  eep contentclass setclassobjectidentifier <class identifier> <object naming string or pattern>
 
 fetchallinstances
   - note that this supports limit and offset parameters
@@ -216,6 +232,32 @@ EOT;
         $db->commit();
         echo "Successfully removed class [" .$classIdentifier. "] from group [" .$groupIdentifier. "]";
     }
+    
+    //--------------------------------------------------------------------------
+    private function createClass( $displayName, $classIdentifier, $groupIdentifier, $groupId )
+    {
+        $adminUserObject = eZUser::fetchByName( "admin" );
+        $adminUserObject->loginCurrent();
+        $adminUserId = $adminUserObject->attribute( 'contentobject_id' );
+        $language = eZContentLanguage::topPriorityLanguage();
+        $editLanguage = $language->attribute( 'locale' );
+        $class = eZContentClass::create( $adminUserId, array(), $editLanguage );
+        // this is the display name, ez automatically creates the content-class-identifier from it
+        $class->setName( $displayName, $editLanguage );
+        $class->setAttribute( "identifier", $classIdentifier );
+        // default naming for objects - content classes should update this value once they have attributes added
+        $class->setAttribute( 'contentobject_name', 'eep-created-content-class' );
+        $class->store();
+        $editLanguageID = eZContentLanguage::idByLocale( $editLanguage );
+        $class->setAlwaysAvailableLanguageID( $editLanguageID );
+        $ClassID = $class->attribute( 'id' );
+        $ClassVersion = $class->attribute( 'version' );
+        $ingroup = eZContentClassClassGroup::create( $ClassID, $ClassVersion, $groupId, $groupIdentifier );
+        $ingroup->store();
+        // clean up the content class status
+        $class->storeDefined( array() );
+        $adminUserObject->logoutCurrent();
+    }
 
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
@@ -281,6 +323,7 @@ EOT;
                 }
                 $this->appendToGroup( $classIdentifier, $groupIdentifier );
                 break;
+            
             case self::contentclass_removefromgroup:
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 if( $param1 )
@@ -296,6 +339,46 @@ EOT;
                     $groupIdentifier = null;
                 }
                 $this->removeFromGroup( $classIdentifier, $groupIdentifier );
+                break;
+            
+            // eep createclass <Display name> <Content class group identifier>
+            case self::contentclass_createclass:
+                $displayName = $param1;
+                // convert the display name to lowercase and solo underscores
+                $classIdentifier = strtolower( trim( $displayName ) );
+                $classIdentifier = preg_replace( "/[^a-z0-9]/", "_", $classIdentifier );
+                $classIdentifier = preg_replace( "/_[_]+/", "_", $classIdentifier );
+                if( 0 == strlen($classIdentifier) )
+                {
+                    throw new Exception( "Empty content class identifier" );
+                }
+                $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
+                if( $classId )
+                {
+                    throw new Exception( "This content class identifier is already used: '" . $classIdentifier . "'" );
+                }
+                $groupIdentifier = $param2;
+                $groupObject = eZContentClassGroup::fetchByName( $groupIdentifier );
+                if( !is_object( $groupObject ) )
+                {
+                    throw new Exception( "Failed to locate the content class group '" . $groupIdentifier . "'" );
+                }
+                $groupId = $groupObject->ID;
+                $this->createClass( $displayName, $classIdentifier, $groupIdentifier, $groupId );
+                echo "created " . $classIdentifier . " ok\n";
+                break;
+            
+            // eep contentclass setclassobjectidentifier <class identifier> <object naming string or pattern>
+            case self::contentclass_setclassobjectidentifier:
+                $classIdentifier = $param1;
+                $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
+                $contentClass = eZContentClass::fetch( $classId );
+                if( !is_object( $contentClass ) )
+                {
+                    throw new Exception( "Failed to instantiate content class. [" . $classIdentifier . "]" );
+                }
+                $contentClass->setAttribute( 'contentobject_name', $param2 );
+                $contentClass->store();
                 break;
         }
     }

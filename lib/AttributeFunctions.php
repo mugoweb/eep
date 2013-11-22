@@ -19,7 +19,7 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
         Display Name
     </displayname>
     
-    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext and probably others -->
+    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext ezimage and probably others -->
     <!-- see content.ini for full list of avilable types -->
     <datatypestring>ezxmltext</datatypestring>
     
