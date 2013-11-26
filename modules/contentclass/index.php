@@ -15,6 +15,7 @@ class contentclass_commands
     const contentclass_deleteclass          = "deleteclass";
     const contentclass_listattributes       = "listattributes";
     const contentclass_setclassobjectidentifier   = "setclassobjectidentifier";
+    const contentclass_setiscontainer       = "setiscontainer";
     const contentclass_fetchallinstances    = "fetchallinstances";
     const contentclass_appendtogroup        = "appendtogroup";
     const contentclass_removefromgroup      = "removefromgroup";
@@ -27,6 +28,7 @@ class contentclass_commands
         , self::contentclass_deleteclass
         , self::contentclass_listattributes
         , self::contentclass_setclassobjectidentifier
+        , self::contentclass_setiscontainer
         , self::contentclass_fetchallinstances
         , self::contentclass_appendtogroup
         , self::contentclass_removefromgroup
@@ -67,6 +69,10 @@ setclassobjectidentifier
   the admin ui
   eep contentclass setclassobjectidentifier <class identifier> <object naming string or pattern>
 
+setiscontainer
+- set or unset the 'is container' flag on the class
+  eep contentclass setiscontainer <class identifier> <0|1>
+  
 fetchallinstances
   - note that this supports limit and offset parameters
   eep use ezroot <path>
@@ -378,6 +384,23 @@ EOT;
                     throw new Exception( "Failed to instantiate content class. [" . $classIdentifier . "]" );
                 }
                 $contentClass->setAttribute( 'contentobject_name', $param2 );
+                $contentClass->store();
+                break;
+            
+            case self::contentclass_setiscontainer:
+                $classIdentifier = $param1;
+                $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
+                $contentClass = eZContentClass::fetch( $classId );
+                if( !is_object( $contentClass ) )
+                {
+                    throw new Exception( "Failed to instantiate content class. [" . $classIdentifier . "]" );
+                }
+                $newSetting = 0;
+                if( 0 != $param2 )
+                {
+                    $newSetting = 1;
+                }
+                $contentClass->setAttribute( 'is_container', $newSetting );
                 $contentClass->store();
                 break;
         }
