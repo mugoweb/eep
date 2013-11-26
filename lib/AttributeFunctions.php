@@ -30,7 +30,7 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
     <is_searchable>1</is_searchable>
     <is_information_collector>0</is_information_collector>
     <can_translate>0</can_translate>
-
+    
     <!-- "eep-no-content" is recognized to mean "no content" -->
     <content>eep-no-content</content>
 
@@ -143,7 +143,7 @@ class AttributeFunctions
             , "datatypestring"              => trim( $newAttributeXPath->query( "//newattribute/datatypestring" )->item( 0 )->nodeValue )
             , "content"                     => trim( $newAttributeXPath->query( "//newattribute/content" )->item( 0 )->nodeValue )
         );
-
+        
         // create new attribute
         $attributeCreationInfo = array
         (
@@ -187,7 +187,7 @@ class AttributeFunctions
 
         $newAttribute->setAttribute( "version", eZContentClass::VERSION_STATUS_DEFINED );
         $newAttribute->setAttribute( "placement", count( $allAttributesList ) );
-
+        
         $contentClass->adjustAttributePlacements( $allAttributesList );
         foreach( $allAttributesList as $attribute )
         {
