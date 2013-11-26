@@ -291,13 +291,17 @@ class eep
             $objectIDSQL = " AND ezcontentobject_link.from_contentobject_id='$objectId'
                                 AND ezcontentobject_link.from_contentobject_version='$objectVersion'";
         }
+        // from the following query, this is the excerpted where condition; it causes
+        // a BC break in 4.7 and does not seem to do anything ...
+        
+        //  AND ezcontentobject_link.op_code='0'
         $query = "SELECT $select
                   FROM
                     ezcontentobject, ezcontentobject_link
                   WHERE
                     ezcontentobject.id=ezcontentobject_link.from_contentobject_id AND
-                    ezcontentobject.status=" . eZContentObject::STATUS_PUBLISHED . " AND
-                    ezcontentobject_link.op_code='0'
+                    ezcontentobject.status=" . eZContentObject::STATUS_PUBLISHED . " 
+                    
                     $objectIDSQL
                     $relationTypeMasking
                     $showInvisibleNodesCond";
@@ -305,6 +309,7 @@ class eep
         return $rows[0]['count'];
     }
 
+    
     //--------------------------------------------------------------------------
     // eep::displayNodeList( $list, $title )
     static function displayNodeList( $list, $title )
