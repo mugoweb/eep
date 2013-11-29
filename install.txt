@@ -23,6 +23,25 @@ session, you have to either:
 . /etc/bash_completion
 or start a new shell (like on CentOS)
 
+OS X installation:
+------------------
+
+Manual:
+1/ sudo mdkir /etc/bash_completion.d
+2/ sudo ln -s /your_path_to_eep/bash_completion/eep /etc/bash_completion.d/eep
+
+Then add the following to your ~/.bash_profile, ~/.bashrc etc. 
+for f in /etc/bash_completion.d/*; do source $f; done
+
+Any file in that location will now be sourced for bash use
+Start a new shell
+
+Via Homebrew / Mac Ports:
+See http://superuser.com/questions/288438/bash-completion-for-commands-in-mac-os
+
+Then create the symbolic link to /your_path_to_eep/bash_completion/eep in the installation specific completion folder
+Start a new shell
+
 Windows installation:
 ---------------------
 
