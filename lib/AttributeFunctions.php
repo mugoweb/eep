@@ -455,7 +455,7 @@ class AttributeFunctions
                 break;
             }
         }
-        echo " Done removing attribute.\n";
+        echo "Number processed: " . sprintf( "%08d", $countProcessed ) . " and completed.\n";
     }
 
     //--------------------------------------------------------------------------
