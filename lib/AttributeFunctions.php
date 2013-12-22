@@ -405,23 +405,45 @@ class AttributeFunctions
             throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $attributeIdentifier . "]" );
 
         // remove the attribute from all the objects that have it
-        $classAttribute = $classDataMap[ $attributeIdentifier ];
-        $objectAttributeInstances = eZContentObjectAttribute::fetchSameClassAttributeIDList( $classAttribute->attribute( "id" ) );
-        $numObjects = count( $objectAttributeInstances );
-        if( $numObjects )
+        $countProcessed = 0;
+        $offset = 0;
+        $limit = 500;
+        $fetchParameters = array
+        (
+            "ClassFilterType"       => "include"
+            , "ClassFilterArray"    => array( $classIdentifier )
+            , "MainNodeOnly"        => true
+            , "IgnoreVisibility"    => true
+            , "Offset"              => $offset
+            , "Limit"               => $limit
+        );
+        $batch = eZContentObjectTreeNode::subTreeByNodeID( $fetchParameters, 1 );
+        while( 0 < count( $batch ) )
         {
-            echo "Updating " . $numObjects . " objects.\n";
-            foreach( $objectAttributeInstances as $num => $objectAttribute )
+            //echo "found: " . count($batch) . " onix_product instances at offset: " . $fetchParameters[ "Offset" ] . "\n";    
+            foreach( $batch as $n => $node )
             {
-                // all the magic in the next 2 lines
-                $objectAttributeID = $objectAttribute->attribute( "id" );
-                $objectAttribute->removeThis( $objectAttributeID );
-                echo "Percent complete: " . sprintf( "% 3.3f", (($num+1) / $numObjects)*100.0 ) . "%\r";
-                unset( $GLOBALS[ "eZContentObjectContentObjectCache" ] );
-                unset( $GLOBALS[ "eZContentObjectDataMapCache" ] );
-                unset( $GLOBALS[ "eZContentObjectVersionCache" ] );
+                $dm = $node->ContentObject->DataMap();
+                if( isset( $dm[ $attributeIdentifier ] ) )
+                {
+                    $attr = $dm[ $attributeIdentifier ];
+                    $attrId = $attr->ID;
+                    $attr->removeThis( $attrId );
+                    //echo "removed";
+                }
+                else
+                {
+                    //echo "skipped"; // because, one presumes, it was previously removed
+                }
+                $countProcessed += 1;
+                //echo "Percent complete: " . sprintf( "% 3.3f", (($num+1) / $numObjects)*100.0 ) . "%\r";
+                echo "Number processed: " . sprintf( "%08d", $countProcessed ) . "\r";
             }
-            echo "\nDone updating objects.\n";
+            unset( $GLOBALS[ "eZContentObjectContentObjectCache" ] );
+            unset( $GLOBALS[ "eZContentObjectDataMapCache" ] );
+            unset( $GLOBALS[ "eZContentObjectVersionCache" ] );
+            $fetchParameters[ "Offset" ] += $limit;
+            $batch = eZContentObjectTreeNode::subTreeByNodeID( $fetchParameters, 1 );
         }
         // remove the attribute from the class
         $attributes = $contentClass->fetchAttributes();
@@ -433,7 +455,7 @@ class AttributeFunctions
                 break;
             }
         }
-        echo "Done removing attribute.\n";
+        echo " Done removing attribute.\n";
     }
 
     //--------------------------------------------------------------------------
