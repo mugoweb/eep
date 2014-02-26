@@ -153,7 +153,7 @@ catch( Exception $e )
             {
                 foreach( $paramSet as $aParam )
                 {
-                    $msg .= $space . $aParam;
+                    $msg .= $space . print_r( $aParam, true );
                     $space = " ";
                 }
             }
