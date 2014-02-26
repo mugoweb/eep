@@ -12,6 +12,8 @@ Version 3, 29 June 2007
 class ezfind_commands
 {
     const ezfind_indexobject           = "indexobject";
+    const ezfind_indexnode             = "indexnode";
+    const ezfind_lastindexed           = "lastindexed";
     const ezfind_startsolr             = "startsolr";
     const ezfind_testquery             = "testquery";
 
@@ -20,6 +22,8 @@ class ezfind_commands
     (
         "help"
         , self::ezfind_indexobject
+        , self::ezfind_indexnode
+        , self::ezfind_lastindexed
         , self::ezfind_startsolr
         , self::ezfind_testquery
     );
@@ -35,7 +39,13 @@ class ezfind_commands
 $this->help = <<<EOT
 indexobject
   eep ezfind indexobject <object id>
-  
+
+indexnode
+  eep ezfind indexnode <node id>
+
+lastindexed 
+  eep ezfind lastindexed <object id>
+
 startsolr
   eep use ezroot .
   eep ezfind startsolr
@@ -56,6 +66,27 @@ EOT;
             $result = $engine->addObject( $object, false );
             $engine->commit();
         }
+    }
+    //--------------------------------------------------------------------------
+    private function indexnode( $nodeId )
+    {
+        $engine = new eZSolr();
+        $node = eZContentObjectTreeNode::fetch( $nodeId );
+        $object = eZContentObject::fetch( $node->attribute('contentobject_id') );
+        if( $object )
+        {
+            $result = $engine->addObject( $object, false );
+            $engine->commit();
+        }
+    }
+    //--------------------------------------------------------------------------
+    private function lastindexed( $objectId )
+    {
+        $engine = new eZSolr();
+        
+        $search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
+        echo "Not implemented yet.\n";
+        
     }
     
     //--------------------------------------------------------------------------
@@ -135,7 +166,22 @@ EOT;
                 }
                 $this->indexobject( $objectId );
                 break;
-            
+            case self::ezfind_indexnode:
+                $nodeId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $nodeId = $param1;
+                }
+                $this->indexnode( $nodeId );
+                break;
+            case self::ezfind_lastindexed:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                $this->lastindexed( $objectId );
+                break;            
             case self::ezfind_startsolr:
                 $ezRootPath = $eepCache->readFromCache( eepCache::use_key_ezroot );
                 $this->startsolr( $ezRootPath );
