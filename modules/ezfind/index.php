@@ -137,17 +137,33 @@ EOT;
                         , 'parameters' => array( 'q' => 'meta_id_si:' . $objectId ) );
                         
         $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $params );
-        $datetime = strtotime( $search["response"]["docs"][( count($search["response"]["docs"]) - 1 )]["timestamp"] );
-        echo date( 'Y:m:d H:i:s', $datetime ) . "\n";        
+        if( count( $search["response"]["docs"] ) )
+        {
+            $datetime = strtotime( $search["response"]["docs"][( count($search["response"]["docs"]) - 1 )]["timestamp"] );
+            echo date( 'Y:m:d H:i:s', $datetime ) . "\n";  
+        }  
+        else
+        {
+            if ( $this->isSolrRunning() )
+            {
+                echo "not-indexed\n";
+            
+            }
+            else
+            {
+                echo "solr is not available\n";
+            }
+        }    
     }
     
     //--------------------------------------------------------------------------
     private function startsolr( $ezRootPath )
     {
-        // look for the xinit.d pid file, in case it's already started
-        if( file_exists ( "/var/run/solr.pid" ) )
+        
+        if ( $this->isSolrRunning() )
         {
-            echo "'/var/run/solr.pid' already exists; solr is already running.\n";
+            echo "solr is already running\n";
+        
         }
         else
         {
@@ -158,7 +174,24 @@ EOT;
         }
         $result = shell_exec( $startCmd );
     }
-
+    //--------------------------------------------------------------------------
+    private function isSolrRunning()
+    {
+        // look for the solr url welcome text, in case it's already started
+        $ini = eZINI::instance('solr.ini');
+        $url = $ini->variable("SolrBase", "SearchServerURI");
+        $html = @file_get_contents( $url );
+        if (strpos($html, 'Welcome to Solr!') !== false )
+        {
+            return true;
+        
+        }
+        else
+        {
+            return false;
+        }
+    
+    }
     //--------------------------------------------------------------------------
     private function testQuery( $testQuery=null )
     {
