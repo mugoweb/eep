@@ -112,13 +112,8 @@ EOT;
     private function eject( $objectId )
     {
         $engine = new eZSolr();
-        $object = eZContentObject::fetch( $objectId );
+        $engine->removeObjectById( $objectId );        
         
-        if( $object )
-        {
-            eZSearch::removeObject( $object );
-            $engine->commit();
-        }
     }
     //--------------------------------------------------------------------------
     private function fields( $objectId )
