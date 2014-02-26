@@ -13,6 +13,7 @@ class ezfind_commands
 {
     const ezfind_indexobject           = "indexobject";
     const ezfind_indexnode             = "indexnode";
+    const ezfind_isobjectindexed       = "isobjectindexed";
     const ezfind_eject                 = "eject";
     const ezfind_fields                = "fields";
     const ezfind_lastindexed           = "lastindexed";
@@ -25,6 +26,7 @@ class ezfind_commands
         "help"
         , self::ezfind_indexobject
         , self::ezfind_indexnode
+        , self::ezfind_isobjectindexed
         , self::ezfind_eject
         , self::ezfind_fields
         , self::ezfind_lastindexed
@@ -46,6 +48,9 @@ indexobject
 
 indexnode
   eep ezfind indexnode <node id>
+
+isobjectindexed
+  eep ezfind isobjectindexed <object id>
 
 eject
   eep ezfind eject <object id>
@@ -87,6 +92,20 @@ EOT;
         {
             $result = $engine->addObject( $object, false );
             $engine->commit();
+        }
+    }
+    //--------------------------------------------------------------------------
+    private function isobjectindexed( $objectId )
+    {
+        $engine = new eZSolr();
+        $search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
+        if( $search["SearchCount"] )
+        {
+            echo "yes\n";       
+        }
+        else
+        {
+            echo "no\n";
         }
     }
     //--------------------------------------------------------------------------
@@ -211,6 +230,14 @@ EOT;
                     $nodeId = $param1;
                 }
                 $this->indexnode( $nodeId );
+                break;
+            case self::ezfind_isobjectindexed:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                $this->isobjectindexed( $objectId );
                 break;
             case self::ezfind_eject:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
