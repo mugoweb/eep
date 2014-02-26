@@ -118,9 +118,8 @@ EOT;
     //--------------------------------------------------------------------------
     private function fields( $objectId )
     {
-        $engine = new eZSolr();
         $search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
-        if( $search["SearchCount"] )
+        if( count( $search["SearchResult"] ) )
         {
             foreach( $search["SearchResult"][0]->attribute('data_map') as $index => $attribute )
             {
@@ -133,12 +132,13 @@ EOT;
     //--------------------------------------------------------------------------
     private function lastindexed( $objectId )
     {
-        $engine = new eZSolr();
-        
-        $search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
-        var_dump($search);
-        echo "Not implemented yet.\n";
-        
+        $params = array(  'baseURL' => false
+                        , 'request' => '/select'
+                        , 'parameters' => array( 'q' => 'meta_id_si:' . $objectId ) );
+                        
+        $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $params );
+        $datetime = strtotime( $search["response"]["docs"][( count($search["response"]["docs"]) - 1 )]["timestamp"] );
+        echo date( 'Y:m:d H:i:s', $datetime ) . "\n";        
     }
     
     //--------------------------------------------------------------------------
