@@ -14,6 +14,7 @@ class ezfind_commands
     const ezfind_indexobject           = "indexobject";
     const ezfind_indexnode             = "indexnode";
     const ezfind_eject                 = "eject";
+    const ezfind_fields                = "fields";
     const ezfind_lastindexed           = "lastindexed";
     const ezfind_startsolr             = "startsolr";
     const ezfind_testquery             = "testquery";
@@ -25,6 +26,7 @@ class ezfind_commands
         , self::ezfind_indexobject
         , self::ezfind_indexnode
         , self::ezfind_eject
+        , self::ezfind_fields
         , self::ezfind_lastindexed
         , self::ezfind_startsolr
         , self::ezfind_testquery
@@ -47,6 +49,9 @@ indexnode
 
 eject
   eep ezfind eject <object id>
+
+fields
+  eep ezfind fields <object id>
 
 lastindexed 
   eep ezfind lastindexed <object id>
@@ -94,6 +99,21 @@ EOT;
         {
             eZSearch::removeObject( $object );
             $engine->commit();
+        }
+    }
+    //--------------------------------------------------------------------------
+    private function fields( $objectId )
+    {
+        $engine = new eZSolr();
+        $search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
+        if( $search["SearchCount"] )
+        {
+            foreach( $search["SearchResult"][0]->attribute('data_map') as $index => $attribute )
+            {
+                echo $index . "\n";
+            
+            }
+        
         }
     }
     //--------------------------------------------------------------------------
@@ -199,6 +219,14 @@ EOT;
                     $objectId = $param1;
                 }
                 $this->eject( $objectId );
+                break;
+            case self::ezfind_fields:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                $this->fields( $objectId );
                 break;
             case self::ezfind_lastindexed:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
