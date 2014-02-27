@@ -111,8 +111,16 @@ EOT;
     //--------------------------------------------------------------------------
     private function eject( $objectId )
     {
-        $engine = new eZSolr();
-        $engine->removeObjectById( $objectId );        
+        $object = eZContentObject::fetch( $objectId );
+        if( $object )
+        {
+            $engine = new eZSolr();
+            $engine->removeObjectById( $objectId );
+        }
+        else
+        {
+            echo "invalid object id\n";
+        }        
         
     }
     //--------------------------------------------------------------------------
@@ -144,15 +152,9 @@ EOT;
         }  
         else
         {
-            if ( $this->isSolrRunning() )
-            {
-                echo "not-indexed\n";
-            
-            }
-            else
-            {
-                echo "solr is not available\n";
-            }
+
+            echo "not-indexed\n";           
+
         }    
     }
     
@@ -233,72 +235,83 @@ EOT;
         {
             throw new Exception( "Command '" . $command . "' not recognized." );
         }
-
-        $eepCache = eepCache::getInstance();
-
-        switch( $command )
+        
+        if ( !$this->isSolrRunning() 
+             && $command != self::ezfind_startsolr
+             && $command != "help" )
         {
-            case "help":
-                echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
-                echo "\n".$this->help."\n";
-                break;
-            
-            case self::ezfind_indexobject:
-                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
-                if( $param1 )
-                {
-                    $objectId = $param1;
-                }
-                $this->indexobject( $objectId );
-                break;
-            case self::ezfind_indexnode:
-                $nodeId = $eepCache->readFromCache( eepCache::use_key_object );
-                if( $param1 )
-                {
-                    $nodeId = $param1;
-                }
-                $this->indexnode( $nodeId );
-                break;
-            case self::ezfind_isobjectindexed:
-                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
-                if( $param1 )
-                {
-                    $objectId = $param1;
-                }
-                $this->isobjectindexed( $objectId );
-                break;
-            case self::ezfind_eject:
-                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
-                if( $param1 )
-                {
-                    $objectId = $param1;
-                }
-                $this->eject( $objectId );
-                break;
-            case self::ezfind_fields:
-                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
-                if( $param1 )
-                {
-                    $objectId = $param1;
-                }
-                $this->fields( $objectId );
-                break;
-            case self::ezfind_lastindexed:
-                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
-                if( $param1 )
-                {
-                    $objectId = $param1;
-                }
-                $this->lastindexed( $objectId );
-                break;            
-            case self::ezfind_startsolr:
-                $ezRootPath = $eepCache->readFromCache( eepCache::use_key_ezroot );
-                $this->startsolr( $ezRootPath );
-                break;
-            
-            case self::ezfind_testquery:
-                $this->testQuery( $param1 );
-                break;
+            echo "solr is not available\n";
+        
+        }
+        else
+        {
+
+            $eepCache = eepCache::getInstance();
+
+            switch( $command )
+            {
+                case "help":
+                    echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
+                    echo "\n".$this->help."\n";
+                    break;
+                
+                case self::ezfind_indexobject:
+                    $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                    if( $param1 )
+                    {
+                        $objectId = $param1;
+                    }
+                    $this->indexobject( $objectId );
+                    break;
+                case self::ezfind_indexnode:
+                    $nodeId = $eepCache->readFromCache( eepCache::use_key_object );
+                    if( $param1 )
+                    {
+                        $nodeId = $param1;
+                    }
+                    $this->indexnode( $nodeId );
+                    break;
+                case self::ezfind_isobjectindexed:
+                    $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                    if( $param1 )
+                    {
+                        $objectId = $param1;
+                    }
+                    $this->isobjectindexed( $objectId );
+                    break;
+                case self::ezfind_eject:
+                    $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                    if( $param1 )
+                    {
+                        $objectId = $param1;
+                    }
+                    $this->eject( $objectId );
+                    break;
+                case self::ezfind_fields:
+                    $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                    if( $param1 )
+                    {
+                        $objectId = $param1;
+                    }
+                    $this->fields( $objectId );
+                    break;
+                case self::ezfind_lastindexed:
+                    $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                    if( $param1 )
+                    {
+                        $objectId = $param1;
+                    }
+                    $this->lastindexed( $objectId );
+                    break;            
+                case self::ezfind_startsolr:
+                    $ezRootPath = $eepCache->readFromCache( eepCache::use_key_ezroot );
+                    $this->startsolr( $ezRootPath );
+                    break;
+                
+                case self::ezfind_testquery:
+                    $this->testQuery( $param1 );
+                    break;
+            }
         }
     }
 }
