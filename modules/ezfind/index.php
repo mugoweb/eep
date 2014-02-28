@@ -11,6 +11,7 @@ Version 3, 29 June 2007
 
 class ezfind_commands
 {
+    const ezfind_advanced              = "advanced";
     const ezfind_indexobject           = "indexobject";
     const ezfind_indexnode             = "indexnode";
     const ezfind_isobjectindexed       = "isobjectindexed";
@@ -24,6 +25,7 @@ class ezfind_commands
     var $availableCommands = array
     (
         "help"
+        , self::ezfind_advanced
         , self::ezfind_indexobject
         , self::ezfind_indexnode
         , self::ezfind_isobjectindexed
@@ -43,6 +45,9 @@ class ezfind_commands
         $command = array_pop( $parts );
         
 $this->help = <<<EOT
+advanced
+  eep ezfind advanced <statement> <fields to return> <filter> [--offset=## --limit=##]
+
 indexobject
   eep ezfind indexobject <object id>
 
@@ -71,6 +76,51 @@ testquery
 EOT;
     }
     
+    //--------------------------------------------------------------------------
+    private function advanced( $args, $additional )
+    {
+    
+        $parameters = array();
+        
+        var_dump($args);
+        if( isset( $args[3] ) )
+        {
+            $parameters['q'] = $args[3];
+        }
+        else
+        {
+            echo "Statement is required\n";
+            return;
+        }
+        
+        if( isset( $args[4] ) )
+        {
+            $parameters['fl'] = $args[4];
+        }
+        
+        if( isset( $args[5] ) )
+        {
+            $parameters['fq'] = $args[5];
+        }
+        
+        if( isset( $additional['offset'] ) )
+        {
+            $parameters['start'] = $additional['offset'];
+        }
+        
+        if( isset( $additional['limit'] ) )
+        {
+            $parameters['rows'] = $additional['limit'];
+        }
+        
+        $query  = array(  'baseURL' => false
+                        , 'request' => '/select'
+                        , 'parameters' => $parameters );
+        
+        $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $query );         
+        
+        print_r( $search );    
+    }
     //--------------------------------------------------------------------------
     private function indexobject( $objectId )
     {
@@ -255,6 +305,9 @@ EOT;
                     echo "\n".$this->help."\n";
                     break;
                 
+                case self::ezfind_advanced:                    
+                    $this->advanced( $argv, $additional );
+                    break;
                 case self::ezfind_indexobject:
                     $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                     if( $param1 )
