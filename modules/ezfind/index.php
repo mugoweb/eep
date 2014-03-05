@@ -82,7 +82,6 @@ EOT;
     
         $parameters = array();
         
-        var_dump($args);
         if( isset( $args[3] ) )
         {
             $parameters['q'] = $args[3];
@@ -117,9 +116,54 @@ EOT;
                         , 'request' => '/select'
                         , 'parameters' => $parameters );
         
-        $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $query );         
-        
-        print_r( $search );    
+        $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $query );
+
+        if( $search['response']['numFound'] > 0 )
+        {
+            $results = array();
+            $header = array();
+            foreach( $search['response']['docs'][0] as $index => $doc )
+            {
+                
+                $header[]=$index;               
+            
+            }
+            
+            $results[]=$header;
+            
+            
+            foreach( $search['response']['docs'] as $doc )
+            {
+                $result = array();
+                foreach($doc as $attribute)
+                {
+                    if(is_array($attribute))
+                    {
+                        $result[] = 'array()';
+                    }
+                    else if(is_object($attribute))
+                    {
+                        $result[] = 'object()';
+                    
+                    }
+                    else
+                    {
+                        $result[] = $attribute;
+                    }
+                
+                }                
+                   
+                $results[] = $result;         
+            
+            }
+            
+            eep::printTable( $results, "list ezfind results" );            
+            
+        }
+        else
+        {
+            echo 'No results';
+        }
     }
     //--------------------------------------------------------------------------
     private function indexobject( $objectId )
