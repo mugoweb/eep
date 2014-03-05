@@ -112,6 +112,11 @@ EOT;
             $parameters['rows'] = $additional['limit'];
         }
         
+        if( isset( $additional['output'] ) && $additional['output'] == 'xml' )
+        {
+            $parameters['wt'] = 'xml';
+        }
+        
         $query  = array(  'baseURL' => false
                         , 'request' => '/select'
                         , 'parameters' => $parameters );
@@ -120,44 +125,54 @@ EOT;
 
         if( $search['response']['numFound'] > 0 )
         {
-            $results = array();
-            $header = array();
-            foreach( $search['response']['docs'][0] as $index => $doc )
+            if( isset( $additional['output'] ) && $additional['output'] == 'xml' )
             {
-                
-                $header[]=$index;               
-            
+                $xml = new SimpleXMLElement('<root/>');
+                array_walk_recursive($search, array ($xml, 'addChild'));
+                print $xml->asXML();
             }
-            
-            $results[]=$header;
-            
-            
-            foreach( $search['response']['docs'] as $doc )
+            else
             {
-                $result = array();
-                foreach($doc as $attribute)
+            
+                $results = array();
+                $header = array();
+                foreach( $search['response']['docs'][0] as $index => $doc )
                 {
-                    if(is_array($attribute))
-                    {
-                        $result[] = 'array()';
-                    }
-                    else if(is_object($attribute))
-                    {
-                        $result[] = 'object()';
                     
-                    }
-                    else
-                    {
-                        $result[] = $attribute;
-                    }
+                    $header[]=$index;               
                 
-                }                
-                   
-                $results[] = $result;         
-            
-            }
-            
-            eep::printTable( $results, "list ezfind results" );            
+                }
+                
+                $results[]=$header;
+                
+                
+                foreach( $search['response']['docs'] as $doc )
+                {
+                    $result = array();
+                    foreach($doc as $attribute)
+                    {
+                        if(is_array($attribute))
+                        {
+                            $result[] = 'array()';
+                        }
+                        else if(is_object($attribute))
+                        {
+                            $result[] = 'object()';
+                        
+                        }
+                        else
+                        {
+                            $result[] = $attribute;
+                        }
+                    
+                    }                
+                       
+                    $results[] = $result;         
+                
+                }
+                
+                eep::printTable( $results, "list ezfind results" );   
+            }         
             
         }
         else
