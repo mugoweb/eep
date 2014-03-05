@@ -177,7 +177,7 @@ EOT;
         }
         else
         {
-            echo 'No results';
+            echo "No results\n";
         }
     }
     //--------------------------------------------------------------------------
@@ -235,16 +235,40 @@ EOT;
     //--------------------------------------------------------------------------
     private function fields( $objectId )
     {
-        $search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
-        if( count( $search["SearchResult"] ) )
+        //$search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
+        
+        $parameters = array();       
+
+        $parameters['q'] = 'meta_id_si:' . $objectId ;
+        
+        
+        $query  = array(  'baseURL' => false
+                        , 'request' => '/select'
+                        , 'parameters' => $parameters );
+        
+        $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $query );
+        
+        if( $search['response']['numFound'] > 0 )
         {
-            foreach( $search["SearchResult"][0]->attribute('data_map') as $index => $attribute )
+        
+            $results = array();
+            $header = array();
+            foreach( $search['response']['docs'][0] as $index => $doc )
             {
-                echo $index . "\n";
+                
+                $header[]=$index;               
             
             }
-        
+            $results[]=$header;
+            
+            eep::printTable( $results, "list ezfind fields" );
         }
+        else
+        {
+            echo "No results\n";        
+        }
+        
+
     }
     //--------------------------------------------------------------------------
     private function lastindexed( $objectId )
