@@ -351,44 +351,46 @@ class AttributeFunctions
     {
         $classId = $contentClass->attribute( "id" );
         // update object attributes
-        $objects = eZContentObject::fetchSameClassList( $classId, false );
-        $numObjects = count( $objects );
-
-        foreach( $objects as $num => $object )
+        $batchSize = 200;
+        $totalObjectCount = eZContentObject::fetchSameClassListCount( $classId );
+        for( $offset=0; $offset<$totalObjectCount; $offset+=$batchSize )
         {
-            $object = eZContentObject::fetch( $object[ "id" ] );
-            if( $object )
+            $objects = eZContentObject::fetchSameClassList( $classId, false, $offset, $batchSize );
+            foreach( $objects as $num => $object )
             {
-                $contentobjectID = $object->attribute( "id" );
-                $objectVersions = $object->versions();
-                foreach( $objectVersions as $objectVersion )
+                $object = eZContentObject::fetch( $object[ "id" ] );
+                if( $object )
                 {
-                    $translations = $objectVersion->translations( false );
-                    $version = $objectVersion->attribute( "version" );
-                    $dataMap = $objectVersion->attribute( "data_map" );
-                    if( $identifier && isset( $dataMap[ $identifier ] ) )
+                    $contentobjectID = $object->attribute( "id" );
+                    $objectVersions = $object->versions();
+                    foreach( $objectVersions as $objectVersion )
                     {
-                       // Attribute already exists for this object version
-                    }
-                    else
-                    {
-                        foreach( $translations as $translation )
+                        $translations = $objectVersion->translations( false );
+                        $version = $objectVersion->attribute( "version" );
+                        $dataMap = $objectVersion->attribute( "data_map" );
+                        if( $identifier && isset( $dataMap[ $identifier ] ) )
                         {
-                            $objectAttribute = eZContentObjectAttribute::create( $classAttributeID, $contentobjectID, $version );
-                            $objectAttribute->setAttribute( "language_code", $translation );
-                            $objectAttribute->initialize();
-                            $objectAttribute->store();
-                            $objectAttribute->postInitialize();
+                           // Attribute already exists for this object version
+                        }
+                        else
+                        {
+                            foreach( $translations as $translation )
+                            {
+                                $objectAttribute = eZContentObjectAttribute::create( $classAttributeID, $contentobjectID, $version );
+                                $objectAttribute->setAttribute( "language_code", $translation );
+                                $objectAttribute->initialize();
+                                $objectAttribute->store();
+                                $objectAttribute->postInitialize();
+                            }
                         }
                     }
                 }
-                unset( $GLOBALS[ "eZContentObjectContentObjectCache" ] );
-                unset( $GLOBALS[ "eZContentObjectDataMapCache" ] );
-                unset( $GLOBALS[ "eZContentObjectVersionCache" ] );
-                unset( $object );
+                echo "Percent complete: " . sprintf( "% 3.3f", ( ($offset+$num+1.0) / $totalObjectCount)*100.0 ) . "%\r";
             }
-            echo "Percent complete: " . sprintf( "% 3.3f", ( ($num+1.0) / $numObjects)*100.0 ) . "%\r";
-            unset( $objects[ $num ] );
+            unset( $GLOBALS[ "eZContentObjectContentObjectCache" ] );
+            unset( $GLOBALS[ "eZContentObjectDataMapCache" ] );
+            unset( $GLOBALS[ "eZContentObjectVersionCache" ] );
+            unset( $objects );
         }
         echo "\n";
     }
