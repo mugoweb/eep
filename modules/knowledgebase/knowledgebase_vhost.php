@@ -38,7 +38,7 @@ $knowledgeBaseString = <<<EOT
         Rewriterule ^/var/[^/]+/storage/.* - [L]
         RewriteRule ^/var/cache/texttoimage/.* - [L]
         RewriteRule ^/var/[^/]+/cache/texttoimage/.* - [L]
-        Rewriterule ^/design/[^/]+/(stylesheets|images|javascript)/.* - [L]
+        Rewriterule ^/design/[^/]+/(stylesheets|images|javascript|fonts)/.* - [L]
         Rewriterule ^/share/icons/.* - [L]
         # updated for ezflow
         Rewriterule ^/extension/[^/]+/design/[^/]+/(stylesheets|images|lib|flash|javascripts?)/.* - [L]
