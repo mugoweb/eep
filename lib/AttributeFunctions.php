@@ -18,7 +18,10 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
     <displayname>
         Display Name
     </displayname>
-    
+    <description>
+	    This is the description of this attribute. You can say anything you like.
+    </description>
+
     <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext ezimage and probably others -->
     <!-- see content.ini for full list of avilable types -->
     <datatypestring>ezxmltext</datatypestring>
@@ -135,6 +138,7 @@ class AttributeFunctions
         (
             "identifier"                    => trim( $newAttributeXPath->query( "//newattribute/identifier" )->item( 0 )->nodeValue )
             , "display_name"                => trim( $newAttributeXPath->query( "//newattribute/displayname" )->item( 0 )->nodeValue )
+            , "description"                 => trim( $newAttributeXPath->query( "//newattribute/description" )->item( 0 )->nodeValue )
             , "language"                    => trim( $newAttributeXPath->query( "//newattribute/language" )->item( 0 )->nodeValue )
             , "can_translate"               => trim( $newAttributeXPath->query( "//newattribute/can_translate" )->item( 0 )->nodeValue )
             , "is_required"                 => trim( $newAttributeXPath->query( "//newattribute/is_required" )->item( 0 )->nodeValue )
@@ -152,6 +156,7 @@ class AttributeFunctions
                                                             $xmlValues[ "language" ]    => $xmlValues[ "display_name" ]
                                                             , "always-available"        => $xmlValues[ "language" ]
                                                         ) ) 
+            , "description"                 => $xmlValues[ "description" ]
             , "can_translate"               => $xmlValues[ "can_translate" ]
             , "is_required"                 => $xmlValues[ "is_required" ]
             , "is_searchable"               => $xmlValues[ "is_searchable" ]
