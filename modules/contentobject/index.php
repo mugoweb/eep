@@ -266,6 +266,7 @@ EOT;
         );
         
         $results[] = $keepers;
+        $rowCount = 0;
         foreach( $reverseRelated as $revObject )
         {
             $row = array
@@ -278,8 +279,9 @@ EOT;
                 , $revObject->Name
             );
             $results[] = $row;
+            $rowCount++;
         }
-        eep::printTable( $results, "Reverse related objects [" .$objectId. "]" );
+        eep::printTable( $results, "Reverse related objects [" .$objectId. "](count " . $rowCount . ")" );
     }
     
     //--------------------------------------------------------------------------
