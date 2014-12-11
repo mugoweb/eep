@@ -46,7 +46,10 @@ class ezfind_commands
         
 $this->help = <<<EOT
 advanced
-  eep ezfind advanced <statement> <fields to return> <filter> [--offset=## --limit=##]
+  eep ezfind advanced <statement> <fields to return> <filter> [--offset=## --limit=## --show-complex=1 --output=xml|csv|json]
+
+  - Using --output requires the relevant queryResponseWriter
+    to be enabled in ezfind/java/solr/conf/solrconfig.xml
 
 indexobject
   eep ezfind indexobject <object id>
@@ -116,64 +119,97 @@ EOT;
         {
             $parameters['wt'] = 'xml';
         }
-        
-        $query  = array(  'baseURL' => false
-                        , 'request' => '/select'
-                        , 'parameters' => $parameters );
-        
-        $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $query );
 
-        if( $search['response']['numFound'] > 0 )
+        $showComplex = false;
+        if( isset( $additional['show-complex'] ) )
         {
-            if( isset( $additional['output'] ) && $additional['output'] == 'xml' )
+            $showComplex = true;
+        }
+
+        $responseWriter = 'php'; // default eZFind Solr QueryResponseWriter
+        if( isset( $additional['output'] ) )
+        {
+            // xml, json, csv etc;
+            // check /ezfind/java/solr/conf/solrconfig.xml for other valid/enabled queryResponseWriter
+            $responseWriter = $additional['output'];
+        }
+        // run request directly to avoid hardcoded 'wt' parameter issue when using eZFunctionHandler
+        $solr = new eZSolrBase( false );
+        $search = $solr->rawSolrRequest( '/select', $parameters, $responseWriter );
+
+        if( isset( $search['response']['numFound'] ) && $search['response']['numFound'] > 0 && !isset( $additional['output'] ) )
+        {
+            $results = array();
+            $header = array();
+            foreach( $search['response']['docs'][0] as $index => $doc )
             {
-                $xml = new SimpleXMLElement('<root/>');
-                array_walk_recursive($search, array ($xml, 'addChild'));
-                print $xml->asXML();
+                $header[] = $index;
             }
-            else
-            {
             
-                $results = array();
-                $header = array();
-                foreach( $search['response']['docs'][0] as $index => $doc )
+            $results[] = $header;
+            $fieldListCount = count( explode( ',', $parameters['fl'] ) );
+            foreach( $search['response']['docs'] as $doc )
+            {
+                $result = array();
+                $resultCount = count( $doc );
+                foreach( $doc as $attribute )
                 {
-                    
-                    $header[]=$index;               
-                
-                }
-                
-                $results[]=$header;
-                
-                
-                foreach( $search['response']['docs'] as $doc )
-                {
-                    $result = array();
-                    foreach($doc as $attribute)
+                    if( is_array( $attribute ) )
                     {
-                        if(is_array($attribute))
+                        if( $showComplex )
                         {
-                            $result[] = 'array()';
-                        }
-                        else if(is_object($attribute))
-                        {
-                            $result[] = 'object()';
-                        
+                            $result[] = implode( '¦', $attribute );
                         }
                         else
                         {
-                            $result[] = $attribute;
+                            $result[] = 'array()';
                         }
-                    
-                    }                
-                       
-                    $results[] = $result;         
-                
+                    }
+                    else if( is_object( $attribute ) )
+                    {
+                        
+                        if( $showComplex )
+                        {
+                            $result[] = implode( '¦', (array) $attribute );
+                        }
+                        else
+                        {
+                            $result[] = 'object()';
+                        }
+                    }
+                    else
+                    {
+                        $result[] = $attribute;
+                    }
                 }
-                
-                eep::printTable( $results, "list ezfind results" );   
-            }         
-            
+
+                // Not all docs return all fields queried for.
+                // Fix the results table display by adding placeholders for those cases
+                if( $resultCount !== $fieldListCount )
+                {
+                    $diff = $fieldListCount - $resultCount;
+                    for( $i = 0; $i < $diff; $i++ )
+                    {
+                        $result[] = 'no value';
+                    }
+                }
+
+                $results[] = $result;
+            }
+
+            eep::printTable( $results, "list ezfind results" );
+        }
+        else if( $search && isset( $additional['output'] ) && in_array( $additional['output'], array( 'xml', 'csv' ) ) )
+        {
+            echo $search[0];
+        }
+        else if ( $search && isset( $additional['output'] ) && $additional['output'] == 'json' )
+        {
+            // TODO: eZ is json_decode'ing requests made with wt=json before passing back the result set
+            // figure out a better way around that
+            //
+            // In the meantime
+            echo json_encode( $search ) . "\n";
         }
         else
         {
