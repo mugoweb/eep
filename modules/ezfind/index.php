@@ -51,6 +51,8 @@ advanced
   - Using --output requires the relevant queryResponseWriter
     to be enabled in ezfind/java/solr/conf/solrconfig.xml
 
+  Example: eep ezfind advanced 'Water*' 'meta_node_id_si,attr_title_s' 'meta_class_identifier_ms:article' --show-complex=1 --output=json
+
 indexobject
   eep ezfind indexobject <object id>
 
