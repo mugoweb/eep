@@ -651,7 +651,7 @@ EOT;
             }
         }
         $rootNodeRow = array(
-                "contentobject_id"      => $rootNode[ "contentobject_id" ]
+                "contentobject_id"      => $rootNode[ "id" ]
                 , "node_id"             => $rootNode[ "node_id" ]
                 , "class_identifier"    => $rootNode[ "class_identifier" ]
                 , "path_identification_string" => $pathIdentificationString
@@ -686,8 +686,8 @@ EOT;
             }
 
             array_push($allchildren, array(
-                "node_id"               => $result[ "node_id" ]
-                , "contentobject_id"    => $result[ "contentobject_id" ]
+                "contentobject_id"      => $result[ "id" ]
+                , "node_id"             => $result[ "node_id" ]
                 , "class_identifier"    => $result[ "class_identifier" ]
                 , "path_identification_string" => $pathIdentificationString
                 , "path_string"         => $pathString
