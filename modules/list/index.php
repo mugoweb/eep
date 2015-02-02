@@ -217,23 +217,24 @@ EOT;
         if( !eepValidate::validateContentNodeId( $parentNodeId ) )
             throw new Exception( "This is not an node id: [" .$parentNodeId. "]" );
 
-        $limit = 100;
-        if( isset($additional["limit"]) )
-        {
-            $limit = $additional["limit"];
-        }
-        $offset = 0;
-        if( isset($additional["offset"]) )
-        {
-            $offset = $additional["offset"];
-        }
-
+        
         $params[ "Depth" ] = 1;
         //$parms[ "MainNodeOnly" ] = true;
         $params[ "IgnoreVisibility" ] = true;
         $params[ 'Limitation' ] = array();
-        $params[ 'Limit' ] = $limit;
-        $params[ 'Offset' ] = $offset;
+        
+        $limitTitleString = '';
+        if( isset($additional["limit"]) )
+        {
+            $params[ 'Limit' ] = $additional["limit"];
+            $limitTitleString = " [limit: {$params[ 'Limit' ]}]";
+        }
+        $offsetTitleString = '';
+        if( isset($additional["offset"]) )
+        {
+            $params[ 'Offset' ] = $additional["offset"];
+            $offsetTitleString = " [offset: {$params[ 'Offset' ]}]";
+        }
 
         $children = eZContentObjectTreeNode::subTreeByNodeID( $params, $parentNodeId );
 
@@ -244,7 +245,7 @@ EOT;
         array_pop( $pathToParent );
         array_pop( $pathToParent );
         $pathToParent = implode( "/", $pathToParent ) . "/";
-        $title = $numberOfChildrenFetched." children of node: ".$parentNodeId." [".$pathToParent."] [" .$parentNode->Name. "]";
+        $title = $numberOfChildrenFetched." children of node: ".$parentNodeId." [".$pathToParent."] [" .$parentNode->Name. "]{$limitTitleString}{$offsetTitleString}";
 
         eep::displayNodeList( $children, $title );
     }
