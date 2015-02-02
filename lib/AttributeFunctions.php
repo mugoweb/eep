@@ -356,6 +356,7 @@ class AttributeFunctions
     {
         $classId = $contentClass->attribute( "id" );
         // update object attributes
+        $countProcessed = 0;
         $batchSize = 200;
         $totalObjectCount = eZContentObject::fetchSameClassListCount( $classId );
         for( $offset=0; $offset<$totalObjectCount; $offset+=$batchSize )
@@ -389,8 +390,9 @@ class AttributeFunctions
                             }
                         }
                     }
+                    $countProcessed += 1;
                 }
-                echo "Percent complete: " . sprintf( "% 3.3f", ( ($offset+$num+1.0) / $totalObjectCount)*100.0 ) . "%\r";
+                echo "Percent complete: " . sprintf( "% 3.2f", ( $countProcessed / $totalObjectCount ) * 100.0 ) . "%\r";
             }
             unset( $GLOBALS[ "eZContentObjectContentObjectCache" ] );
             unset( $GLOBALS[ "eZContentObjectDataMapCache" ] );
