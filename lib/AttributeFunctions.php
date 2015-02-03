@@ -52,6 +52,11 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
                 <option>IncertaeSedis</option>
             </options>
         </ezselection>
+
+        <ezstring>
+            <!-- maxstringlength is capped at 255 by a sanity check in the code -->
+            <maxstringlength>10</maxstringlength>
+        </ezstring>
         
         <ezxmltext>
             <!-- numberoflines is capped at 30 by a sanity check in the code -->
@@ -213,6 +218,19 @@ class AttributeFunctions
     {
         switch( $classAttribute->DataTypeString )
         {
+            case "ezstring":
+                $maxStringLength = (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezstring/maxstringlength" )->item( 0 )->nodeValue );
+                if( $maxStringLength < 1 )
+                {
+                    $maxStringLength = 0;
+                }
+                elseif( $maxStringLength > 255 )
+                {
+                    $maxStringLength = 255;
+                }
+                $classAttribute->setAttribute( "data_int1", $maxStringLength );
+                break;
+
             case "ezxmltext":
                 $numberOfLines = (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezxmltext/numberoflines" )->item( 0 )->nodeValue );
                 if( $numberOfLines < 1 )
