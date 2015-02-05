@@ -15,6 +15,7 @@ class contentobject_commands
     const contentobject_info             = "info";
     const contentobject_datamap          = "datamap";
     const contentobject_delete           = "delete";
+    const contentobject_related          = "related";
     const contentobject_reverserelated   = "reverserelated";
     const contentobject_contentnode      = "contentnode";
     const contentobject_republish        = "republish";
@@ -33,6 +34,7 @@ class contentobject_commands
         , self::contentobject_delete
         , self::contentobject_deleteversions
         , self::contentobject_republish
+        , self::contentobject_related
         , self::contentobject_reverserelated
         , self::contentobject_sitemapxml
         , self::contentobject_fetchbyremoteid
@@ -103,6 +105,15 @@ republish
   eep contentobject republish
   or
   eep contentobject republish <object id>
+
+related
+- dumps list of related objects
+- supports use of --limit=n and --offset=m
+  eep use ezroot <path>
+  eep use contentobject <object id>
+  eep contentobject related
+  or
+  eep contentobject related <object id>
 
 reverserelated
 - dumps list of reverserelated objects
@@ -220,9 +231,7 @@ EOT;
     }
     
     //--------------------------------------------------------------------------
-    // todo, this does not return the full list of reverse related stuff
-    // todo, this supports Limit and Offset; should use those
-    private function fetchReverseRelated( $objectId, $additional )
+    private function fetchRelated( $objectId, $reverse, $additional )
     {
         $object = eZContentObject::fetch( $objectId );
 
@@ -252,7 +261,7 @@ EOT;
             , 0                             // attribute id, but we are going to use 'all relations' instead
             , false                         // return array of objects or a grouped list ... ?
             , $parameters
-            , true                          // true->reverse-related and false->related
+            , $reverse                      // true->reverse-related and false->related
         );
         
         $keepers = array
@@ -281,7 +290,19 @@ EOT;
             $results[] = $row;
             $rowCount++;
         }
-        eep::printTable( $results, "Reverse related objects [" .$objectId. "](count " . $rowCount . ")" );
+
+        $methodPrefix = "Reverse related";
+		if( !$reverse )
+		{
+			$methodPrefix = "Related";
+		}
+        eep::printTable( $results, $methodPrefix . " objects [" .$objectId. "](count " . $rowCount . ")" );
+    }
+
+    // todo, this does not return the full list of reverse related stuff
+    private function fetchReverseRelated( $objectId, $additional )
+    {
+        return self::fetchRelated( $objectId, true, $additional );
     }
     
     //--------------------------------------------------------------------------
@@ -435,6 +456,17 @@ EOT;
                 $this->fetchDataMapFromId( $objectId );
                 break;
             
+            case self::contentobject_related: 
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                if( !eepValidate::validateContentObjectId( $objectId ) )
+                    throw new Exception( "This is not an object id: [" .$objectId. "]" );
+                $this->fetchRelated( $objectId, false, $additional );
+                break;
+
             case self::contentobject_reverserelated:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
