@@ -235,40 +235,41 @@ EOT;
     //--------------------------------------------------------------------------
     private function fields( $objectId )
     {
-        //$search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
-        
         $parameters = array();       
-
         $parameters['q'] = 'meta_id_si:' . $objectId ;
-        
-        
-        $query  = array(  'baseURL' => false
-                        , 'request' => '/select'
-                        , 'parameters' => $parameters );
-        
+        $query  = array
+        (
+            'baseURL'       => false
+            , 'request'     => '/select'
+            , 'parameters'  => $parameters
+        );
         $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $query );
-        
         if( $search['response']['numFound'] > 0 )
         {
-        
             $results = array();
-            $header = array();
+            $header = array( 'Field', 'Has data', 'Multi valued' );
+            $results[] = $header;
             foreach( $search['response']['docs'][0] as $index => $doc )
             {
-                
-                $header[]=$index;               
-            
+                $hasData = 'no';
+                $multiValued = 'no';
+                if( is_array($doc) && count($doc) )
+                {
+                   $hasData = 'yes';
+                   $multiValued = 'yes';
+                }
+                elseif( $doc !== '' )
+                {
+                    $hasData = 'yes';
+                }
+                $results[] = array( $index, $hasData, $multiValued );
             }
-            $results[]=$header;
-            
-            eep::printTable( $results, "list ezfind fields" );
+            eep::printTable( $results, "List ezfind fields [$objectId]" );
         }
         else
         {
             echo "No results\n";        
         }
-        
-
     }
     //--------------------------------------------------------------------------
     private function lastindexed( $objectId )
