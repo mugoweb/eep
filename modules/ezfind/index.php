@@ -236,19 +236,16 @@ EOT;
     private function fields( $objectId )
     {
         $parameters = array();       
-
         $parameters['q'] = 'meta_id_si:' . $objectId ;
-        
-        
-        $query  = array(  'baseURL' => false
-                        , 'request' => '/select'
-                        , 'parameters' => $parameters );
-        
+        $query  = array
+        (
+            'baseURL'       => false
+            , 'request'     => '/select'
+            , 'parameters'  => $parameters
+        );
         $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $query );
-        
         if( $search['response']['numFound'] > 0 )
         {
-        
             $results = array();
             $header = array( 'Field', 'Has data', 'Multi valued' );
             $results[] = $header;
@@ -256,26 +253,23 @@ EOT;
             {
                 $hasData = 'no';
                 $multiValued = 'no';
-                if (is_array($doc) && count($doc))
+                if( is_array($doc) && count($doc) )
                 {
                    $hasData = 'yes';
                    $multiValued = 'yes';
                 }
-                elseif ( $doc !== '' )
+                elseif( $doc !== '' )
                 {
                     $hasData = 'yes';
                 }
                 $results[] = array( $index, $hasData, $multiValued );
             }
-            
             eep::printTable( $results, "List ezfind fields [$objectId]" );
         }
         else
         {
             echo "No results\n";        
         }
-        
-
     }
     //--------------------------------------------------------------------------
     private function lastindexed( $objectId )
