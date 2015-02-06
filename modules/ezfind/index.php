@@ -84,39 +84,37 @@ EOT;
     //--------------------------------------------------------------------------
     private function advanced( $args, $additional )
     {
-    
         $parameters = array();
-        
+        // set the query string
         if( isset( $args[3] ) )
         {
             $parameters['q'] = $args[3];
         }
         else
         {
-            echo "Statement is required\n";
+            echo "Query is required\n";
             return;
         }
-        
+        // fields to list
         if( isset( $args[4] ) )
         {
             $parameters['fl'] = $args[4];
         }
-        
+        // fields to query
         if( isset( $args[5] ) )
         {
             $parameters['fq'] = $args[5];
         }
-        
+        // offset and limit
         if( isset( $additional['offset'] ) )
         {
             $parameters['start'] = $additional['offset'];
         }
-        
         if( isset( $additional['limit'] ) )
         {
             $parameters['rows'] = $additional['limit'];
         }
-        
+        // output format
         if( isset( $additional['output'] ) && $additional['output'] == 'xml' )
         {
             $parameters['wt'] = 'xml';
