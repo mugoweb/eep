@@ -85,6 +85,7 @@ EOT;
     private function advanced( $args, $additional )
     {
         $parameters = array();
+        $limit = 10; // Solr default; TODO: see if we can get this from the Solr config instead
         // set the query string
         if( isset( $args[3] ) )
         {
@@ -113,6 +114,7 @@ EOT;
         if( isset( $additional['limit'] ) )
         {
             $parameters['rows'] = $additional['limit'];
+            $limit = $additional['limit'];
         }
         // output format
         if( isset( $additional['output'] ) && $additional['output'] == 'xml' )
@@ -136,68 +138,72 @@ EOT;
         // run request directly to avoid hardcoded 'wt' parameter issue when using eZFunctionHandler
         $solr = new eZSolrBase( false );
         $search = $solr->rawSolrRequest( '/select', $parameters, $responseWriter );
-
         if( isset( $search['response']['numFound'] ) && $search['response']['numFound'] > 0 && !isset( $additional['output'] ) )
         {
             $results = array();
             $header = array();
-            foreach( $search['response']['docs'][0] as $index => $doc )
+            $numFound = $search['response']['numFound'];
+            $start = $search['response']['start'];
+            if( count($search['response']['docs']) > 0 )
             {
-                $header[] = $index;
-            }
-            
-            $results[] = $header;
-            $fieldListCount = count( explode( ',', $parameters['fl'] ) );
-            foreach( $search['response']['docs'] as $doc )
-            {
-                $result = array();
-                $resultCount = count( $doc );
-                foreach( $doc as $attribute )
+                foreach( $search['response']['docs'][0] as $index => $doc )
                 {
-                    if( is_array( $attribute ) )
+                    $header[] = $index;
+                }
+                
+                $results[] = $header;
+                $fieldListCount = count( explode( ',', $parameters['fl'] ) );
+                foreach( $search['response']['docs'] as $doc )
+                {
+                    $result = array();
+                    $resultCount = count( $doc );
+                    foreach( $doc as $attribute )
                     {
-                        if( $showComplex )
+                        if( is_array( $attribute ) )
                         {
-                            $result[] = implode( '¦', $attribute );
+                            if( $showComplex )
+                            {
+                                $result[] = implode( '¦', $attribute );
+                            }
+                            else
+                            {
+                                $result[] = 'array()';
+                            }
+                        }
+                        else if( is_object( $attribute ) )
+                        {
+                            
+                            if( $showComplex )
+                            {
+                                $result[] = implode( '¦', (array) $attribute );
+                            }
+                            else
+                            {
+                                $result[] = 'object()';
+                            }
                         }
                         else
                         {
-                            $result[] = 'array()';
+                            $result[] = $attribute;
                         }
                     }
-                    else if( is_object( $attribute ) )
+
+                    // Not all docs return all fields queried for.
+                    // Fix the results table display by adding placeholders for those cases
+                    if( $resultCount !== $fieldListCount )
                     {
-                        
-                        if( $showComplex )
+                        $diff = $fieldListCount - $resultCount;
+                        for( $i = 0; $i < $diff; $i++ )
                         {
-                            $result[] = implode( '¦', (array) $attribute );
-                        }
-                        else
-                        {
-                            $result[] = 'object()';
+                            $result[] = 'no value';
                         }
                     }
-                    else
-                    {
-                        $result[] = $attribute;
-                    }
+
+                    $results[] = $result;
                 }
 
-                // Not all docs return all fields queried for.
-                // Fix the results table display by adding placeholders for those cases
-                if( $resultCount !== $fieldListCount )
-                {
-                    $diff = $fieldListCount - $resultCount;
-                    for( $i = 0; $i < $diff; $i++ )
-                    {
-                        $result[] = 'no value';
-                    }
-                }
-
-                $results[] = $result;
+                eep::printTable( $results, "List ezfind results [{$limit}/{$start}/{$numFound}]" );
             }
-
-            eep::printTable( $results, "list ezfind results" );
         }
         else if( $search && isset( $additional['output'] ) && in_array( $additional['output'], array( 'xml', 'csv' ) ) )
         {
