@@ -1,0 +1,3 @@
+# Extending - New module method
+> Still to come ...
+
