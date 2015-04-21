@@ -8,7 +8,7 @@ _eep()
     
     _get_comp_words_by_ref cur prev
  
-    standardmodules='attribute contentclass contentclassgroup contentnode contentobject create crondaemon ezfind help knowledgebase list section test trash use'
+    standardmodules='attribute contentclass contentclassgroup contentnode contentobject create crondaemon ezfind ezflow help knowledgebase list section trash use'
 
     if [[ 1 == "$COMP_CWORD" ]]; then
         COMPREPLY=( $( compgen -W "$standardmodules" -- $cur ) )

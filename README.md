@@ -38,11 +38,11 @@ This is the list of modules (more or less up to date):
 * create
 * crondaemon
 * ezfind
+* ezflow
 * help
 * knowledgebase
 * list
 * section
-* test
 * trash
 * use
 
