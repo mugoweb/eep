@@ -128,6 +128,8 @@ You can override the settings by copying ```.../eep/eepSettings.php``` into your
 - [setfield](#setfield)
 - [info](#info)
 - [createalias](#createalias)
+- [contentobjectid](#contentobjectid)
+
 
 ## delete
 Deletes an attribute from a content class and it's content objects.
@@ -185,7 +187,11 @@ Create a given alias manually for a given content object image attribute.
 $ eep attribute createalias <content object id> <attribute identifier> <alias name>
 ```
 
-#Modules - contentclass
+## contentobjectid
+Returns the contentobject id from a contentobject _attribute_ id.
+```sh
+eep attribute contentobjectid <content object _attribute_ id> [<version>]
+```#Modules - contentclass
 > The contentclass module provides methods to manipulate content classes.
 
 - [createclass](#createclass)
@@ -876,6 +882,8 @@ $ eep use dump
 - [createAlias](#createalias)
 - [setField](#setfield)
 - [info](#info)
+- [contentobjectid](#contentobjectid)
+
 
 ## updateAttribute
 > Updates an attribute for an existing content class. If the attribute doesn't exist it will be created via `AttributeFunctions::addAttributeToClass`. All content class objects will be updated.  
@@ -1040,6 +1048,17 @@ If the attribute does exist all content class objects will be updated only e.g. 
 - `$contentObjectId` Integer
 - `$attributeIdentifier` String
 - `$aliasName` String
+
+
+## contentobjectid
+> Returns the contentobject id from a contentobject _attribute_ id.
+
+*Parameters:*
+- `$contentObjectAttributeId` Integer
+- `$version` Integer; Default = 1
+
+*Returns:*
+- Integer
 
 # Core - eepCache
 > A collection of methods to read, write and check the eep cache.
