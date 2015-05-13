@@ -1,31 +1,35 @@
-EEP
----
+# eep
+eep is a command line tool to support developers using ezpublish
 
-EEP is a command line tool to support developers using ezpublish
-
-Usage
------
+## Usage
 
 To set the ezpublish instance used with eep and list some content
 classes for future modifications:
 
-    eep use ezroot .
-    eep list contentclasses
+```sh
+$ eep use ezroot .
+$ eep list contentclasses
+```
 
 To create a new content object and fill it with random data:
 
-    eep use contentclass <class identifier>
-    eep use contentnode <parent node id>
-    eep create content anObject
+```sh
+$ eep use contentclass <class identifier>
+$ eep use contentnode <parent node id>
+$ eep create content anObject
+```
 
 For help:
 
-    eep help
-    eep <module> help
-    eep help <module>
+```sh
+$ eep help
+$ eep <module> help
+$ eep help <module>
+```
 
-### Modules
+## Modules
 This is the list of modules (more or less up to date):
+
 * attribute
 * contentclass
 * contentclassgroup
@@ -34,16 +38,16 @@ This is the list of modules (more or less up to date):
 * create
 * crondaemon
 * ezfind
+* ezflow
 * help
 * knowledgebase
 * list
 * section
-* test
 * trash
 * use
 
-Installation
-------------
+## Installation
+
 Plug-and-play installation style:
 
 1. copy the eep repository to your server
@@ -51,14 +55,19 @@ Plug-and-play installation style:
 3. execute "eep use ezroot ." for each ezpublish instance you want to use
 4. enjoy
 
-Author & Licensing
-------------------
+## Documentation
+
+* [By category](docs/index.md)
+* [One-page](docs/one_page.md)
+
+## Author & Licensing
+
 * Author = "Mugo Web"
 * Copyright = "Copyright © 2012  Mugo Web"
 * License = "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
 
-Contributing
-------------
+## Contributing
+
 Want to contribute? Great! To contribute to the mugoweb eep repo:
 
 1. Fork it.
