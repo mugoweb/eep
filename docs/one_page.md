@@ -863,19 +863,485 @@ $ eep use dump
 ```
 
 # Core - AttributeFunctions
-> Still to come ...
+> A collection of static attribute related helper functions.
+
+- [updateAttribute](#updateAttribute)
+- [addAttributeToClass](#addAttributeToClass)
+- [addAttributeToClass](#addAttributeToClass)
+- [updateContentObjectAttributes](#updateContentObjectAttributes)
+- [deleteAttribute](#deleteAttribute)
+- [listAttributes](#listAttributes)
+- [fromString](#fromString)
+- [toString](#toString)
+- [createAlias](#createAlias)
+- [setField](#setField)
+- [info](#info)
+
+## updateAttribute
+> Updates an attribute for an existing content class. If the attribute doesn't exist it will be created via `AttributeFunctions::addAttributeToClass`. All content class objects will be updated.  
+If the attribute does exist all content class objects will be updated only e.g. repairing in case an update via the admin UI timed out pre-maturely.
+
+*Parameters:* 
+- `$classIdentifier` String
+- `$newAttributeXPath` new attribute XML (see example below)
+
+`$newAttributeXPath` is expected to use the pre-defined `$newAttributeXML` format. (Available as public static and set in the constructor)
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<newattribute>
+    <identifier>
+        the_identifier
+    </identifier>
+    <displayname>
+        Display Name
+    </displayname>
+    <description>
+        This is the description of this attribute. You can say anything you like.
+    </description>
+
+    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext ezimage and probably others -->
+    <!-- see content.ini for full list of avilable types -->
+    <datatypestring>ezxmltext</datatypestring>
+    
+    <!-- some examples: eng-GB eng-CA eng-US -->
+    <language>eng-CA</language>
+    
+    <is_required>0</is_required>
+    <is_searchable>1</is_searchable>
+    <is_information_collector>0</is_information_collector>
+    <can_translate>0</can_translate>
+    
+    <!-- "eep-no-content" is recognized to mean "no content" -->
+    <content>eep-no-content</content>
+
+    <additional_for_specific_datatype>
+        <ezselection>
+            <is_multi_select>
+                0
+            </is_multi_select>
+            <options>
+                <option>Class</option>
+                <option>Order</option>
+                <option>Family</option>
+                <option>Subfamily</option>
+                <option>Genus</option>
+                <option>Species</option>
+                <option>IncertaeSedis</option>
+            </options>
+        </ezselection>
+
+        <ezstring>
+            <!-- maxstringlength is capped at 255 by a sanity check in the code -->
+            <maxstringlength>255</maxstringlength>
+        </ezstring>
+
+        <ezxmltext>
+            <!-- numberoflines is capped at 30 by a sanity check in the code -->
+            <numberoflines>10</numberoflines>
+        </ezxmltext>
+        
+        <ezboolean>
+            <default_value>eep-no-content</default_value>
+        </ezboolean>
+
+        <ezobjectrelation>
+            <selection_type>
+                0
+            </selection_type>
+            <fuzzy_match>
+                false
+            </fuzzy_match>
+            <!-- node id, url path, or "eep-no-content" -->
+            <default_selection_node>
+                eep-no-content
+            </default_selection_node>
+        </ezobjectrelation>
+
+        <!-- not fully supported
+        <ezmatrix>
+            <default_row_count>
+                3
+            </default_row_count>
+        </ezmatrix>
+        -->
+    </additional_for_specific_datatype>
+</newattribute>
+```
+
+## addAttributeToClass
+> Adds a new attribute to an existing content class.
+
+*Parameters:*
+- `$contentClass` eZContentClass object
+- `$newAttributeXPath` new attribute XML (see example above)
+
+*Note:* `$contentClass` is the result of `eZContentClass::fetchByIdentifier( $classIdentifier );`  
+
+*Returns:*
+- The new contentClassAttributeId; Integer
+
+
+## updateParameters 
+> Updates optional attribute parameters like selection_type for objectrelations.
+
+*Parameters:*
+- `$classAttribute` eZContentClassAttribute object
+- `$newAttributeXPath` new attribute XML (see example above)
+
+
+## updateContentObjectAttributes
+> Update all the objects with the new attribute info.
+
+*Parameters:*
+- `$contentClass` eZContentClass object
+- `$classAttributeID` Integer
+- `$identifier` Boolean; default = false
+
+
+## deleteAttribute
+> Deletes an attribute from a content class.
+
+*Parameters:*
+- `$classIdentifier` String
+- `$attributeIdentifier` String
+
+
+## listAttributes
+> Lists all content class attributes (table output)
+
+*Parameters:*
+- `$classIdentifier` String
+
+
+## fromString
+> Updates a content object's attribute value.
+
+*Parameters:*
+- `$contentObjectId` Integer
+- `$attributeIdentifier` String
+- `$value` Mixed
+
+`Note:` each data type has different input string format requirements, consult the link below for details.
+- [fromString documentation](http://svn.projects.ez.no/data_import/doc/fromString.txt) ( [Mirror](http://www.ezpedia.org/ez/simple_fromstring_and_tostring_interface_for_attributes) )
+
+
+## toString
+> Returns string representation of a content object attribute value.
+
+*Parameters:*
+- `$contentObjectId` Integer
+- `$attributeIdentifier` String
+
+
+## createAlias
+> Creates and image alias for a given content object attribute.
+
+*Parameters:*
+- `$contentObjectId` Integer
+- `$attributeIdentifier` String
+- `$aliasName` String
 
 # Core - eepCache
-> Still to come ...
+> A collection of methods to read, write and check the eep cache.
+
+`Note:` The eep cache is stored in a file specified in the user settings `eepSetting::DataCacheFile`.
+
+- [getInstance](#getInstance)
+- [writetoCache](#writetoCache)
+- [readFromCache](#readFromCache)
+- [getAll](#getAll)
+- [cacheKeyIsSet](#cacheKeyIsSet)
+
+## getInstance
+> Returns an eepCache instance.
+
+## writetoCache
+> Writes (adds/updates) a value to the eepCache using the key provided. An empty value removes the cache entry.
+
+*Parameters:*
+- `$key` String
+- `$value` String
+
+
+## readFromCache
+> Reads a value from the eepCache using the key provided.
+
+*Parameters:*
+- `$key` String
+
+
+## getAll
+> Returns the entire eep cache.
+
+## cacheKeyIsSet
+> Returns if the given key exists in the eep cache.
+
+*Parameters:*
+- `$key` String
 
 # Core - eepHelpers
-> Still to come ...
+> A collection of core helper methods.
+
+- [printTable](#printTable)
+- [getListOfAliases](#getListOfAliases)
+- [expandAliases](#expandAliases)
+- [fastRelatedObjectCount](#fastRelatedObjectCount)
+- [displayNodeList](#displayNodeList)
+- [displayNonObjectList](#displayNonObjectList)
+- [displayObjectList](#displayObjectList)
+- [extractAdditionalParams](#extractAdditionalParams)
+- [republishObject](#republishObject)
+- [convertTimeToInteger](#convertTimeToInteger)
+- [fixXML](#fixXML)
+- [fixBadQuestionMarks](#fixBadQuestionMarks)
+
+
+## printTable
+> Outputs data in a formatted ASCII table
+
+*Parameters:*
+- `$table` table data, with the first row listing the column headers; Array
+- `$description` an optional table description; String
+
+```php
+$table = array
+(
+    [0] => array
+    (
+        'OID'
+        , 'NID'
+        , 'Title'
+    ),
+    [1] => array
+    (
+        12345
+        , 12346
+        , 'Lorem Ipsum'
+    )
+    // etc ...
+);
+
+eep::printTable( $table, "A dummy description" );
+
++--------+---------+--------------+
+I A dummy description             |
++--------+---------+--------------+
+I    OID |     NID |        Title |
++--------+---------+--------------+
+|  12345 |   12346 |  Lorem Ipsum |
+...
+
+```
+
+## getListOfAliases
+> Returns an array of all module aliases
+
+## expandAliases
+> Returns the expanded version of the module name, e.g. cc => contentclass
+
+*Parameters:*
+- `$alias` the alias to expand; String
+
+*Returns:*
+- The expanded alias or the original `$alias` value if the alias is not found; String
+
+
+## fastRelatedObjectCount
+> Returns the (reverse)related object count for a given content object id.
+
+*Parameters:*
+- `$objectId` Integer
+- `$objectVersion` Integer
+- `$attributeID` Integer; Optional; Default = 0
+- `$reverseRelatedObjects` Boolean; Optional; Default = false
+- `$params` Boolean; Optional; Default = false
+
+*Returns:*
+- Integer
+
+
+# displayNodeList
+> Outputs an formatted ASCII table of node information, from a list of nodes.
+
+*Parameters:*
+- `$list` Array of eZContentObjectTreeNode(s)
+- `$title` String
+
+
+# displayNonObjectList
+> Outputs an formatted ASCII table of node information, from a list of 'non-objects'.
+
+`Note:` A non-object is the array of data that you get when you fetch an object but say that you don't actually want the object.
+
+*Parameters:*
+- `$list` Array of eZContentObjectTreeNode(s)
+- `$title` String
+
+
+# displayObjectList
+> Outputs an formatted ASCII table of node information, from a list of content objects.
+
+- `$list` Array of eZContentObject(s)
+- `$title` String
+
+
+# extractAdditionalParams
+> Returns key value pairs based on any params to the command line that match: --key=value
+
+*Parameters:*
+- `&$args` Array
+
+
+# republishObject
+> Re-publishes a content object.
+
+`Note:` This protects against accidentally operating on an object with no main node, i.e. an object that is in the trash
+
+*Parameters:*
+- `$objectId` Integer
+
+
+// time is in a colon-separated format hh:mm:ss
+// returns the number of seconds
+# convertTimeToInteger
+> Converts time string to number of seconds.
+
+*Parameters:*
+- `$time` String; hh:mm:ss
+
+*Returns:*
+- Integer
+
+
+# fixXML
+> Cleans many common forms of XML corruption, and ultimately forces character encoding.
+
+`Note:` This method can render some remaining characters as question marks, but many of those can be fixed too, see [fixBadQuestionMarks](#fixBadQuestionMarks).
+
+*Parameters:*
+- `$xml` XML String
+
+*Returns:*
+- XML String
+
+
+# fixBadQuestionMarks
+> Fixes 'bad' question marks that have been been introduced by forcing the encoding to utf8 (e.g. via [fixXML](#fixXML)).
+
+*Parameters:*
+- `$xml` XML String
+
+*Returns:*
+- XML String
 
 # Core - eepLog
-> Still to come ...
+> A logging class based on "eZLog class" - see <ez root>/lib/ezfile/classes/ezlog.php.
+
+`Note:` eepLog methods are not static.
+
+`Public`
+- [eepLog](#eepLog)
+- [Report](#Report)
+- [setPath](#setPath)
+- [setFile](#setFile)
+- [setMaxLogRotateFiles](#setMaxLogRotateFiles)
+- [setMaxLogFileSize](#setMaxLogFileSize)
+
+`Private`
+- [write](#write)
+- [rotateLog](#rotateLog)
+
+# eepLog
+> Constructor method
+
+*Parameters:*
+- `$path` String
+- `$file` String
+
+```php
+$eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
+```
+
+# Report
+> Outputs log message with severity.
+
+*Parameters:*
+- `$msg` String
+- `$severity` String; (normal|error|shy|exception|bell|fatal); Default = normal
+
+`Note:` 
+- severity `exception` will throw an exception
+- severity `fatal` will die
+
+
+# setPath
+> Sets the log file path.
+
+*Parameters:*
+- `$path` String
+
+
+# setFile
+> Sets the log file name.
+
+*Parameters:*
+- `$file` String
+
+
+# setMaxLogRotateFiles
+> Set the maximum amount of rotation log files before deletion occurs.
+
+*Parameters:*
+- `$maxLogRotateFiles` Integer
+
+
+# setMaxLogFileSize
+> Set the maximum log file size.
+
+*Parameters:*
+- `setMaxLogFileSize` Integer; (in bytes)
+
+
+# write
+> `Private` Writes the log message to the log file. Triggers log rotation as required.
+
+*Parameters:*
+- `$message` String
+
+
+# rotateLog
+> `Private` Handles log file rotation and cleanup.
+
+*Parameters:*
+- `$fileName` String
+
+*Return:*
+- Boolean
 
 # Core - eepValidate
-> Still to come ...
+> A collection of validation methods.
+
+- [validateContentObjectId](#validateContentObjectId)
+- [validateContentNodeId](#validateContentNodeId)
+
+# validateContentObjectId
+> Check if an ID is a valid content object ID.
+
+*Parameters:*
+- `$id` Integer
+
+*Returns:*
+- Boolean
+
+
+# validateContentNodeId
+> Check if an ID is a valid content node ID.
+
+*Parameters:*
+- `$id` Integer
+
+*Returns:*
+- Boolean
 
 # Extending - Bash completion
 > Still to come ...
