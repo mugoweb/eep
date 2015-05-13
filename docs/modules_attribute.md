@@ -10,6 +10,8 @@
 - [setfield](#setfield)
 - [info](#info)
 - [createalias](#createalias)
+- [contentobjectid](#contentobjectid)
+
 
 ## delete
 Deletes an attribute from a content class and it's content objects.
@@ -67,3 +69,8 @@ Create a given alias manually for a given content object image attribute.
 $ eep attribute createalias <content object id> <attribute identifier> <alias name>
 ```
 
+## contentobjectid
+Returns the contentobject id from a contentobject _attribute_ id.
+```sh
+eep attribute contentobjectid <content object _attribute_ id> [<version>]
+```

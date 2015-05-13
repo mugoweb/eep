@@ -12,6 +12,8 @@
 - [createAlias](#createalias)
 - [setField](#setfield)
 - [info](#info)
+- [contentobjectid](#contentobjectid)
+
 
 ## updateAttribute
 > Updates an attribute for an existing content class. If the attribute doesn't exist it will be created via `AttributeFunctions::addAttributeToClass`. All content class objects will be updated.  
@@ -176,4 +178,15 @@ If the attribute does exist all content class objects will be updated only e.g. 
 - `$contentObjectId` Integer
 - `$attributeIdentifier` String
 - `$aliasName` String
+
+
+## contentobjectid
+> Returns the contentobject id from a contentobject _attribute_ id.
+
+*Parameters:*
+- `$contentObjectAttributeId` Integer
+- `$version` Integer; Default = 1
+
+*Returns:*
+- Integer
 
