@@ -663,7 +663,7 @@ class AttributeFunctions
     }
 
     //--------------------------------------------------------------------------
-    public static function contentobject( $contentObjectAttributeId, $version = 1 )
+    public static function contentobjectid( $contentObjectAttributeId, $version = 1 )
     {
         $db = eZDB::instance();
         $query = 'SELECT `contentobject_id` FROM `ezcontentobject_attribute`';
