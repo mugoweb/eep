@@ -181,6 +181,7 @@ class eep
             , "ccg" => "contentclassgroup"
             , "cos"  => "contentobjects"
             , "cns"  => "contentnodes"
+            , "coid"  => "contentobjectid"
         );
         return $aliases;
     }

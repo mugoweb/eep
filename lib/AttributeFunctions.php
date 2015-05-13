@@ -661,5 +661,21 @@ class AttributeFunctions
 
         eep::printTable( $results, "Class attribute fields");
     }
+
+    //--------------------------------------------------------------------------
+    public static function contentobjectid( $contentObjectAttributeId, $version = 1 )
+    {
+        $db = eZDB::instance();
+        $query = 'SELECT `contentobject_id` FROM `ezcontentobject_attribute`';
+        $query .= ' WHERE `ezcontentobject_attribute`.`id` = ' . (integer) $contentObjectAttributeId;
+        $query .= ' AND `ezcontentobject_attribute`.`version` = ' . (integer) $version;
+        $query .= ' LIMIT 1';
+        $result = $db->arrayQuery( $query );
+
+        if($result)
+        {
+            return $result[0]['contentobject_id'];
+        }
+    }
 }
 ?>

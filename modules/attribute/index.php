@@ -20,6 +20,7 @@ class attribute_commands
     const attribute_setfield        = "setfield";
     const attribute_info            = "info";
     const attribute_createalias     = "createalias";
+    const attribute_contentobjectid = "contentobjectid";
 
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -34,6 +35,7 @@ class attribute_commands
         , self::attribute_setfield
         , self::attribute_info
         , self::attribute_createalias
+        , self::attribute_contentobjectid
     );
     var $help = "";                     // used to dump the help string
 
@@ -82,6 +84,11 @@ info
 createalias
 - for an image attribute it creates a given alias manually
   eep attribute createalias <content object id> <attribute identifier> <alias name>
+
+contentobjectid
+- return the contentobject id from a contentobject attribute id
+  eep attribute contentobjectid <content object _attribute_ id> [<version>]
+
 EOT;
     }
 
@@ -249,6 +256,12 @@ EOT;
                 $attributeIdentifier = $param2;
                 $aliasName = $param3;
                 echo AttributeFunctions::createAlias( $contentObjectId, $attributeIdentifier, $aliasName ) . "\n";
+                break;
+
+            case self::attribute_contentobjectid:
+                $contentObjectAttributeId = $param1;
+                $version = ( $param2 )? $param2 : 1;
+                echo AttributeFunctions::contentobjectid( $contentObjectAttributeId, $version ) . "\n";
                 break;
         }
     }
