@@ -1,10 +1,10 @@
 # Core - eepValidate
 > A collection of validation methods.
 
-- [validateContentObjectId](#validateContentObjectId)
-- [validateContentNodeId](#validateContentNodeId)
+- [validateContentObjectId](#validatecontentobjectid)
+- [validateContentNodeId](#validatecontentnodeid)
 
-# validateContentObjectId
+## validateContentObjectId
 > Check if an ID is a valid content object ID.
 
 *Parameters:*
@@ -14,7 +14,7 @@
 - Boolean
 
 
-# validateContentNodeId
+## validateContentNodeId
 > Check if an ID is a valid content node ID.
 
 *Parameters:*

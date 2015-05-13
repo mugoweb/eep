@@ -3,11 +3,11 @@
 
 `Note:` The eep cache is stored in a file specified in the user settings `eepSetting::DataCacheFile`.
 
-- [getInstance](#getInstance)
-- [writetoCache](#writetoCache)
-- [readFromCache](#readFromCache)
-- [getAll](#getAll)
-- [cacheKeyIsSet](#cacheKeyIsSet)
+- [getInstance](#getinstance)
+- [writetoCache](#writetocache)
+- [readFromCache](#readfromcache)
+- [getAll](#getall)
+- [cacheKeyIsSet](#cachekeyisset)
 
 ## getInstance
 > Returns an eepCache instance.

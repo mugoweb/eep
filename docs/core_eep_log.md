@@ -4,18 +4,18 @@
 `Note:` eepLog methods are not static.
 
 `Public`
-- [eepLog](#eepLog)
-- [Report](#Report)
-- [setPath](#setPath)
-- [setFile](#setFile)
-- [setMaxLogRotateFiles](#setMaxLogRotateFiles)
-- [setMaxLogFileSize](#setMaxLogFileSize)
+- [eepLog](#eeplog)
+- [Report](#report)
+- [setPath](#setpath)
+- [setFile](#setfile)
+- [setMaxLogRotateFiles](#setmaxlogrotatefiles)
+- [setMaxLogFileSize](#setmaxlogfilesize)
 
 `Private`
 - [write](#write)
-- [rotateLog](#rotateLog)
+- [rotateLog](#rotatelog)
 
-# eepLog
+## eepLog
 > Constructor method
 
 *Parameters:*
@@ -26,7 +26,7 @@
 $eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
 ```
 
-# Report
+## Report
 > Outputs log message with severity.
 
 *Parameters:*
@@ -38,42 +38,42 @@ $eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
 - severity `fatal` will die
 
 
-# setPath
+## setPath
 > Sets the log file path.
 
 *Parameters:*
 - `$path` String
 
 
-# setFile
+## setFile
 > Sets the log file name.
 
 *Parameters:*
 - `$file` String
 
 
-# setMaxLogRotateFiles
+## setMaxLogRotateFiles
 > Set the maximum amount of rotation log files before deletion occurs.
 
 *Parameters:*
 - `$maxLogRotateFiles` Integer
 
 
-# setMaxLogFileSize
+## setMaxLogFileSize
 > Set the maximum log file size.
 
 *Parameters:*
 - `setMaxLogFileSize` Integer; (in bytes)
 
 
-# write
+## write
 > `Private` Writes the log message to the log file. Triggers log rotation as required.
 
 *Parameters:*
 - `$message` String
 
 
-# rotateLog
+## rotateLog
 > `Private` Handles log file rotation and cleanup.
 
 *Parameters:*

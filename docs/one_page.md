@@ -865,16 +865,16 @@ $ eep use dump
 # Core - AttributeFunctions
 > A collection of static attribute related helper functions.
 
-- [updateAttribute](#updateAttribute)
-- [addAttributeToClass](#addAttributeToClass)
-- [addAttributeToClass](#addAttributeToClass)
-- [updateContentObjectAttributes](#updateContentObjectAttributes)
-- [deleteAttribute](#deleteAttribute)
-- [listAttributes](#listAttributes)
-- [fromString](#fromString)
-- [toString](#toString)
-- [createAlias](#createAlias)
-- [setField](#setField)
+- [updateAttribute](#updateattribute)
+- [addAttributeToClass](#addattributetoclass)
+- [addAttributeToClass](#addattributetoclass)
+- [updateContentObjectAttributes](#updatecontentobjectattributes)
+- [deleteAttribute](#deleteattribute)
+- [listAttributes](#listattributes)
+- [fromString](#fromstring)
+- [toString](#tostring)
+- [createAlias](#createalias)
+- [setField](#setfield)
 - [info](#info)
 
 ## updateAttribute
@@ -1046,11 +1046,11 @@ If the attribute does exist all content class objects will be updated only e.g. 
 
 `Note:` The eep cache is stored in a file specified in the user settings `eepSetting::DataCacheFile`.
 
-- [getInstance](#getInstance)
-- [writetoCache](#writetoCache)
-- [readFromCache](#readFromCache)
-- [getAll](#getAll)
-- [cacheKeyIsSet](#cacheKeyIsSet)
+- [getInstance](#getinstance)
+- [writetoCache](#writetocache)
+- [readFromCache](#readfromcache)
+- [getAll](#getall)
+- [cacheKeyIsSet](#cachekeyisset)
 
 ## getInstance
 > Returns an eepCache instance.
@@ -1082,18 +1082,18 @@ If the attribute does exist all content class objects will be updated only e.g. 
 # Core - eepHelpers
 > A collection of core helper methods.
 
-- [printTable](#printTable)
-- [getListOfAliases](#getListOfAliases)
-- [expandAliases](#expandAliases)
-- [fastRelatedObjectCount](#fastRelatedObjectCount)
-- [displayNodeList](#displayNodeList)
-- [displayNonObjectList](#displayNonObjectList)
-- [displayObjectList](#displayObjectList)
-- [extractAdditionalParams](#extractAdditionalParams)
-- [republishObject](#republishObject)
-- [convertTimeToInteger](#convertTimeToInteger)
-- [fixXML](#fixXML)
-- [fixBadQuestionMarks](#fixBadQuestionMarks)
+- [printTable](#printtable)
+- [getListOfAliases](#getlistofaliases)
+- [expandAliases](#expandaliases)
+- [fastRelatedObjectCount](#fastrelatedobjectcount)
+- [displayNodeList](#displaynodelist)
+- [displayNonObjectList](#displaynonobjectlist)
+- [displayObjectList](#displayobjectlist)
+- [extractAdditionalParams](#extractadditionalparams)
+- [republishObject](#republishobject)
+- [convertTimeToInteger](#converttimetointeger)
+- [fixXML](#fixxml)
+- [fixBadQuestionMarks](#fixbadquestionmarks)
 
 
 ## printTable
@@ -1160,7 +1160,7 @@ I    OID |     NID |        Title |
 - Integer
 
 
-# displayNodeList
+## displayNodeList
 > Outputs an formatted ASCII table of node information, from a list of nodes.
 
 *Parameters:*
@@ -1168,7 +1168,7 @@ I    OID |     NID |        Title |
 - `$title` String
 
 
-# displayNonObjectList
+## displayNonObjectList
 > Outputs an formatted ASCII table of node information, from a list of 'non-objects'.
 
 `Note:` A non-object is the array of data that you get when you fetch an object but say that you don't actually want the object.
@@ -1178,21 +1178,21 @@ I    OID |     NID |        Title |
 - `$title` String
 
 
-# displayObjectList
+## displayObjectList
 > Outputs an formatted ASCII table of node information, from a list of content objects.
 
 - `$list` Array of eZContentObject(s)
 - `$title` String
 
 
-# extractAdditionalParams
+## extractAdditionalParams
 > Returns key value pairs based on any params to the command line that match: --key=value
 
 *Parameters:*
 - `&$args` Array
 
 
-# republishObject
+## republishObject
 > Re-publishes a content object.
 
 `Note:` This protects against accidentally operating on an object with no main node, i.e. an object that is in the trash
@@ -1201,9 +1201,7 @@ I    OID |     NID |        Title |
 - `$objectId` Integer
 
 
-// time is in a colon-separated format hh:mm:ss
-// returns the number of seconds
-# convertTimeToInteger
+## convertTimeToInteger
 > Converts time string to number of seconds.
 
 *Parameters:*
@@ -1213,10 +1211,10 @@ I    OID |     NID |        Title |
 - Integer
 
 
-# fixXML
+## fixXML
 > Cleans many common forms of XML corruption, and ultimately forces character encoding.
 
-`Note:` This method can render some remaining characters as question marks, but many of those can be fixed too, see [fixBadQuestionMarks](#fixBadQuestionMarks).
+`Note:` This method can render some remaining characters as question marks, but many of those can be fixed too, see [fixBadQuestionMarks](#fixbadquestionmarks).
 
 *Parameters:*
 - `$xml` XML String
@@ -1225,8 +1223,8 @@ I    OID |     NID |        Title |
 - XML String
 
 
-# fixBadQuestionMarks
-> Fixes 'bad' question marks that have been been introduced by forcing the encoding to utf8 (e.g. via [fixXML](#fixXML)).
+## fixBadQuestionMarks
+> Fixes 'bad' question marks that have been been introduced by forcing the encoding to utf8 (e.g. via [fixXML](#fixxml)).
 
 *Parameters:*
 - `$xml` XML String
@@ -1240,18 +1238,18 @@ I    OID |     NID |        Title |
 `Note:` eepLog methods are not static.
 
 `Public`
-- [eepLog](#eepLog)
-- [Report](#Report)
-- [setPath](#setPath)
-- [setFile](#setFile)
-- [setMaxLogRotateFiles](#setMaxLogRotateFiles)
-- [setMaxLogFileSize](#setMaxLogFileSize)
+- [eepLog](#eeplog)
+- [Report](#report)
+- [setPath](#setpath)
+- [setFile](#setfile)
+- [setMaxLogRotateFiles](#setmaxlogrotatefiles)
+- [setMaxLogFileSize](#setmaxlogfilesize)
 
 `Private`
 - [write](#write)
-- [rotateLog](#rotateLog)
+- [rotateLog](#rotatelog)
 
-# eepLog
+## eepLog
 > Constructor method
 
 *Parameters:*
@@ -1262,7 +1260,7 @@ I    OID |     NID |        Title |
 $eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
 ```
 
-# Report
+## Report
 > Outputs log message with severity.
 
 *Parameters:*
@@ -1274,42 +1272,42 @@ $eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
 - severity `fatal` will die
 
 
-# setPath
+## setPath
 > Sets the log file path.
 
 *Parameters:*
 - `$path` String
 
 
-# setFile
+## setFile
 > Sets the log file name.
 
 *Parameters:*
 - `$file` String
 
 
-# setMaxLogRotateFiles
+## setMaxLogRotateFiles
 > Set the maximum amount of rotation log files before deletion occurs.
 
 *Parameters:*
 - `$maxLogRotateFiles` Integer
 
 
-# setMaxLogFileSize
+## setMaxLogFileSize
 > Set the maximum log file size.
 
 *Parameters:*
 - `setMaxLogFileSize` Integer; (in bytes)
 
 
-# write
+## write
 > `Private` Writes the log message to the log file. Triggers log rotation as required.
 
 *Parameters:*
 - `$message` String
 
 
-# rotateLog
+## rotateLog
 > `Private` Handles log file rotation and cleanup.
 
 *Parameters:*
@@ -1321,10 +1319,10 @@ $eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
 # Core - eepValidate
 > A collection of validation methods.
 
-- [validateContentObjectId](#validateContentObjectId)
-- [validateContentNodeId](#validateContentNodeId)
+- [validateContentObjectId](#validatecontentobjectid)
+- [validateContentNodeId](#validatecontentnodeid)
 
-# validateContentObjectId
+## validateContentObjectId
 > Check if an ID is a valid content object ID.
 
 *Parameters:*
@@ -1334,7 +1332,7 @@ $eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
 - Boolean
 
 
-# validateContentNodeId
+## validateContentNodeId
 > Check if an ID is a valid content node ID.
 
 *Parameters:*

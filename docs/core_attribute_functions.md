@@ -1,16 +1,16 @@
 # Core - AttributeFunctions
 > A collection of static attribute related helper functions.
 
-- [updateAttribute](#updateAttribute)
-- [addAttributeToClass](#addAttributeToClass)
-- [addAttributeToClass](#addAttributeToClass)
-- [updateContentObjectAttributes](#updateContentObjectAttributes)
-- [deleteAttribute](#deleteAttribute)
-- [listAttributes](#listAttributes)
-- [fromString](#fromString)
-- [toString](#toString)
-- [createAlias](#createAlias)
-- [setField](#setField)
+- [updateAttribute](#updateattribute)
+- [addAttributeToClass](#addattributetoclass)
+- [addAttributeToClass](#addattributetoclass)
+- [updateContentObjectAttributes](#updatecontentobjectattributes)
+- [deleteAttribute](#deleteattribute)
+- [listAttributes](#listattributes)
+- [fromString](#fromstring)
+- [toString](#tostring)
+- [createAlias](#createalias)
+- [setField](#setfield)
 - [info](#info)
 
 ## updateAttribute

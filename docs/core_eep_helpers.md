@@ -1,18 +1,18 @@
 # Core - eepHelpers
 > A collection of core helper methods.
 
-- [printTable](#printTable)
-- [getListOfAliases](#getListOfAliases)
-- [expandAliases](#expandAliases)
-- [fastRelatedObjectCount](#fastRelatedObjectCount)
-- [displayNodeList](#displayNodeList)
-- [displayNonObjectList](#displayNonObjectList)
-- [displayObjectList](#displayObjectList)
-- [extractAdditionalParams](#extractAdditionalParams)
-- [republishObject](#republishObject)
-- [convertTimeToInteger](#convertTimeToInteger)
-- [fixXML](#fixXML)
-- [fixBadQuestionMarks](#fixBadQuestionMarks)
+- [printTable](#printtable)
+- [getListOfAliases](#getlistofaliases)
+- [expandAliases](#expandaliases)
+- [fastRelatedObjectCount](#fastrelatedobjectcount)
+- [displayNodeList](#displaynodelist)
+- [displayNonObjectList](#displaynonobjectlist)
+- [displayObjectList](#displayobjectlist)
+- [extractAdditionalParams](#extractadditionalparams)
+- [republishObject](#republishobject)
+- [convertTimeToInteger](#converttimetointeger)
+- [fixXML](#fixxml)
+- [fixBadQuestionMarks](#fixbadquestionmarks)
 
 
 ## printTable
@@ -79,7 +79,7 @@ I    OID |     NID |        Title |
 - Integer
 
 
-# displayNodeList
+## displayNodeList
 > Outputs an formatted ASCII table of node information, from a list of nodes.
 
 *Parameters:*
@@ -87,7 +87,7 @@ I    OID |     NID |        Title |
 - `$title` String
 
 
-# displayNonObjectList
+## displayNonObjectList
 > Outputs an formatted ASCII table of node information, from a list of 'non-objects'.
 
 `Note:` A non-object is the array of data that you get when you fetch an object but say that you don't actually want the object.
@@ -97,21 +97,21 @@ I    OID |     NID |        Title |
 - `$title` String
 
 
-# displayObjectList
+## displayObjectList
 > Outputs an formatted ASCII table of node information, from a list of content objects.
 
 - `$list` Array of eZContentObject(s)
 - `$title` String
 
 
-# extractAdditionalParams
+## extractAdditionalParams
 > Returns key value pairs based on any params to the command line that match: --key=value
 
 *Parameters:*
 - `&$args` Array
 
 
-# republishObject
+## republishObject
 > Re-publishes a content object.
 
 `Note:` This protects against accidentally operating on an object with no main node, i.e. an object that is in the trash
@@ -120,9 +120,7 @@ I    OID |     NID |        Title |
 - `$objectId` Integer
 
 
-// time is in a colon-separated format hh:mm:ss
-// returns the number of seconds
-# convertTimeToInteger
+## convertTimeToInteger
 > Converts time string to number of seconds.
 
 *Parameters:*
@@ -132,10 +130,10 @@ I    OID |     NID |        Title |
 - Integer
 
 
-# fixXML
+## fixXML
 > Cleans many common forms of XML corruption, and ultimately forces character encoding.
 
-`Note:` This method can render some remaining characters as question marks, but many of those can be fixed too, see [fixBadQuestionMarks](#fixBadQuestionMarks).
+`Note:` This method can render some remaining characters as question marks, but many of those can be fixed too, see [fixBadQuestionMarks](#fixbadquestionmarks).
 
 *Parameters:*
 - `$xml` XML String
@@ -144,8 +142,8 @@ I    OID |     NID |        Title |
 - XML String
 
 
-# fixBadQuestionMarks
-> Fixes 'bad' question marks that have been been introduced by forcing the encoding to utf8 (e.g. via [fixXML](#fixXML)).
+## fixBadQuestionMarks
+> Fixes 'bad' question marks that have been been introduced by forcing the encoding to utf8 (e.g. via [fixXML](#fixxml)).
 
 *Parameters:*
 - `$xml` XML String
