@@ -171,14 +171,16 @@ class eep
     {
         $aliases = array
         (
+        // module shortcuts
             "at"    => "attribute"
             , "cc"  => "contentclass"
             , "co"  => "contentobject"
             , "cn"  => "contentnode"
             , "kb"  => "knowledgebase"
+            , "ccg" => "contentclassgroup"
+        // method shortcuts
             , "ats"  => "attributes"
             , "ccs"  => "contentclasses"
-            , "ccg" => "contentclassgroup"
             , "cos"  => "contentobjects"
             , "cns"  => "contentnodes"
             , "coid"  => "contentobjectid"
