@@ -25,6 +25,21 @@ $ eep help
 $ eep <module> help
 $ eep help <module>
 ```
+Shortcuts:  
+`$ eep contentclass article` becomes `$ eep cc article`
+```sh
+  at => attribute         (module)
+  cc => contentclass      (module)
+  co => contentobject     (module)
+  cn => contentnode       (module)
+  kb => knowledgebase     (module)
+ ccg => contentclassgroup (module)
+ ats => attributes        (method) e.g. eep list ats
+ ccs => contentclasses    (method) e.g. eep list ccs
+ cos => contentobjects    (method) e.g. eep list cos
+ cns => contentnodes      (method) e.g. eep list cns
+coid => contentobjectid   (method) e.g. eep at coid
+```
 
 ## Modules
 - [attribute](modules_attributes.md#modules---attribute)

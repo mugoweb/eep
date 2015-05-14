@@ -25,6 +25,21 @@ $ eep help
 $ eep <module> help
 $ eep help <module>
 ```
+Shortcuts:  
+`$ eep contentclass article` becomes `$ eep cc article`
+```sh
+  at => attribute         (module)
+  cc => contentclass      (module)
+  co => contentobject     (module)
+  cn => contentnode       (module)
+  kb => knowledgebase     (module)
+ ccg => contentclassgroup (module)
+ ats => attributes        (method) e.g. eep list ats
+ ccs => contentclasses    (method) e.g. eep list ccs
+ cos => contentobjects    (method) e.g. eep list cos
+ cns => contentnodes      (method) e.g. eep list cns
+coid => contentobjectid   (method) e.g. eep at coid
+```
 
 ## Modules
 - [attribute](#modules---attribute)
@@ -191,7 +206,17 @@ $ eep attribute createalias <content object id> <attribute identifier> <alias na
 Returns the contentobject id from a contentobject _attribute_ id.
 ```sh
 eep attribute contentobjectid <content object _attribute_ id> [<version>]
-```#Modules - contentclass
+```
+
+_Tip_  
+Amongst other things this method can be used to find out which content object images in the `/var/<yoursite>/storage/` folder belong to.  
+The image path contains folders in the following format:  
+`<contentobject_id>-<contentobject_version>-<contentobject_language>`  
+i.e. `23929-1-eng-CA` for the 1st version of a content object for english (Canada)
+
+Those IDs could be extracted via `grep` and then passed to `eep attribute contentobjectid ...` via `xargs`.
+
+#Modules - contentclass
 > The contentclass module provides methods to manipulate content classes.
 
 - [createclass](#createclass)

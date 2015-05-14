@@ -74,3 +74,12 @@ Returns the contentobject id from a contentobject _attribute_ id.
 ```sh
 eep attribute contentobjectid <content object _attribute_ id> [<version>]
 ```
+
+_Tip_  
+Amongst other things this method can be used to find out which content object images in the `/var/<yoursite>/storage/` folder belong to.  
+The image path contains folders in the following format:  
+`<contentobject_id>-<contentobject_version>-<contentobject_language>`  
+i.e. `23929-1-eng-CA` for the 1st version of a content object for english (Canada)
+
+Those IDs could be extracted via `grep` and then passed to `eep attribute contentobjectid ...` via `xargs`.
+
