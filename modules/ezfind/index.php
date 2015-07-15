@@ -319,7 +319,7 @@ EOT;
         $params = array(  'baseURL' => false
                         , 'request' => '/select'
                         , 'parameters' => array( 'q' => 'meta_id_si:' . $objectId ) );
-                        
+
         $search = eZFunctionHandler::execute( 'ezfind', 'rawSolrRequest', $params );
         if( count( $search["response"]["docs"] ) )
         {
@@ -328,47 +328,37 @@ EOT;
         }  
         else
         {
-
-            echo "not-indexed\n";           
-
-        }    
+            echo "not-indexed\n";
+        }
     }
     
     //--------------------------------------------------------------------------
     private function startsolr( $ezRootPath )
     {
-        
-        if ( $this->isSolrRunning() )
+        if( $this->isSolrRunning() )
         {
             echo "solr is already running\n";
-        
         }
         else
         {
             $startCmd = "bash -c ";
             $startCmd .= "\"cd " . $ezRootPath . "/extension/ezfind/java/; ";
-            //$startCmd .= "java -DDEBUG -Dezfind -Xms512M -Xmx512M -jar start.jar\"";
             $startCmd .= "java -Dezfind -Xms512M -Xmx512M -jar start.jar\"";
+
+            $result = shell_exec( $startCmd );
         }
-        $result = shell_exec( $startCmd );
     }
     //--------------------------------------------------------------------------
     private function isSolrRunning()
     {
-        // look for the solr url welcome text, in case it's already started
-        $ini = eZINI::instance('solr.ini');
-        $url = $ini->variable("SolrBase", "SearchServerURI");
-        $html = @file_get_contents( $url );
-        if (strpos($html, 'Welcome to Solr!') !== false )
-        {
-            return true;
-        
-        }
-        else
-        {
-            return false;
-        }
-    
+        // ping solr, to find out if it is (already) running
+        $ini = eZINI::instance( 'solr.ini' );
+        $url = $ini->variable( 'SolrBase', 'SearchServerURI' );
+
+        $solrBase = new eZSolrBase( $url );
+        $pingResult = $solrBase->ping();
+
+        return isset( $pingResult[ 'status' ] ) && $pingResult[ 'status' ] === 'OK';
     }
     //--------------------------------------------------------------------------
     private function testQuery( $testQuery=null )
