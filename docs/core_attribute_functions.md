@@ -162,6 +162,7 @@ If the attribute does exist all content class objects will be updated only e.g. 
 `Note:` each data type has different input string format requirements, consult the link below for details.
 - [fromString documentation](http://svn.projects.ez.no/data_import/doc/fromString.txt) ( [Mirror](http://www.ezpedia.org/ez/simple_fromstring_and_tostring_interface_for_attributes) )
 
+`Also note:` not all datatypes (attribute types) are supported. The most commonly used ones are, such as 'plain text', integer, eZXML, and others as supported by the mapping of complex data into strings, as noted above.
 
 ## toString
 > Returns string representation of a content object attribute value.
