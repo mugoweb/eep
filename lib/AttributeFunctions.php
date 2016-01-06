@@ -526,7 +526,31 @@ class AttributeFunctions
         }
         eep::printTable( $results, "list attributes of class: ".$classIdentifier );
     }
+    
+    //--------------------------------------------------------------------------
+    public static function convertInputIntoEZXML( $input, $parseLineBreaks = false )
+    {
+        // repair neutered HTML ...
+        $input = str_replace( array( "&lt;", "&gt;", "&amp;" ), array( "<", ">", "&" ), $input );
 
+        // deal with manual linebreaks added for formatting
+        // set restoration markers ...
+        // for two consecutive newline characters or carriage return followed by newline i.e. empty lines
+        $input = str_replace( array( "\n\n", "\r\n\r\n" ), '__DOUBLE_NL_REST__', $input );
+        // kill any remaining newline/carriage return characters
+        $input = str_replace( array( "\n", "\r" ), ' ', $input );
+        // replace restoration markers with newline(s)
+        $input = str_replace( "__DOUBLE_NL_REST__", "\n\n", $input );
+
+        // and convert it into ezxml
+        // params used: validateErrorLevel, detectErrorLevel, parseLineBreaks
+        $parser = new eZOEInputParser( eZXMLInputParser::ERROR_NONE, eZXMLInputParser::ERROR_NONE, $parseLineBreaks );
+        $document = $parser->process( $input );
+        $output = eZXMLTextType::domString( $document );
+
+        return $output;
+    }
+    
     //--------------------------------------------------------------------------
     public static function fromString( $contentObjectId, $attributeIdentifier, $value )
     {
@@ -541,6 +565,12 @@ class AttributeFunctions
             throw new Exception( "This is not an attribute identifer [" .$attributeIdentifier. "] on content class '" . $contentObject->ClassIdentifier . "'"  );
         }
 
+        if( "ezxmltext" == $dataMap[ $attributeIdentifier ]->DataTypeString )
+        {
+            // convert passed value to ez xml format
+            $value = AttributeFunctions::convertInputIntoEZXML( $value );
+        }
+        
         $dataMap[ $attributeIdentifier ]->FromString( $value );
         $dataMap[ $attributeIdentifier ]->store();
 
