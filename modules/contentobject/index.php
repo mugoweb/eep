@@ -22,6 +22,7 @@ class contentobject_commands
     const contentobject_sitemapxml       = "sitemapxml";
     const contentobject_deleteversions   = "deleteversions";
     const contentobject_fetchbyremoteid  = "fetchbyremoteid";
+    const contentobject_setremoteid      = "setremoteid";
     
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -38,6 +39,7 @@ class contentobject_commands
         , self::contentobject_reverserelated
         , self::contentobject_sitemapxml
         , self::contentobject_fetchbyremoteid
+        , self::contentobject_setremoteid
     );
     var $help = "";                     // used to dump the help string
     
@@ -124,6 +126,11 @@ reverserelated
   or
   eep contentobject reverserelated <object id>
   
+setremoteid
+  eep use ezroot <path>
+  eep contentobject setremoteid <object id> <remoteid>
+  note that only [a-zA-Z0-0_] are valid characters
+
 sitemapxml
 - emit line of xml for inclusion in a sitemap
 - note domain is only: example.com
@@ -412,6 +419,14 @@ EOT;
         $contentObject = eZContentObject::fetchByRemoteID( $remoteId );
         $this->dumpContentObjectInfo( $contentObject );
     }
+
+    //--------------------------------------------------------------------------
+    private function setremoteid( $objectId, $remoteId )
+    {
+        $contentObject = eZContentObject::fetch( $objectId );
+        $contentObject->setAttribute( 'remote_id',  $remoteId );
+        $contentObject->sync( array( 'remote_id' ) );
+    }
     
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
@@ -548,6 +563,19 @@ EOT;
             case self::contentobject_fetchbyremoteid:
                 $this->fetchbyremoteid( $param1 );
                 break;
+            
+            case self::contentobject_setremoteid:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                $remoteId = $param2;
+                if( !eepValidate::validateContentObjectId( $objectId ) )
+                    throw new Exception( "This is not an object id: [" .$objectId. "]" );
+                if( preg_replace( "/[^a-zA-Z0-0_]/", "", $remoteId ) != $remoteId )
+                    throw new Exception( "This is not an acceptable remote id: [" .$remoteId. "]" );
+                $this->setremoteid( $objectId, $remoteId );
         }
     }
 }
