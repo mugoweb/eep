@@ -42,7 +42,7 @@ coid => contentobjectid   (method) e.g. eep at coid
 ```
 
 ## Modules
-- [attribute](modules_attributes.md#modules---attribute)
+- [attribute](modules_attribute.md#modules---attribute)
 - [contentclass](modules_contentclass.md#modules---contentclass)
 - [contentclassgroup](modules_contentclassgroup.md#modules---contentclassgroup)
 - [contentnode](modules_contentnode.md#modules---contentnode)
