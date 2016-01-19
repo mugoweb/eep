@@ -141,6 +141,7 @@ You can override the settings by copying ```.../eep/eepSettings.php``` into your
 - [fromstring](#fromstring)
 - [tostring](#tostring)
 - [setfield](#setfield)
+- [set](#set)
 - [info](#info)
 - [createalias](#createalias)
 - [contentobjectid](#contentobjectid)
@@ -190,6 +191,12 @@ Directly sets one of the content class attribute fields (e.g. ```data_int```, ``
 $ eep attribute setfield <class identifier> <attributename> <fieldname> <fieldvalue>
 ```
 
+## set
+Directly sets one of the contentobject attributes (e.g. owner_id, published etc.)
+```sh
+$ eep attribute set <content object id> <attribute identifier> <attribute value>
+```
+
 ## info
 Displays all content class attribute fields (e.g. ```data_int```, ```data_text1``` etc.)
 ```sh
@@ -215,42 +222,6 @@ The image path contains folders in the following format:
 i.e. `23929-1-eng-CA` for the 1st version of a content object for english (Canada)
 
 Those IDs could be extracted via `grep` and then passed to `eep attribute contentobjectid ...` via `xargs`.
-
-# Modules - contentclassgroup
-> The contentclassgroup module provides methods to manipulate content class groups.
-
-- [creategroup](#creategroup)
-- [deletegroup](#deletegroup)
-- [renamegroup](#renamegroup)
-- [fetchall](#fetchall)
-
-## creategroup
-Creates a new content class group.
-```sh
-$ eep use ezroot <path>
-$ eep contentclassgroup creategroup <group identifier>
-```
-
-## deletegroup
-Deletes the specified content class group
-```sh
-$ eep use ezroot <path>
-$ eep contentclassgroup deletegroup <group identifier>
-```
-
-## renamegroup
-Renames a content class group.
-```sh
-$ eep use ezroot <path>
-$ eep contentclassgroup renamegroup <group identifier from> <group identifier to>
-```
-
-## fetchall
-Displays all content class groups.
-```sh
-$ eep use ezroot <path>
-$ eep contentclassgroup fetchall
-```
 
 #Modules - contentclass
 > The contentclass module provides methods to manipulate content classes.
@@ -324,6 +295,42 @@ Removes a contentclass from a contentclass group.
 ```sh
 $ eep use ezroot <path>
 $ eep contentclass removefromgroup <content class identifier> <group identifier>
+```
+
+# Modules - contentclassgroup
+> The contentclassgroup module provides methods to manipulate content class groups.
+
+- [creategroup](#creategroup)
+- [deletegroup](#deletegroup)
+- [renamegroup](#renamegroup)
+- [fetchall](#fetchall)
+
+## creategroup
+Creates a new content class group.
+```sh
+$ eep use ezroot <path>
+$ eep contentclassgroup creategroup <group identifier>
+```
+
+## deletegroup
+Deletes the specified content class group
+```sh
+$ eep use ezroot <path>
+$ eep contentclassgroup deletegroup <group identifier>
+```
+
+## renamegroup
+Renames a content class group.
+```sh
+$ eep use ezroot <path>
+$ eep contentclassgroup renamegroup <group identifier from> <group identifier to>
+```
+
+## fetchall
+Displays all content class groups.
+```sh
+$ eep use ezroot <path>
+$ eep contentclassgroup fetchall
 ```
 
 # Modules - contentnode
@@ -906,6 +913,7 @@ $ eep use dump
 - [toString](#tostring)
 - [createAlias](#createalias)
 - [setField](#setfield)
+- [set](#set)
 - [info](#info)
 - [contentobjectid](#contentobjectid)
 
@@ -1059,12 +1067,30 @@ If the attribute does exist all content class objects will be updated only e.g. 
 
 `Also note:` not all datatypes (attribute types) are supported. The most commonly used ones are, such as 'plain text', integer, eZXML, and others as supported by the mapping of complex data into strings, as noted above.
 
+
 ## toString
 > Returns string representation of a content object attribute value.
 
 *Parameters:*
 - `$contentObjectId` Integer
 - `$attributeIdentifier` String
+
+
+## setField
+> Directly sets one of the attribute fields (e.g. data_int, data_text1 etc.)
+
+- `$classIdentifier` Integer
+- `$attributeIdentifier` String
+- `$fieldIdentifier` String
+- `$fieldValue` String
+
+
+## set
+> Directly sets one of the contentobject attributes (e.g. owner_id, published etc.)
+
+- `$contentObjectId` Integer
+- `$attributeIdentifier` String
+- `$attributeValue` Mixed
 
 
 ## createAlias

@@ -18,6 +18,7 @@ class attribute_commands
     const attribute_fromstring      = "fromstring";
     const attribute_tostring        = "tostring";
     const attribute_setfield        = "setfield";
+    const attribute_set             = "set";
     const attribute_info            = "info";
     const attribute_createalias     = "createalias";
     const attribute_contentobjectid = "contentobjectid";
@@ -33,6 +34,7 @@ class attribute_commands
         , self::attribute_newattributexml
         , self::attribute_update
         , self::attribute_setfield
+        , self::attribute_set
         , self::attribute_info
         , self::attribute_createalias
         , self::attribute_contentobjectid
@@ -76,6 +78,10 @@ update
 setfield
 - directly sets one of the attribute fields (e.g. data_int, data_text1 etc.)
   eep attribute setfield <class identifier> <attributename> <fieldname> <fieldvalue>
+
+set
+- directly sets one of the contentobject attributes (e.g. owner_id, published etc.)
+  eep attribute set <content object id> <attribute identifier> <attribute value>
 
 info
 - displays all attribute fields (e.g. data_int, data_text1 etc.)
@@ -220,6 +226,13 @@ EOT;
                 $fieldIdentifier = $param3;
                 $fieldValue = $param4;
                 AttributeFunctions::setField( $classIdentifier, $attributeIdentifier, $fieldIdentifier, $fieldValue );
+                break;
+
+            case self::attribute_set:
+                $contentObjectId = $param1;
+                $attributeIdentifier = $param2;
+                $attributeValue = $param3;
+                AttributeFunctions::setAttribute( $contentObjectId, $attributeIdentifier, $attributeValue );
                 break;
 
             case self::attribute_info:

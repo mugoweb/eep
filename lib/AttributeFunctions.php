@@ -659,6 +659,25 @@ class AttributeFunctions
     }
 
     //--------------------------------------------------------------------------
+    public static function setAttribute( $contentObjectId, $attributeIdentifier, $attributeValue )
+    {
+        $contentObject = eZContentObject::fetch( $contentObjectId );
+
+        if ( !$contentObject )
+        {
+            throw new Exception( "This is not a content object [" . $contentObjectId . "]" );
+        }
+
+        if ( !$contentObject->hasAttribute( $attributeIdentifier ) )
+        {
+            throw new Exception( "This is not a content object attribute identifier [" . $attributeIdentifier . "]" );   
+        }
+
+        $contentObject->setAttribute( $attributeIdentifier, $attributeValue );
+        $contentObject->store();
+    }
+
+    //--------------------------------------------------------------------------
     public static function info( $classIdentifier, $attributeIdentifier, $fieldIdentifier )
     {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );

@@ -8,6 +8,7 @@
 - [fromstring](#fromstring)
 - [tostring](#tostring)
 - [setfield](#setfield)
+- [set](#set)
 - [info](#info)
 - [createalias](#createalias)
 - [contentobjectid](#contentobjectid)
@@ -55,6 +56,12 @@ $ eep attribute tostring <content object id> <attribute identifier>
 Directly sets one of the content class attribute fields (e.g. ```data_int```, ```data_text1``` etc.)
 ```sh
 $ eep attribute setfield <class identifier> <attributename> <fieldname> <fieldvalue>
+```
+
+## set
+Directly sets one of the contentobject attributes (e.g. owner_id, published etc.)
+```sh
+$ eep attribute set <content object id> <attribute identifier> <attribute value>
 ```
 
 ## info

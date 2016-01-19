@@ -11,6 +11,7 @@
 - [toString](#tostring)
 - [createAlias](#createalias)
 - [setField](#setfield)
+- [set](#set)
 - [info](#info)
 - [contentobjectid](#contentobjectid)
 
@@ -164,12 +165,30 @@ If the attribute does exist all content class objects will be updated only e.g. 
 
 `Also note:` not all datatypes (attribute types) are supported. The most commonly used ones are, such as 'plain text', integer, eZXML, and others as supported by the mapping of complex data into strings, as noted above.
 
+
 ## toString
 > Returns string representation of a content object attribute value.
 
 *Parameters:*
 - `$contentObjectId` Integer
 - `$attributeIdentifier` String
+
+
+## setField
+> Directly sets one of the attribute fields (e.g. data_int, data_text1 etc.)
+
+- `$classIdentifier` Integer
+- `$attributeIdentifier` String
+- `$fieldIdentifier` String
+- `$fieldValue` String
+
+
+## set
+> Directly sets one of the contentobject attributes (e.g. owner_id, published etc.)
+
+- `$contentObjectId` Integer
+- `$attributeIdentifier` String
+- `$attributeValue` Mixed
 
 
 ## createAlias
