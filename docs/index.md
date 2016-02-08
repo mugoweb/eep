@@ -57,6 +57,7 @@ coid => contentobjectid   (method) e.g. eep at coid
 - [section](modules_section.md#modules---section)
 - [trash](modules_trash.md#modules---trash)
 - [use](modules_use.md#modules---use)
+- [user](modules_user.md#modules---user)
 
 ## Core libs
 - [AttributeFunctions](core_attribute_functions.md#core---attributefunctions)
