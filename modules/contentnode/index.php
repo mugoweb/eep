@@ -19,7 +19,9 @@ class contentnode_commands
     const contentnode_deletesubtree      = "deletesubtree";
     const contentnode_move               = "move";
     const contentnode_setsortorder       = "setsortorder";
-    
+    const contentnode_hidesubtree        = "hidesubtree";
+    const contentnode_unhidesubtree      = "unhidesubtree";
+        
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -32,6 +34,8 @@ class contentnode_commands
         , self::contentnode_location
         , self::contentnode_move
         , self::contentnode_setsortorder
+        , self::contentnode_hidesubtree
+        , self::contentnode_unhidesubtree
     );
     var $help = "";                     // used to dump the help string
     
@@ -43,21 +47,21 @@ class contentnode_commands
         $command = array_pop( $parts );
         
 $this->help = <<<EOT
-clearsubtreecache
+Note: You need to do "eep use ezroot <path>" before starting work with a new local instance of eZ Publish.
 
+clearsubtreecache
+  eep contentnode clearsubtreecache <subtree node id>
+  
 contentobject
 - convert a content node id to a content object id
-  eep use ezroot <path>
   eep contentnode contentobject <content node id>
   or
-  eep use ezroot <path>
   eep use contentnode <content node id>
   eep contentnode contentobject
 
 deletesubtree
 - is hardcoded to use user 14 to do the deletions
 - supports --limit=N to override the sanity check limit (0 means no-limit)
-  eep use ezroot <path>
   eep contentnode deletesubtree <subtree node id>
   ... or
   eep use contentnode <subtree node id>
@@ -65,26 +69,29 @@ deletesubtree
   
 find
 - supports --limit=N and/or --offset=M
-  eep use ezroot <path>
   eep cn find <content class> <parent node id> <search string>P  
 
+hidesubtree
+- hide node and make subtree invisible
+  eep contentnode hidesubtree <subtree node id>
+  
+unhidesubtree
+- unhide node and children
+  eep contentnode unhidesubtree <subtree node id>
+  
 info
-  eep use ezroot <path>
   eep use contentnode <node id>
   eep contentnode info
   ... or
-  eep use ezroot <path>
   eep contentnode info <node id>
 
 location
 - put content object at an additional location
-  eep use ezroot <path>
   eep use contentobject <object id>
   eep contentnode location <new parent node id>
   
 move
 - move provided node to be child at new location
-  eep use ezroot <path>
   eep use contentnode <node id>
   eep contentnode move <new parent node id>
   or
@@ -457,6 +464,28 @@ EOT;
     }
 
     //--------------------------------------------------------------------------
+    private function hidesubtree( $nodeId )
+    {
+        if( !eepValidate::validateContentNodeId( $nodeId ) )
+            throw new Exception( "This is not a node id: [" .$nodeId. "]" );
+        
+        $node = eZContentObjectTreeNode::fetch( $nodeId );
+        
+        eZContentObjectTreeNode::hideSubTree( $node );
+    }
+
+    //--------------------------------------------------------------------------
+    private function unhidesubtree( $nodeId )
+    {
+        if( !eepValidate::validateContentNodeId( $nodeId ) )
+            throw new Exception( "This is not a node id: [" .$nodeId. "]" );
+        
+        $node = eZContentObjectTreeNode::fetch( $nodeId );
+        
+        eZContentObjectTreeNode::unhideSubTree( $node );
+    }
+    
+    //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
         $command = @$argv[2];
@@ -547,6 +576,16 @@ EOT;
                 $sortField = $param2;
                 $sortOrder = $param3;
                 $this->setSortOrder( $nodeId, $sortField, $sortOrder );
+                break;
+
+            case self::contentnode_hidesubtree:
+                $nodeId = (integer )$param1;
+                $this->hidesubtree( $nodeId );
+                break;
+            
+            case self::contentnode_unhidesubtree:
+                $nodeId = (integer )$param1;
+                $this->unhidesubtree( $nodeId );
                 break;
         }
     }
