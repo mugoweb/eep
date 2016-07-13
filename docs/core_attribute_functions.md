@@ -3,7 +3,7 @@
 
 - [updateAttribute](#updateattribute)
 - [addAttributeToClass](#addattributetoclass)
-- [updateParameters](#updateParameters)
+- [updateParameters](#updateparameters)
 - [updateContentObjectAttributes](#updatecontentobjectattributes)
 - [deleteAttribute](#deleteattribute)
 - [listAttributes](#listattributes)
