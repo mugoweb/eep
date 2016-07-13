@@ -22,7 +22,7 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
 	    This is the description of this attribute. You can say anything you like.
     </description>
 
-    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext ezimage and probably others -->
+    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext ezimage eztags and probably others -->
     <!-- see content.ini for full list of avilable types -->
     <datatypestring>ezxmltext</datatypestring>
     
@@ -79,6 +79,13 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
                 eep-no-content
             </default_selection_node>
         </ezobjectrelation>
+
+        <eztags>
+             <subtree>0</subtree>
+             <hideroot>1</hideroot>
+             <dropdown>0</dropdown>
+             <maxtags>0</maxtags>
+        </eztags>
 
         <!-- not fully supported
         <ezmatrix>
@@ -328,6 +335,13 @@ class AttributeFunctions
                     $classAttribute->setContent( $content );
                     $classAttribute->store();
                 }
+                break;
+
+            case "eztags":
+                $classAttribute->setAttribute( eZTagsType::SUBTREE_LIMIT_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/subtree" )->item( 0 )->nodeValue ) );
+                $classAttribute->setAttribute( eZTagsType::SHOW_DROPDOWN_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/dropdown" )->item( 0 )->nodeValue ) );
+                $classAttribute->setAttribute( eZTagsType::HIDE_ROOT_TAG_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/hideroot" )->item( 0 )->nodeValue ) );
+                $classAttribute->setAttribute( eZTagsType::MAX_TAGS_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/maxtags" )->item( 0 )->nodeValue ) );
                 break;
 
             case "ezmatrix":
