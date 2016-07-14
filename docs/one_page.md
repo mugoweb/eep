@@ -917,7 +917,7 @@ $ eep user visit <user_id>
 
 - [updateAttribute](#updateattribute)
 - [addAttributeToClass](#addattributetoclass)
-- [addAttributeToClass](#addattributetoclass)
+- [updateParameters](#updateparameters)
 - [updateContentObjectAttributes](#updatecontentobjectattributes)
 - [deleteAttribute](#deleteattribute)
 - [listAttributes](#listattributes)
@@ -932,7 +932,9 @@ $ eep user visit <user_id>
 
 ## updateAttribute
 > Updates an attribute for an existing content class. If the attribute doesn't exist it will be created via `AttributeFunctions::addAttributeToClass`. All content class objects will be updated.  
-If the attribute does exist all content class objects will be updated only e.g. repairing in case an update via the admin UI timed out pre-maturely.
+If the attribute does exist all content class objects will be updated only **e.g. repairing in case an update via the admin UI timed out pre-maturely**.
+
+Currently supported datatypes: `ezstring ezobjectrelationlist ezinteger ezselection ezxmltext ezimage eztags` (and probably others)
 
 *Parameters:* 
 - `$classIdentifier` String
@@ -952,7 +954,7 @@ If the attribute does exist all content class objects will be updated only e.g. 
         This is the description of this attribute. You can say anything you like.
     </description>
 
-    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext ezimage and probably others -->
+    <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext ezimage eztags and probably others -->
     <!-- see content.ini for full list of avilable types -->
     <datatypestring>ezxmltext</datatypestring>
     
@@ -1009,6 +1011,13 @@ If the attribute does exist all content class objects will be updated only e.g. 
                 eep-no-content
             </default_selection_node>
         </ezobjectrelation>
+
+        <eztags>
+             <subtree>0</subtree>
+             <hideroot>1</hideroot>
+             <dropdown>0</dropdown>
+             <maxtags>0</maxtags>
+        </eztags>
 
         <!-- not fully supported
         <ezmatrix>
