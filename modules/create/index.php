@@ -45,13 +45,11 @@ content
   eep create content random
   
 quick
-  - just create an empty object, return obj id and node id so that the object can be populated
-  - the output is, eg:
-    new object id 315
-    new node id 312
-  - eep create quick <parent node id> <content class identifier>
-
-  eep create quick <parent node id> <class identifier>
+- just create an empty object, return obj id and node id so that the object can be populated
+- the output is, eg:
+  new object id 315
+  new node id 312
+  eep create quick <parent node id> <content class identifier>
 EOT;
     }
 
