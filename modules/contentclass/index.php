@@ -19,19 +19,23 @@ class contentclass_commands
     const contentclass_fetchallinstances    = "fetchallinstances";
     const contentclass_appendtogroup        = "appendtogroup";
     const contentclass_removefromgroup      = "removefromgroup";
+    const contentclass_info                 = "info";
+    const contentclass_setfield             = "setfield";
 
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
         "help"
+        , self::contentclass_appendtogroup
         , self::contentclass_createclass
         , self::contentclass_deleteclass
-        , self::contentclass_listattributes
-        , self::contentclass_setclassobjectidentifier
-        , self::contentclass_setiscontainer
         , self::contentclass_fetchallinstances
-        , self::contentclass_appendtogroup
+        , self::contentclass_info
+        , self::contentclass_listattributes
         , self::contentclass_removefromgroup
+        , self::contentclass_setclassobjectidentifier
+        , self::contentclass_setfield
+        , self::contentclass_setiscontainer
     );
     var $help = "";                     // used to dump the help string
 
@@ -43,6 +47,9 @@ class contentclass_commands
         $command = array_pop( $parts );
 
 $this->help = <<<EOT
+appendtogroup
+   eep contentclass appendtogroup <content class identifier> <group identifier>
+
 createclass
 - create a stub content class with an automatic content class identifier and
   default string for object-naming; uses the "admin" user to create
@@ -52,42 +59,42 @@ createclass
 
 deleteclass
 - deletes all the instances of a class, and then deletes the class itself
-  eep use ezroot <path>
   eep use contentclass <class identifier>
   eep contentclass deleteclass
   or
-  eep use ezroot <path>
   eep contentclass deleteclass <class identifier>
+  
+fetchallinstances
+  - note that this supports limit and offset parameters
+  eep use contentclass <class identifier>
+  eep contentclass fetchallinstances
+  - or -
+  eep contentclass fetchallinstances <content class identifier>
 
+info
+- dumps the internal fields that ez manages for the content class, like 'url pattern' and etc.
+  eep contentclass info <class identifier>
+  
 listattributes
-  eep use ezroot <path>
   eep use contentclass <class identifier>
   eep contentclass listattributes
+
+removefromgroup
+   eep contentclass removefromgroup <content class identifier> <group identifier>
   
 setclassobjectidentifier
 - set the string used to name instances of the class, uses the same syntax as in
   the admin ui
   eep contentclass setclassobjectidentifier <class identifier> <object naming string or pattern>
 
+setfield  
+- set any of the internal fields that ez manages, see 'info' for the list
+  eep contentclass setfield <content class identifier> <field name> <new value>
+  
 setiscontainer
 - set or unset the 'is container' flag on the class
   eep contentclass setiscontainer <class identifier> <0|1>
-  
-fetchallinstances
-  - note that this supports limit and offset parameters
-  eep use ezroot <path>
-  eep use contentclass <class identifier>
-  eep contentclass fetchallinstances
-  - or -
-  eep contentclass fetchallinstances <content class identifier>
 
-appendtogroup
-   eep use ezroot <path>
-   eep contentclass appendtogroup <content class identifier> <group identifier>
-
-removefromgroup
-   eep use ezroot <path>
-   eep contentclass removefromgroup <content class identifier> <group identifier>
 EOT;
     }
 
@@ -271,6 +278,7 @@ EOT;
         $command = @$argv[2];
         $param1 = @$argv[3];
         $param2 = @$argv[4];
+        $param3 = @$argv[5];
 
         if( !in_array( $command, $this->availableCommands ) )
         {
@@ -401,6 +409,44 @@ EOT;
                     $newSetting = 1;
                 }
                 $contentClass->setAttribute( 'is_container', $newSetting );
+                $contentClass->store();
+                break;
+
+            case self::contentclass_info:
+                $classIdentifier = $param1;
+                $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
+                $contentClass = eZContentClass::fetch( $classId );
+                if( !is_object( $contentClass ) )
+                {
+                    throw new Exception( "Failed to instantiate content class. [" . $classIdentifier . "]" );
+                }
+                $def = eZContentClass::definition();
+                $results[] = array( "Field Name", "Field Value", "Value Type" );
+                foreach( $def[ "fields" ] as $name => $fieldSettings )
+                {
+                    $results[] = array( $name, $contentClass->attribute( $name ), $fieldSettings[ "datatype" ] );
+                }
+                eep::printTable( $results, "Class fields" );
+                break;
+            
+            case self::contentclass_setfield:
+                // test the content class identifier, and fetch the content class object
+                $classIdentifier = $param1;
+                $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
+                $contentClass = eZContentClass::fetch( $classId );
+                if( !is_object( $contentClass ) )
+                {
+                    throw new Exception( "Failed to instantiate content class. [" . $classIdentifier . "]" );
+                }
+                // validate the field name
+                $fieldName = $param2;
+                $def = eZContentClass::definition();
+                if( !isset( $def[ "fields" ][ $fieldName ] ) )
+                {
+                    throw new Exception( "This is not a valid field name. [" . $fieldName . "]" );
+                }
+                // and set the value into the content class
+                $contentClass->setAttribute( $fieldName, $param3 );
                 $contentClass->store();
                 break;
         }
