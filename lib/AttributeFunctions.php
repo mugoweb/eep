@@ -692,7 +692,7 @@ class AttributeFunctions
     }
 
     //--------------------------------------------------------------------------
-    public static function info( $classIdentifier, $attributeIdentifier, $fieldIdentifier )
+    public static function info( $classIdentifier, $attributeIdentifier )
     {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         if( !$contentClass )
@@ -704,25 +704,24 @@ class AttributeFunctions
 
         $fieldList = $classDataMap[ $attributeIdentifier ]->attributes();
 
-        $results[] = array("Field Name", "Field Value", "Value Type" );
-        foreach($fieldList as $fieldName)
+        $results[] = array( "Field Name", "Field Value", "Value Type" );
+        foreach( $fieldList as $fieldName )
         {
             $value = $classDataMap[ $attributeIdentifier ]->attribute( $fieldName );
             $type  = "string";
             if( is_array( $value ) )
             {
-                $value = serialize($value);
+                $value = serialize( $value );
                 $type  = "Array";
             }
-
-            $results[]=array(
-                        $fieldName
-                    ,   $value
-                    ,   $type
-                    );
+            $results[] = array
+            (
+                $fieldName
+                , $value
+                , $type
+            );
         }
-
-        eep::printTable( $results, "Class attribute fields");
+        eep::printTable( $results, "Class attribute fields" );
     }
 
     //--------------------------------------------------------------------------
