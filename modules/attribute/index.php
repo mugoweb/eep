@@ -85,7 +85,7 @@ set
 
 info
 - displays all attribute fields (e.g. data_int, data_text1 etc.)
-  eep attribute info <class identifier> <attributename> <fieldname>
+  eep attribute info <class identifier> <attributename>
 
 createalias
 - for an image attribute it creates a given alias manually
@@ -238,8 +238,7 @@ EOT;
             case self::attribute_info:
                 $classIdentifier = $param1;
                 $attributeIdentifier = $param2;
-                $fieldIdentifier = $param3;
-                AttributeFunctions::info( $classIdentifier, $attributeIdentifier, $fieldIdentifier );
+                AttributeFunctions::info( $classIdentifier, $attributeIdentifier );
                 break;
 
             case self::attribute_migrate:
