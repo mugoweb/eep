@@ -80,6 +80,20 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
             </default_selection_node>
         </ezobjectrelation>
 
+        <ezobjectrelationlist>
+            <!-- selection_type is: [0-6] where: 0/Browse  1/Drop-down list  2/List with radio buttons  3/List with checkboxes  4/Multiple selection list  5/Template based, multi  6/Template based, single -->
+            <selection_type>0</selection_type>
+            <!-- allowed_class_identifier is repeatable -->
+            <allowed_class_identifier>
+                eep-no-content
+            </allowed_class_identifier>
+            <!-- object_class is currently not supported -->
+            <!-- browse_location is a node id -->
+            <browse_location>
+                eep-no-content
+            </browse_location>
+        </ezobjectrelationlist>
+
         <eztags>
              <subtree>0</subtree>
              <hideroot>1</hideroot>
@@ -335,6 +349,31 @@ class AttributeFunctions
                     $classAttribute->setContent( $content );
                     $classAttribute->store();
                 }
+                break;
+            
+            case "ezobjectrelationlist":
+                    $content = $classAttribute->content();
+                    
+                    // object_class is not currently supported
+                    // $content[ "object_class" ] =
+                    
+                    // not sure what this is, (not even clear that there is a UI for setting it in the admin)
+                    // but setting it to 0 is consistent with examples
+                    $content[ "type" ] = 0;
+                    
+                    $content[ "selection_type" ] = trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/selection_type" )->item( 0 )->nodeValue );
+                    $content[ "default_placement" ] = trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/browse_locationbrowse_location" )->item( 0 )->nodeValue );
+                    
+                    $allowedClassList = $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/allowed_class_identifier" );
+                    if( 0 < $allowedClassList->length )
+                    {
+                        for( $n=0; $n<$allowedClassList->length; $n+=1 )
+                        {
+                            $content[ "class_constraint_list" ][] = $allowedClassList->item( $n )->nodeValue;
+                        }
+                    }
+                    $classAttribute->setContent( $content );
+                    $classAttribute->store();
                 break;
 
             case "eztags":
