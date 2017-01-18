@@ -30,6 +30,8 @@ $knowledgeBaseString = <<<EOT
     </IfModule>
     <IfModule mod_rewrite.c>
         RewriteEngine On
+        # strip index.php all the time
+        RewriteRule ^/index\.php(.*)$ https://<<<servername>>>$1 [R=301,L]
         # rule for ezoe
         RewriteRule ^/var/[^/]+/cache/public/.* - [L]
         # standard rules
