@@ -2,9 +2,9 @@
 > eep is a command line tool to support developers using eZPublish.
 
 ## Installation
-- [Linux](#installation---linux)
-- [OS X](#installation---os-x)
-- [Windows](#installation---windows)
+- [Linux](installation.md#installation---linux)
+- [OS X](installation.md#installation---os-x)
+- [Windows](installation.md#installation---windows)
 
 ## Getting started
 To set the ezpublish instance used with eep and list some content classes for future modifications:
@@ -42,29 +42,29 @@ coid => contentobjectid   (method) e.g. eep at coid
 ```
 
 ## Modules
-- [attribute](#modules---attribute)
-- [contentclass](#modules---contentclass)
-- [contentclassgroup](#modules---contentclassgroup)
-- [contentnode](#modules---contentnode)
-- [contentobject](#modules---contentobject)
-- [create](#modules---create)
-- [crondaemon](#modules---crondaemon)
-- [ezfind](#modules---ezfind)
-- [ezflow](#modules---ezflow)
-- [help](#modules---help)
-- [knowledgebase](#modules---knowledgebase)
-- [list](#modules---list)
-- [section](#modules---section)
-- [trash](#modules---trash)
-- [use](#modules---use)
-- [user](#modules---user)
+- [attribute](modules_attribute.md#modules---attribute)
+- [contentclass](modules_contentclass.md#modules---contentclass)
+- [contentclassgroup](modules_contentclassgroup.md#modules---contentclassgroup)
+- [contentnode](modules_contentnode.md#modules---contentnode)
+- [contentobject](modules_contentobject.md#modules---contentobject)
+- [create](modules_create.md#modules---create)
+- [crondaemon](modules_crondaemon.md#modules---crondaemon)
+- [ezfind](modules_ezfind.md#modules---ezfind)
+- [ezflow](modules_ezflow.md#modules---ezflow)
+- [help](modules_help.md#modules---help)
+- [knowledgebase](modules_knowledgebase.md#modules---knowledgebase)
+- [list](modules_list.md#modules---list)
+- [section](modules_section.md#modules---section)
+- [trash](modules_trash.md#modules---trash)
+- [use](modules_use.md#modules---use)
+- [user](modules_user.md#modules---user)
 
 ## Core libs
-- [AttributeFunctions](#core---attributefunctions)
-- [eepCache](#core---eepcache)
-- [eepHelpers](#core---eephelpers)
-- [eepLog](#core---eeplog)
-- [eepValidate](#core---eepvalidate)
+- [AttributeFunctions](core_attribute_functions.md#core---attributefunctions)
+- [eepCache](core_eep_cache.md#core---eepcache)
+- [eepHelpers](core_eep_helpers.md#core---eephelpers)
+- [eepLog](core_eep_log.md#core---eeplog)
+- [eepValidate](core_eep_validate.md#core---eepvalidate)
 
 ## Extending eep
 - [Updating bash completion](#extending---bash-completion)
@@ -224,80 +224,6 @@ i.e. `23929-1-eng-CA` for the 1st version of a content object for english (Canad
 
 Those IDs could be extracted via `grep` and then passed to `eep attribute contentobjectid ...` via `xargs`.
 
-#Modules - contentclass
-> The contentclass module provides methods to manipulate content classes.
-
-- [createclass](#createclass)
-- [deleteclass](#deleteclass)
-- [listattributes](#listattributes)
-- [setclassobjectidentifier](#setclassobjectidentifier)
-- [setiscontainer](#setiscontainer)
-- [fetchallinstances](#fetchallinstances)
-- [appendtogroup](#appendtogroup)
-- [removefromgroup](#removefromgroup)
-
-## createclass
-Creates a stub content class with an automatic content class identifier and default string for object-naming; uses the "admin" user to create the class; returns the class identifier so that attributes can then be added and the default naming be updated.
-```sh
-$ eep createclass <display name> <content class group identifier>
-```
-
-## deleteclass
-Deletes all the instances of a class, and then deletes the class itself.
-```sh
-$ eep use ezroot <path>
-$ eep use contentclass <class identifier>
-$ eep contentclass deleteclass
-or
-$ eep use ezroot <path>
-$ eep contentclass deleteclass <class identifier>
-```
-
-## listattributes
-Lists all class attributes.
-```sh
-$ eep use ezroot <path>
-$ eep use contentclass <class identifier>
-$ eep contentclass listattributes
-```
-
-## setclassobjectidentifier
-Sets the string used to name instances of the class, uses the same syntax as in the admin UI.
-```sh
-$ eep contentclass setclassobjectidentifier <class identifier> <object naming string or pattern>
-```
-
-## setiscontainer
-Sets or unsets the 'is container' flag on the class.
-```sh
-$ eep contentclass setiscontainer <class identifier> <0|1>
-```
-
-## fetchallinstances
-Fetches all instances of a contentclass.
-_Note that this supports limit and offset parameters._
-```sh
-$ eep use ezroot <path>
-$ eep use contentclass <class identifier>
-$ eep contentclass fetchallinstances
-or
-$ eep contentclass fetchallinstances <content class identifier>
-```
-
-## appendtogroup
-Adds a contentclass to a contentclass group.
-```sh
-$ eep use ezroot <path>
-$ eep contentclass appendtogroup <content class identifier> <group identifier>
-```
-
-## removefromgroup
-Removes a contentclass from a contentclass group.
-```sh
-$ eep use ezroot <path>
-$ eep contentclass removefromgroup <content class identifier> <group identifier>
-```
-
 # Modules - contentclassgroup
 > The contentclassgroup module provides methods to manipulate content class groups.
 
@@ -334,6 +260,92 @@ $ eep use ezroot <path>
 $ eep contentclassgroup fetchall
 ```
 
+#Modules - contentclass
+> The contentclass module provides methods to manipulate content classes.
+
+- [appendtogroup](#appendtogroup)
+- [createclass](#createclass)
+- [deleteclass](#deleteclass)
+- [fetchallinstances](#fetchallinstances)
+- [info](#info)
+- [listattributes](#listattributes)
+- [setclassobjectidentifier](#setclassobjectidentifier)
+- [setfield](#setfield)
+- [setiscontainer](#setiscontainer)
+- [removefromgroup](#removefromgroup)
+
+## appendtogroup
+Append the content class to the content class group. Note, a class can exist in more than one group.
+```sh
+$ eep contentclass appendtogroup <content class identifier> <group identifier>
+```
+
+## createclass
+Creates a stub content class with an automatic content class identifier and default string for object-naming; uses the "admin" user to create the class; returns the class identifier so that attributes can then be added and the default naming be updated.
+```sh
+$ eep createclass <display name> <content class group identifier>
+```
+
+## deleteclass
+Deletes all the instances of a class, and then deletes the class itself.
+```sh
+$ eep use ezroot <path>
+$ eep use contentclass <class identifier>
+$ eep contentclass deleteclass
+or
+$ eep use ezroot <path>
+$ eep contentclass deleteclass <class identifier>
+```
+
+## fetchallinstances
+Fetches all instances of a contentclass.
+_Note that this supports limit and offset parameters._
+```sh
+$ eep use ezroot <path>
+$ eep use contentclass <class identifier>
+$ eep contentclass fetchallinstances
+or
+$ eep contentclass fetchallinstances <content class identifier>
+```
+
+## info
+Dumps the internal fields and values that ez uses to specify a content class. These can be edited with eep setfield.
+```sh
+$ dumps the internal fields that ez manages for the content class, like 'url pattern' and etc.
+```
+
+## listattributes
+Lists all class attributes.
+```sh
+$ eep use ezroot <path>
+$ eep use contentclass <class identifier>
+$ eep contentclass listattributes
+```
+
+## removefromgroup
+Removes a contentclass from a contentclass group.
+```sh
+$ eep use ezroot <path>
+$ eep contentclass removefromgroup <content class identifier> <group identifier>
+```
+
+## setclassobjectidentifier
+Sets the string used to name instances of the class, uses the same syntax as in the admin UI.
+```sh
+$ eep contentclass setclassobjectidentifier <class identifier> <object naming string or pattern>
+```
+
+## setfield
+Set any of the internal fields that ez manages for the content class, see eep info for the list of fields and values.
+```sh
+$ eep contentclass setfield <content class identifier> <field name> <new value>
+```
+
+## setiscontainer
+Sets or unsets the 'is container' flag on the class.
+```sh
+$ eep contentclass setiscontainer <class identifier> <0|1>
+```
 # Modules - contentnode
 > The contentnode module provides methods to manipulate content nodes.
 
