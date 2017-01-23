@@ -224,6 +224,17 @@ i.e. `23929-1-eng-CA` for the 1st version of a content object for english (Canad
 
 Those IDs could be extracted via `grep` and then passed to `eep attribute contentobjectid ...` via `xargs`.
 
+# Modules - cache
+> The cache module provides methods to work with ez cache.
+
+- [cacheclear](#cacheclear)
+
+## cacheclear
+Clears legacy cache in a safe way, basically clear everything that can be cleared safely.   
+```sh
+$ eep cache cacheclear
+```
+
 # Modules - contentclassgroup
 > The contentclassgroup module provides methods to manipulate content class groups.
 
