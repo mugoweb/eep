@@ -362,6 +362,7 @@ $ eep contentclass setiscontainer <class identifier> <0|1>
 
 - [clearsubtreecache](#clearsubtreecache)
 - [contentobject](#contentobject)
+- [dump](#dump)
 - [info](#info)
 - [location](#location)
 - [find](#find)
@@ -385,6 +386,12 @@ or
 $ eep use ezroot <path>
 $ eep use contentnode <content node id>
 $ eep contentnode contentobject
+```
+
+## dump
+Dump all the data associated with a content node into an XML structure; suitable for dumping an eZ Publish instance for import into some other system, or etc.
+```sh
+$ eep contentnode dump <node id>
 ```
 
 ## info
@@ -516,6 +523,9 @@ $ eep contentobject delete
 or
 $ eep contentobject delete <object id>
 ```
+
+## dump
+Delete all content data, suitable for export from ez. See "eep contentnode dump".
 
 ## related
 Displays a list of related content objects.   

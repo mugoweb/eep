@@ -703,5 +703,49 @@ class eep
         }
         return $xml;
     }
+    
+    //------------------------------------------------------------------------------
+    // kind of a multipurpose thing; mainly write an XML tag along with the desired data:
+    //   <tag>blah blah blah</tag>
+    // by setting $data to null, can also write just an open or close tag:
+    //   <tag>
+    // the benefit is that that it makes the output homogeneous to call and supports indenting
+    function writeXMLTag( $indent, $tag, $data )
+    {
+        $padding = str_pad( "", $indent );
+        $data = eep::escapeForXML( $data );
+        if( strstr( $data, "?xml version=\"1.0\"" ) )
+        {
+            $data = preg_replace( "/\s\s+/", " ", $data );
+        }
+        
+        echo $padding . "<" . $tag . ">" . trim( $data );
+        
+        if( null === $data )
+        {
+            echo "\n";
+        }
+        else
+        {
+            echo "</" . $tag . ">\n";    
+        }
+    }
+    
+    //------------------------------------------------------------------------------
+    // Make a string safe for embedding in XML, mostly used for escaping XML so
+    // that it can be carried in some other XML structure. Can be run on any string,
+    // doesn't have to originally be XML.
+    function escapeForXML( $str )
+    {
+        // don't accidentally convert a null to a string -- because we care
+        if( null === $str) return null;
+        
+        // remove all entities
+        $str = html_entity_decode( $str );
+        // do ampersands first, so as to not escape the lt's
+        $str = str_replace( "&", "&amp;", $str );
+        $str = str_replace( "<", "&lt;", $str );
+        return $str;
+    }    
 }
 ?>

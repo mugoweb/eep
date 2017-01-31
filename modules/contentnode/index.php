@@ -13,6 +13,7 @@ class contentnode_commands
 {
     const contentnode_clearsubtreecache  = "clearsubtreecache";
     const contentnode_contentobject      = "contentobject";
+    const contentnode_dump               = "dump";
     const contentnode_info               = "info";
     const contentnode_location           = "location";
     const contentnode_find               = "find";
@@ -29,6 +30,7 @@ class contentnode_commands
         , self::contentnode_clearsubtreecache
         , self::contentnode_contentobject
         , self::contentnode_deletesubtree
+        , self::contentnode_dump
         , self::contentnode_find
         , self::contentnode_info
         , self::contentnode_location
@@ -66,6 +68,10 @@ deletesubtree
   ... or
   eep use contentnode <subtree node id>
   eep contentnode deletesubtree
+
+dump
+- dump all the data associated with a content node into an XML structure; suitable for dumping an eZ Publish instance for import into some other system, or etc.
+  eep contentnode dump <node id>
   
 find
 - supports --limit=N and/or --offset=M
@@ -486,6 +492,219 @@ EOT;
     }
     
     //--------------------------------------------------------------------------
+    const dump_interestingNodeMembers = array
+    (
+        "Name"
+        , "MainNodeID"
+        , "NodeID"
+        , "ClassIdentifier"
+        , "ParentNodeID"
+        , "ContentObjectID"
+        , "ContentObjectVersion"
+        , "ContentObjectIsPublished"
+        , "Depth"
+        , "SortField"
+        , "SortOrder"
+        , "Priority"
+        , "ModifiedSubNode"
+        , "PathString"
+        , "PathIdentificationString"
+        , "RemoteID"
+        , "IsHidden"
+        , "IsInvisible"
+    );
+    
+    const dump_interestingContentObjectMembers = array
+    (
+        "ID"
+        , "SectionID"
+        , "OwnerID"
+        , "Published"
+        , "Modified"
+        , "CurrentVersion"
+        , "Status"
+    );
+
+    const dump_userAttributes = array
+    (
+        "Login"
+        , "Email"
+        , "PasswordHash"
+        , "PasswordHashType"
+        //, "PersistentDataDirty"
+        , "Groups"
+        , "OriginalPassword"
+        , "OriginalPasswordConfirm"
+        , "ContentObjectID"
+    );
+    
+    const dump_interestingAttributeMembers = array
+    (
+        "ID"
+        //, "PersistentDataDirty"
+        , "HTTPValue"
+        , "Content"
+        , "DisplayInfo"
+        , "IsValid"
+        , "ContentClassAttributeID"
+        //, "ValidationError"
+        //, "ValidationLog"
+        , "ContentClassAttributeIdentifier"
+        , "ContentClassAttributeCanTranslate"
+        , "ContentClassAttributeName"
+        , "ContentClassAttributeIsInformationCollector"
+        , "ContentClassAttributeIsRequired"
+        //, "InputParameters"
+        //, "HasValidationError"
+        , "DataTypeCustom"
+        , "ContentObjectID"
+        , "Version"
+        , "LanguageCode"
+        , "AttributeOriginalID"
+        , "SortKeyInt"
+        , "SortKeyString"
+        , "DataTypeString"
+        , "DataText"
+        , "DataInt"
+        , "DataFloat"
+    );
+    
+    
+    //--------------------------------------------------------------------------
+    // kind of a massive function using a bunch of furniture; look at the furniture
+    // for how to tweak the export to suit your purposes
+    private function dumpNodeToXML( $nodeId )
+    {
+        // need to operate in a privileged account
+        $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
+        $adminUserObject->loginCurrent();
+
+        $needToDumpeZUserData = false;
+        
+        if( !eepValidate::validateContentNodeId( $nodeId ) )
+            throw new Exception( "This is not a node id: [" .$nodeId. "]" );
+
+        $eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
+        
+        $node = eZFunctionHandler::execute( "content", "node", array( "node_id" => $nodeId ) );
+        //print_r( $node );
+        
+        $contentClassIdentifier = $node->ClassIdentifier;
+        
+        eep::writeXMLTag( 0, "item", null );
+        eep::writeXMLTag( 4, "node", null );
+        // dump the interesting data for the node
+        foreach( contentnode_commands::dump_interestingNodeMembers as $member )
+        {
+            if( isset( $node->$member ) )
+            {
+                eep::writeXMLTag( 8, $member, $node->$member );    
+            }
+            else
+            {
+                $eepLogger->Report( "Node-member not available: ".$member, "error" );
+            }
+        }
+        eep::writeXMLTag( 4, "/node", null );
+        
+        // dump the interesting data for the content object
+        $object = $node->attribute( 'object' );
+        eep::writeXMLTag( 4, "content-object", null );
+        foreach( contentnode_commands::dump_interestingContentObjectMembers as $member )
+        {
+            if( isset( $object->$member ) )
+            {
+                eep::writeXMLTag( 8, $member, $object->$member );    
+            }
+            else
+            {
+                $eepLogger->Report( "Content-object-member not available: ".$member, "error" );
+            }
+        }
+        eep::writeXMLTag( 4, "/content-object", null );
+        
+        // get list of active languages
+        $activeLanguageStructs = eZContentLanguage::fetchList( true );
+        $activeLanguages = array();
+        foreach( $activeLanguageStructs as $als )
+        {
+            $activeLanguages[] = $als->Locale;
+        }
+        //print_r( $activeLanguages );
+        
+        // dump all the attributes, associated by translation
+        eep::writeXMLTag( 4, "attributes", null );
+        foreach( $activeLanguages as $languageCode )
+        {
+            // get the datamap associated with a specific language
+            $datamap = eZFunctionHandler::execute
+            (
+                "content"
+                , "contentobject_attributes"
+                , array
+                (
+                    "version" => $object->attribute( "current" )
+                    , "language_code" => $languageCode
+                )
+            );
+            //print_r( $datamap );
+            eep::writeXMLTag( 8, "language language-code='" . $languageCode . "'", null );
+            foreach( $datamap as $attributeIdentifier => $attribute )
+            {
+                if( "ezuuser" == $attribute->DataTypeString ) // special case, handled below
+                {
+                    $contentClassIdentifier = true;
+                }
+                else
+                {
+                    $contentClassIdentifier = false;
+                }
+                //echo "\n\n" . $attribute->DataTypeString . "\n\n";
+                    
+                eep::writeXMLTag( 12, "attribute", null );
+                foreach( contentnode_commands::dump_interestingAttributeMembers as $member )
+                {
+                    if( "DataText"==$member && "ezxmltext"==$attribute->DataTypeString )
+                    {
+                        $ezText = new eZXMLText( $attribute->DataText, $attribute );
+                        $oh = $ezText->attribute( "output" );
+                        eep::writeXMLTag( 16, "DataText", "" . $oh->attribute( "output_text" ) );
+                    }
+                    elseif( "Content"==$member && "ezbinaryfile"==$attribute->DataTypeString )
+                    {
+                        eep::writeXMLTag( 16, "Content", serialize( $attribute->content() ) ); // for, eg, ezbinaryfile->Content ... is an object
+                    }
+                    else
+                    {
+                        eep::writeXMLTag( 16, $member, "" . $attribute->$member );
+                    }
+                }
+                eep::writeXMLTag( 12, "/attribute", null );
+            }
+            eep::writeXMLTag( 8, "/language", null );
+        }
+        eep::writeXMLTag( 4, "/attributes", null );
+
+        // special case, content class uses the magical ezuser datatype to designate a system user
+        if( $needToDumpeZUserData )
+        {
+            if( "user" == $contentClassIdentifier )
+            {
+                eep::writeXMLTag( 4, "user", null );
+                $user = eZUser::fetch( $object->ID );
+                foreach( contentnode_commands::dump_userAttributes as $member )
+                {
+                    eep::writeXMLTag( 8, $member, $user->$member );
+                }
+                eep::writeXMLTag( 4, "/user", null );
+            }
+        }
+        eep::writeXMLTag( 0, "/item", null );
+
+        $adminUserObject->logoutCurrent();
+    }
+    
+    //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
         $command = @$argv[2];
@@ -536,6 +755,11 @@ EOT;
                     $subtreeNodeId = $param1;
                 }
                 $this->deleteSubtree( $subtreeNodeId, $additional );
+                break;
+            
+            case self::contentnode_dump:
+                $nodeId = $param1;
+                echo $this->dumpNodeToXML( $nodeId );
                 break;
             
             case self::contentnode_contentobject:

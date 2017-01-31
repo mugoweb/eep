@@ -53,6 +53,9 @@ or
 $ eep contentobject delete <object id>
 ```
 
+## dump
+Delete all content data, suitable for export from ez. See "eep contentnode dump".
+
 ## related
 Displays a list of related content objects.   
 - supports use of ```--limit=N``` and ```--offset=M```

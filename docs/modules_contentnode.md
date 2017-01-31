@@ -3,6 +3,7 @@
 
 - [clearsubtreecache](#clearsubtreecache)
 - [contentobject](#contentobject)
+- [dump](#dump)
 - [info](#info)
 - [location](#location)
 - [find](#find)
@@ -26,6 +27,12 @@ or
 $ eep use ezroot <path>
 $ eep use contentnode <content node id>
 $ eep contentnode contentobject
+```
+
+## dump
+Dump all the data associated with a content node into an XML structure; suitable for dumping an eZ Publish instance for import into some other system, or etc.
+```sh
+$ eep contentnode dump <node id>
 ```
 
 ## info
