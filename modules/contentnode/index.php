@@ -575,15 +575,15 @@ EOT;
     // for how to tweak the export to suit your purposes
     private function dumpNodeToXML( $nodeId )
     {
+        if( !eepValidate::validateContentNodeId( $nodeId ) )
+            throw new Exception( "This is not a node id: [" .$nodeId. "]" );
+
         // need to operate in a privileged account
         $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
         $adminUserObject->loginCurrent();
 
         $needToDumpeZUserData = false;
         
-        if( !eepValidate::validateContentNodeId( $nodeId ) )
-            throw new Exception( "This is not a node id: [" .$nodeId. "]" );
-
         $eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
         
         $node = eZFunctionHandler::execute( "content", "node", array( "node_id" => $nodeId ) );
