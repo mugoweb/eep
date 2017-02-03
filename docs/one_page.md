@@ -316,7 +316,7 @@ $ eep use ezroot <path>
 $ eep use contentclass <class identifier>
 $ eep contentclass fetchallinstances
 or
-$ eep contentclass fetchallinstances <content class identifier>
+$ eep contentclass fetchallinstances <content class identifier> [--limit=nnn] [--offset=nnn]
 ```
 
 ## info
