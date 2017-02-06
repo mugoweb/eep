@@ -476,6 +476,7 @@ $ eep contentnode setsortorder <node id> <sort ordering> <sort direction>
 - [info](#info)
 - [datamap](#datamap)
 - [delete](#delete)
+- [dump](#dump) _x-ref:_ `eep contentnode dump`
 - [related](#related)
 - [reverserelated](#reverserelated)
 - [contentnode](#contentnode)
@@ -525,7 +526,7 @@ $ eep contentobject delete <object id>
 ```
 
 ## dump
-Delete all content data, suitable for export from ez. See "eep contentnode dump".
+Dump all content data, suitable for export from ez. See "[eep contentnode dump](#dump)".
 
 ## related
 Displays a list of related content objects.   
