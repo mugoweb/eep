@@ -2,9 +2,9 @@
 > eep is a command line tool to support developers using eZPublish.
 
 ## Installation
-- [Linux](installation.md#installation---linux)
-- [OS X](installation.md#installation---os-x)
-- [Windows](installation.md#installation---windows)
+- [Linux](#installation---linux)
+- [OS X](#installation---os-x)
+- [Windows](#installation---windows)
 
 ## Getting started
 To set the ezpublish instance used with eep and list some content classes for future modifications:
@@ -42,29 +42,29 @@ coid => contentobjectid   (method) e.g. eep at coid
 ```
 
 ## Modules
-- [attribute](modules_attribute.md#modules---attribute)
-- [contentclass](modules_contentclass.md#modules---contentclass)
-- [contentclassgroup](modules_contentclassgroup.md#modules---contentclassgroup)
-- [contentnode](modules_contentnode.md#modules---contentnode)
-- [contentobject](modules_contentobject.md#modules---contentobject)
-- [create](modules_create.md#modules---create)
-- [crondaemon](modules_crondaemon.md#modules---crondaemon)
-- [ezfind](modules_ezfind.md#modules---ezfind)
-- [ezflow](modules_ezflow.md#modules---ezflow)
-- [help](modules_help.md#modules---help)
-- [knowledgebase](modules_knowledgebase.md#modules---knowledgebase)
-- [list](modules_list.md#modules---list)
-- [section](modules_section.md#modules---section)
-- [trash](modules_trash.md#modules---trash)
-- [use](modules_use.md#modules---use)
-- [user](modules_user.md#modules---user)
+- [attribute](#modules---attribute)
+- [contentclass](#modules---contentclass)
+- [contentclassgroup](#modules---contentclassgroup)
+- [contentnode](#modules---contentnode)
+- [contentobject](#modules---contentobject)
+- [create](#modules---create)
+- [crondaemon](#modules---crondaemon)
+- [ezfind](#modules---ezfind)
+- [ezflow](#modules---ezflow)
+- [help](#modules---help)
+- [knowledgebase](#modules---knowledgebase)
+- [list](#modules---list)
+- [section](#modules---section)
+- [trash](#modules---trash)
+- [use](#modules---use)
+- [user](#modules---user)
 
 ## Core libs
-- [AttributeFunctions](core_attribute_functions.md#core---attributefunctions)
-- [eepCache](core_eep_cache.md#core---eepcache)
-- [eepHelpers](core_eep_helpers.md#core---eephelpers)
-- [eepLog](core_eep_log.md#core---eeplog)
-- [eepValidate](core_eep_validate.md#core---eepvalidate)
+- [AttributeFunctions](#core---attributefunctions)
+- [eepCache](#core---eepcache)
+- [eepHelpers](#core---eephelpers)
+- [eepLog](#core---eeplog)
+- [eepValidate](#core---eepvalidate)
 
 ## Extending eep
 - [Updating bash completion](#extending---bash-completion)
@@ -235,42 +235,6 @@ Clears legacy cache in a safe way, basically clear everything that can be cleare
 $ eep cache cacheclear
 ```
 
-# Modules - contentclassgroup
-> The contentclassgroup module provides methods to manipulate content class groups.
-
-- [creategroup](#creategroup)
-- [deletegroup](#deletegroup)
-- [renamegroup](#renamegroup)
-- [fetchall](#fetchall)
-
-## creategroup
-Creates a new content class group.
-```sh
-$ eep use ezroot <path>
-$ eep contentclassgroup creategroup <group identifier>
-```
-
-## deletegroup
-Deletes the specified content class group
-```sh
-$ eep use ezroot <path>
-$ eep contentclassgroup deletegroup <group identifier>
-```
-
-## renamegroup
-Renames a content class group.
-```sh
-$ eep use ezroot <path>
-$ eep contentclassgroup renamegroup <group identifier from> <group identifier to>
-```
-
-## fetchall
-Displays all content class groups.
-```sh
-$ eep use ezroot <path>
-$ eep contentclassgroup fetchall
-```
-
 #Modules - contentclass
 > The contentclass module provides methods to manipulate content classes.
 
@@ -357,6 +321,42 @@ Sets or unsets the 'is container' flag on the class.
 ```sh
 $ eep contentclass setiscontainer <class identifier> <0|1>
 ```
+# Modules - contentclassgroup
+> The contentclassgroup module provides methods to manipulate content class groups.
+
+- [creategroup](#creategroup)
+- [deletegroup](#deletegroup)
+- [renamegroup](#renamegroup)
+- [fetchall](#fetchall)
+
+## creategroup
+Creates a new content class group.
+```sh
+$ eep use ezroot <path>
+$ eep contentclassgroup creategroup <group identifier>
+```
+
+## deletegroup
+Deletes the specified content class group
+```sh
+$ eep use ezroot <path>
+$ eep contentclassgroup deletegroup <group identifier>
+```
+
+## renamegroup
+Renames a content class group.
+```sh
+$ eep use ezroot <path>
+$ eep contentclassgroup renamegroup <group identifier from> <group identifier to>
+```
+
+## fetchall
+Displays all content class groups.
+```sh
+$ eep use ezroot <path>
+$ eep contentclassgroup fetchall
+```
+
 # Modules - contentnode
 > The contentnode module provides methods to manipulate content nodes.
 
