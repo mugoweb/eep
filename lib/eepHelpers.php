@@ -296,15 +296,15 @@ class eep
         }
         // from the following query, this is the excerpted where condition; it causes
         // a BC break in 4.7 and does not seem to do anything ...
-        
+
         //  AND ezcontentobject_link.op_code='0'
         $query = "SELECT $select
                   FROM
                     ezcontentobject, ezcontentobject_link
                   WHERE
                     ezcontentobject.id=ezcontentobject_link.from_contentobject_id AND
-                    ezcontentobject.status=" . eZContentObject::STATUS_PUBLISHED . " 
-                    
+                    ezcontentobject.status=" . eZContentObject::STATUS_PUBLISHED . "
+
                     $objectIDSQL
                     $relationTypeMasking
                     $showInvisibleNodesCond";
@@ -312,7 +312,7 @@ class eep
         return $rows[0]['count'];
     }
 
-    
+
     //--------------------------------------------------------------------------
     // eep::displayNodeList( $list, $title )
     static function displayNodeList( $list, $title )
@@ -522,7 +522,7 @@ class eep
         $str = trim( $str );
         return $str;
     }
-    
+
     //--------------------------------------------------------------------------
     static function dateToTS( $str )
     {
@@ -703,7 +703,7 @@ class eep
         }
         return $xml;
     }
-    
+
     //------------------------------------------------------------------------------
     // kind of a multipurpose thing; mainly write an XML tag along with the desired data:
     //   <tag>blah blah blah</tag>
@@ -718,19 +718,19 @@ class eep
         {
             $data = preg_replace( "/\s\s+/", " ", $data );
         }
-        
+
         echo $padding . "<" . $tag . ">" . trim( $data );
-        
+
         if( null === $data )
         {
             echo "\n";
         }
         else
         {
-            echo "</" . $tag . ">\n";    
+            echo "</" . $tag . ">\n";
         }
     }
-    
+
     //------------------------------------------------------------------------------
     // Make a string safe for embedding in XML, mostly used for escaping XML so
     // that it can be carried in some other XML structure. Can be run on any string,
@@ -739,13 +739,12 @@ class eep
     {
         // don't accidentally convert a null to a string -- because we care
         if( null === $str) return null;
-        
+
         // remove all entities
         $str = html_entity_decode( $str );
         // do ampersands first, so as to not escape the lt's
         $str = str_replace( "&", "&amp;", $str );
         $str = str_replace( "<", "&lt;", $str );
         return $str;
-    }    
+    }
 }
-?>

@@ -9,9 +9,9 @@ class eepValidate
 {
     /*
     TIPS:
-    
+
     Do most validations in the functions, not in the switch.
-    
+
     validate content class identifier:
     ----------------------------------
     $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
@@ -27,19 +27,19 @@ class eepValidate
     $classDataMap = $contentClass->attribute( "data_map" );
     if( !isset( $classDataMap[ $attributeIdentifier ] ) )
         throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $attributeIdentifier . "]" );
-    
+
     content object id:
     ------------------
     if( !eepValidate::validateContentObjectId( $objectId ) )
         throw new Exception( "This is not an object id: [" .$objectId. "]" );
-    
+
     node id:
     ------------------
     if( !eepValidate::validateContentNodeId( $nodeId ) )
         throw new Exception( "This is not an node id: [" .$nodeId. "]" );
-    
+
     */
-    
+
     //--------------------------------------------------------------------------
     static function validateContentObjectId( $id )
     {
@@ -68,4 +68,3 @@ class eepValidate
         return false;
     }
 }
-?>

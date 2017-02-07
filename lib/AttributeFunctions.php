@@ -25,15 +25,15 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
     <!-- supported: ezstring ezobjectrelationlist ezinteger ezselection ezxmltext ezimage eztags and probably others -->
     <!-- see content.ini for full list of avilable types -->
     <datatypestring>ezxmltext</datatypestring>
-    
+
     <!-- some examples: eng-GB eng-CA eng-US -->
     <language>eng-CA</language>
-    
+
     <is_required>0</is_required>
     <is_searchable>1</is_searchable>
     <is_information_collector>0</is_information_collector>
     <can_translate>0</can_translate>
-    
+
     <!-- "eep-no-content" is recognized to mean "no content" -->
     <content>eep-no-content</content>
 
@@ -62,7 +62,7 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
             <!-- numberoflines is capped at 30 by a sanity check in the code -->
             <numberoflines>10</numberoflines>
         </ezxmltext>
-        
+
         <ezboolean>
             <default_value>eep-no-content</default_value>
         </ezboolean>
@@ -125,7 +125,7 @@ class AttributeFunctions
     }
 
     //--------------------------------------------------------------------------
-    // this is the entry point for creating a new attribute    
+    // this is the entry point for creating a new attribute
     static public function updateAttribute( $classIdentifier, $newAttributeXPath )
     {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
@@ -158,7 +158,7 @@ class AttributeFunctions
     static function addAttributeToClass( $contentClass, $newAttributeXPath )
     {
         $classID = $contentClass->attribute( "id" );
-        
+
         // extracting from the xml, it's gross, but it's better than from an assoc array
         $xmlValues = array
         (
@@ -173,7 +173,7 @@ class AttributeFunctions
             , "datatypestring"              => trim( $newAttributeXPath->query( "//newattribute/datatypestring" )->item( 0 )->nodeValue )
             , "content"                     => trim( $newAttributeXPath->query( "//newattribute/content" )->item( 0 )->nodeValue )
         );
-        
+
         // create new attribute
         $attributeCreationInfo = array
         (
@@ -181,7 +181,7 @@ class AttributeFunctions
             , "serialized_name_list"        => serialize( array(
                                                             $xmlValues[ "language" ]    => $xmlValues[ "display_name" ]
                                                             , "always-available"        => $xmlValues[ "language" ]
-                                                        ) ) 
+                                                        ) )
             , "description"                 => $xmlValues[ "description" ]
             , "can_translate"               => $xmlValues[ "can_translate" ]
             , "is_required"                 => $xmlValues[ "is_required" ]
@@ -218,7 +218,7 @@ class AttributeFunctions
 
         $newAttribute->setAttribute( "version", eZContentClass::VERSION_STATUS_DEFINED );
         $newAttribute->setAttribute( "placement", count( $allAttributesList ) );
-        
+
         $contentClass->adjustAttributePlacements( $allAttributesList );
         foreach( $allAttributesList as $attribute )
         {
@@ -264,7 +264,7 @@ class AttributeFunctions
                 }
                 $classAttribute->setAttribute( "data_int1", $numberOfLines );
                 break;
-            
+
             case "ezselection":
                 // ripped off from kernel/classes/datatypes/ezselection/ezselectiontype.php
                 // build the internal XML representation of the options list, first, build a new xml doc
@@ -299,10 +299,10 @@ class AttributeFunctions
                 }
                 else
                 {
-                    $classAttribute->setAttribute( "data_int1", 0 );                
+                    $classAttribute->setAttribute( "data_int1", 0 );
                 }
                 break;
-            
+
             case "ezboolean":
                 $defaultValue = trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezboolean/default_value" )->item( 0 )->nodeValue );
                 if( "eep-no-content" != $defaultValue )
@@ -321,15 +321,15 @@ class AttributeFunctions
                         , "fuzzy_match"             => trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelation/fuzzy_match" )->item( 0 )->nodeValue )
                         , "default_selection_node"  => trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelation/default_selection_node" )->item( 0 )->nodeValue )
                     );
-                    
+
                     $content[ "selection_type" ] = $xmlValues[ "selection_type" ];
-                    
+
                     $content[ "fuzzy_match" ] = false;
                     if( "false" != $xmlValues[ "fuzzy_match" ] )
                     {
                         $content[ "fuzzy_match" ] = true;
                     }
-                    
+
                     $content[ "default_selection_node" ] = false;
                     if( "eep-no-content" != $xmlValues[ "default_selection_node" ] )
                     {
@@ -350,20 +350,20 @@ class AttributeFunctions
                     $classAttribute->store();
                 }
                 break;
-            
+
             case "ezobjectrelationlist":
                     $content = $classAttribute->content();
-                    
+
                     // object_class is not currently supported
                     // $content[ "object_class" ] =
-                    
+
                     // not sure what this is, (not even clear that there is a UI for setting it in the admin)
                     // but setting it to 0 is consistent with examples
                     $content[ "type" ] = 0;
-                    
+
                     $content[ "selection_type" ] = trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/selection_type" )->item( 0 )->nodeValue );
                     $content[ "default_placement" ] = trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/browse_locationbrowse_location" )->item( 0 )->nodeValue );
-                    
+
                     $allowedClassList = $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/allowed_class_identifier" );
                     if( 0 < $allowedClassList->length )
                     {
@@ -387,7 +387,7 @@ class AttributeFunctions
                 /*
                 todo, add these to the xml and confirm that they are interpreted correctly upon
                 attribute creation
-                
+
                 // ezmatrix specific values
                 $params['matrix'] = array();
                 $params['matrix']['type'] = 'Type';
@@ -500,7 +500,7 @@ class AttributeFunctions
         $batch = eZContentObjectTreeNode::subTreeByNodeID( $fetchParameters, 1 );
         while( 0 < count( $batch ) )
         {
-            //echo "found: " . count($batch) . " onix_product instances at offset: " . $fetchParameters[ "Offset" ] . "\n";    
+            //echo "found: " . count($batch) . " onix_product instances at offset: " . $fetchParameters[ "Offset" ] . "\n";
             foreach( $batch as $n => $node )
             {
                 $dm = $node->ContentObject->DataMap();
@@ -579,7 +579,7 @@ class AttributeFunctions
         }
         eep::printTable( $results, "list attributes of class: ".$classIdentifier );
     }
-    
+
     //--------------------------------------------------------------------------
     public static function convertInputIntoEZXML( $input, $parseLineBreaks = false )
     {
@@ -603,7 +603,7 @@ class AttributeFunctions
 
         return $output;
     }
-    
+
     //--------------------------------------------------------------------------
     public static function fromString( $contentObjectId, $attributeIdentifier, $value )
     {
@@ -623,7 +623,7 @@ class AttributeFunctions
             // convert passed value to ez xml format
             $value = AttributeFunctions::convertInputIntoEZXML( $value );
         }
-        
+
         $dataMap[ $attributeIdentifier ]->FromString( $value );
         $dataMap[ $attributeIdentifier ]->store();
 
@@ -723,7 +723,7 @@ class AttributeFunctions
 
         if ( !$contentObject->hasAttribute( $attributeIdentifier ) )
         {
-            throw new Exception( "This is not a content object attribute identifier [" . $attributeIdentifier . "]" );   
+            throw new Exception( "This is not a content object attribute identifier [" . $attributeIdentifier . "]" );
         }
 
         $contentObject->setAttribute( $attributeIdentifier, $attributeValue );
@@ -779,4 +779,3 @@ class AttributeFunctions
         }
     }
 }
-?>

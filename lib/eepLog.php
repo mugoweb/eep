@@ -13,7 +13,7 @@ class eepLog
 {
     var $logPath = "";
     var $logFile = "";
-    
+
     var $maxLogRotateFiles = 3;
     var $maxLogFileSize = 204800; // 200*1024
 
@@ -53,13 +53,13 @@ class eepLog
                 $this->write( $msg );
                 throw new Exception( $msg );
                 break;
-            
+
             case "bell":
                 $msg = "bel:: " . $msg;
                 echo chr( 0x7 ) . $msg . "\n";
                 $this->write( $msg );
                 break;
-            
+
             case "fatal":
                 $msg = "fatal:: " . $msg;
                 echo $msg . "\n";
@@ -67,7 +67,7 @@ class eepLog
                 die( "" );
                 break;
         }
-    }    
+    }
 
     //--------------------------------------------------------------------------
     public function setPath( $path )
@@ -96,7 +96,7 @@ class eepLog
     {
         $this->maxLogFileSize = $maxLogFileSize;
     }
-    
+
     //--------------------------------------------------------------------------
     private function write( $message )
     {
@@ -158,4 +158,3 @@ class eepLog
         return false;
     }
 }
-?>
