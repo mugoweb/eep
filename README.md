@@ -31,6 +31,7 @@ $ eep help <module>
 This is the list of modules (more or less up to date):
 
 * attribute
+* cache
 * contentclass
 * contentclassgroup
 * contentnode
@@ -45,6 +46,7 @@ This is the list of modules (more or less up to date):
 * section
 * trash
 * use
+* user
 
 ## Installation
 
