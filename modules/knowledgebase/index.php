@@ -24,14 +24,14 @@ class knowledgebase_commands
         , self::knowledgebase_sqltofixenglish
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 ezdebug
 - outputs useful INI settings to set up for debugging
@@ -40,7 +40,7 @@ ezdebug
 vhost
 - outputs a useful apache virtual host file
   eep knowledgebase vhost
-  
+
 sqltofixenglish
 - outputs some sql that will convert all the UK translations of content classes
 to US
@@ -62,26 +62,26 @@ EOT;
         }
 
         $eepCache = eepCache::getInstance();
-        
+
         switch( $command )
         {
             case "help":
                 echo "\nAvailable commands: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::knowledgebase_ezdebug:
                 require_once( "knowledgebase_ezdebug.php" );
                 echo $knowledgeBaseString;
                 break;
-            
+
             case self::knowledgebase_vhost:
                 if( !$eepCache->cacheKeyIsSet( eepCache::use_key_ezroot ) )
                     throw new Exception( "This requires 'eep use ezroot ...'" );
                 $ezRoot = $eepCache->readFromCache( eepCache::use_key_ezroot );
-                
+
                 require_once( "knowledgebase_vhost.php" );
-                
+
                 $knowledgeBaseString = str_replace( "<<<ezroot>>>", $ezRoot, $knowledgeBaseString );
                 echo $knowledgeBaseString;
                 break;
@@ -102,4 +102,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

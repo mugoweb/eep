@@ -23,7 +23,7 @@ class contentobject_commands
     const contentobject_deleteversions   = "deleteversions";
     const contentobject_fetchbyremoteid  = "fetchbyremoteid";
     const contentobject_setremoteid      = "setremoteid";
-    
+
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -42,14 +42,14 @@ class contentobject_commands
         , self::contentobject_setremoteid
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 clearcache
 - clear the content cache for given object
@@ -99,7 +99,7 @@ info
 fetchbyremoteid
   eep use ezroot <path>
   eep contentobject fetchbyremoteid <remoteid>
-  
+
 republish
 - republishes an object
   eep use ezroot <path>
@@ -125,7 +125,7 @@ reverserelated
   eep contentobject reverserelated
   or
   eep contentobject reverserelated <object id>
-  
+
 setremoteid
   eep use ezroot <path>
   eep contentobject setremoteid <object id> <remoteid>
@@ -157,7 +157,7 @@ EOT;
             , "CurrentVersion"
             , "Status"
             , "RemoteID"
-            //, "DataMap"  
+            //, "DataMap"
         );
 
         $results[] = array( "key",      "value" );
@@ -193,7 +193,7 @@ EOT;
 
         eep::printTable( $results, "contentobject id [" .$contentObject->ID. "]" );
     }
-    
+
     //--------------------------------------------------------------------------
     private function fetchContentObjectFromId( $contentobjectId )
     {
@@ -206,7 +206,7 @@ EOT;
     {
         $contentobject = eZContentObject::fetch( $contentobjectId );
         $dataMap = $contentobject->dataMap();
-        
+
         $results[] = array
         (
             "identifier"
@@ -236,7 +236,7 @@ EOT;
         }
         eep::printTable( $results, "contentobject datamap id [" .$contentobjectId. "]" );
     }
-    
+
     //--------------------------------------------------------------------------
     private function fetchRelated( $objectId, $reverse, $additional )
     {
@@ -260,7 +260,7 @@ EOT;
         {
             $parameters[ "Offset" ] = $additional["offset"];
         }
-        
+
         $reverseRelated = $object->relatedObjects
         (
             false                           // use current version of object
@@ -270,7 +270,7 @@ EOT;
             , $parameters
             , $reverse                      // true->reverse-related and false->related
         );
-        
+
         $keepers = array
         (
             "ObjectID"
@@ -280,7 +280,7 @@ EOT;
             , "SID"
             , "Name"
         );
-        
+
         $results[] = $keepers;
         $rowCount = 0;
         foreach( $reverseRelated as $revObject )
@@ -311,13 +311,13 @@ EOT;
     {
         return self::fetchRelated( $objectId, true, $additional );
     }
-    
+
     //--------------------------------------------------------------------------
     private function delete( $objectId )
     {
         $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
         $adminUserObject->loginCurrent();
-        
+
         //$object = eZContentObject::fetch( $objectId );
         $result = eZContentObjectOperations::remove( $objectId, true );
 
@@ -331,24 +331,24 @@ EOT;
             echo "Failed to delete " .$objectId. "\n";
         }
     }
-    
+
     //--------------------------------------------------------------------------
     private function convertToNodeId( $objectId )
     {
         $object = eZContentObject::fetch( $objectId, true );
         return $object->MainNodeId();
     }
-    
+
     //--------------------------------------------------------------------------
     private function clearObjectCache( $objectId )
     {
         // todo: the first one is suspect:
         //eZContentObject::clearCache( array( $objectId ) );
-        
+
         // ... so, todo: does this work any better?
         eZContentCacheManager::clearContentCacheIfNeeded( $objectId );
     }
-    
+
     //--------------------------------------------------------------------------
     // <url>
     // <loc>http://www.example.com/</loc>
@@ -365,7 +365,7 @@ EOT;
         array_shift( $pathNodes );
         array_shift( $pathNodes );
         array_pop( $pathNodes );
-        
+
         $location = "http://" . $domain;
         foreach( $pathNodes as $nodeId )
         {
@@ -377,7 +377,7 @@ EOT;
         // ["Modified"]=>string(10) "1270075155"
         // ["Published"]=>string(10) "1270075155"
         // hourly daily weekly monthly yearly never
-        
+
         if( !$changeFrequency )
         {
             $changeFrequency  = "weekly";
@@ -392,10 +392,10 @@ EOT;
         $xml .= "<changefreq>" . $changeFrequency . "</changefreq>";
         $xml .= "<priority>" .$priority. "</priority>";
         $xml .= "</url>\n";
-        
+
         echo $xml;
     }
-    
+
     //--------------------------------------------------------------------------
     private function deleteversions( $objectId )
     {
@@ -412,7 +412,7 @@ EOT;
             }
         }
     }
-    
+
     //--------------------------------------------------------------------------
     private function fetchbyremoteid( $remoteId )
     {
@@ -427,7 +427,7 @@ EOT;
         $contentObject->setAttribute( 'remote_id',  $remoteId );
         $contentObject->sync( array( 'remote_id' ) );
     }
-    
+
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
@@ -448,7 +448,7 @@ EOT;
                 echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::contentobject_info:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
@@ -459,7 +459,7 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 $this->fetchContentObjectFromId( $objectId );
                 break;
-            
+
             case self::contentobject_datamap:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
@@ -470,8 +470,8 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 $this->fetchDataMapFromId( $objectId );
                 break;
-            
-            case self::contentobject_related: 
+
+            case self::contentobject_related:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
                 {
@@ -492,7 +492,7 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 $this->fetchReverseRelated( $objectId, $additional );
                 break;
-            
+
             case self::contentobject_delete:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
@@ -503,7 +503,7 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 $this->delete( $objectId );
                 break;
-            
+
             case self::contentobject_contentnode:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
@@ -514,7 +514,7 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 echo $this->convertToNodeId( $objectId ) . "\n";
                 break;
-            
+
             case self::contentobject_republish:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
@@ -526,7 +526,7 @@ EOT;
                 eep::republishObject( $objectId );
                 echo "republished " . $objectId . "\n";
                 break;
-            
+
             case self::contentobject_clearcache:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
@@ -537,7 +537,7 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 $this->clearObjectCache( $objectId );
                 break;
-            
+
             case self::contentobject_sitemapxml:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
@@ -548,7 +548,7 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 $this->sitemapxml( $objectId, $param2, $param3, $param4 ); // objid, domain, change-frequency, priority
                 break;
-            
+
             case self::contentobject_deleteversions:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
@@ -559,11 +559,11 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 $this->deleteversions( $objectId );
                 break;
-            
+
             case self::contentobject_fetchbyremoteid:
                 $this->fetchbyremoteid( $param1 );
                 break;
-            
+
             case self::contentobject_setremoteid:
                 $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                 if( $param1 )
@@ -588,4 +588,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

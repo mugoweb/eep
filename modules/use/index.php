@@ -28,14 +28,14 @@ class use_commands
         , eepCache::use_key_siteaccess
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 Save values for use with other commands. The 'commands' are the keys.
 Note that "ezroot" is required when you are going to interact with eZ Publish.
@@ -43,13 +43,13 @@ Note that "ezroot" is required when you are going to interact with eZ Publish.
 use
 - add a key/value to the cache
   eep use <key> <desired value>
-  
+
 dump
 - print the current cached values
   eep use dump
 EOT;
     }
-    
+
     //--------------------------------------------------------------------------
     private function dumpCache()
     {
@@ -76,36 +76,36 @@ EOT;
         {
             throw new Exception( "Command '" . $command . "' not recognized." );
         }
-        
+
         $eepCache = eepCache::getInstance();
-        
+
         switch( $command )
         {
             case "help":
                 echo "'use' available keys: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::use_dump:
                 $this->dumpCache();
                 break;
-            
+
             case eepCache::use_key_contentclass:
                 $contentClass = eZContentClass::fetchByIdentifier( $param1 );
                 if( !$contentClass )
                     throw new Exception( "This content class does not exist: [" . $param1 . "]" );
-                
+
                 // note that a value == "" means to clear the setting
                 $eepCache->writetoCache( eepCache::use_key_contentclass, $param1 );
                 break;
-            
+
             case eepCache::use_key_contentnode:
                 if( !eepValidate::validateContentNodeId( $param1 ) )
                     throw new Exception( "This is not an node id: [" .$param1. "]" );
 
                 $eepCache->writetoCache( eepCache::use_key_contentnode, $param1 );
                 break;
-            
+
             case eepCache::use_key_object:
                 if( !eepValidate::validateContentObjectId( $param1 ) )
                     throw new Exception( "This is not an object id: [" .$param1. "]" );
@@ -117,12 +117,12 @@ EOT;
                 // todo, verify that this is indeed a content class attribute
                 $eepCache->writetoCache( eepCache::use_key_attribute, $param1 );
                 break;
-            
+
             case eepCache::use_key_siteaccess:
                 // todo, verify that this is indeed a site access
                 $eepCache->writetoCache( eepCache::use_key_siteaccess, $param1 );
                 break;
-            
+
             case eepCache::use_key_ezroot:
                 if( "/" == substr( $param1, 0, 1 ) )
                 {
@@ -134,7 +134,7 @@ EOT;
                     // relative path
                     $eZPublishRootPath = getcwd() ."/". $param1;
                 }
-                $eepCache->writetoCache( eepCache::use_key_ezroot, realpath( $eZPublishRootPath ) );        
+                $eepCache->writetoCache( eepCache::use_key_ezroot, realpath( $eZPublishRootPath ) );
                 // if you require this now, you might clash with an existing
                 // autoload, so just save the new path in the cache, and the
                 // next run will load the new autoload
@@ -152,4 +152,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

@@ -40,7 +40,7 @@ EOT;
         $param2 = @$argv[4];
 
         global $eepPath;
-        
+
         $eepCache = eepCache::getInstance();
 
         $availableModules = $eepCache->readFromCache( eepCache::misc_key_availablemodules );
@@ -65,16 +65,16 @@ EOT;
                 }
                 eep::printTable( $table, "Available shortcuts" );
                 break;
-            
+
             default:
                 // this is an infamous hack; redirect the request to a different
                 // module, and the help function there
                 global $argv;
                 global $argc;
-                
+
                 $argv[1] = $command; // the module, not actually used
                 $argv[2] = "help";   // the command, which is help
-                
+
                 global $eepPath;
                 require_once( $eepPath . "/modules/" . $command . "/index.php" );
                 break;
@@ -90,4 +90,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

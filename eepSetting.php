@@ -17,6 +17,5 @@ class eepSetting
     const DataCacheFile = "./.eepdata";
 
     const LogFolder = "./";
-    const LogFile = "eep.log";    
+    const LogFile = "eep.log";
 }
-?>

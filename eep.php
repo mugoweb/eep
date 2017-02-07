@@ -126,7 +126,7 @@ if( class_exists ( "eZScript", true ) )
         )
     );
     $script->initialize();
-    
+
 }
 
 // do the main piece of work according to the index.php file in the requested folder
@@ -174,4 +174,3 @@ if( class_exists ( "eZScript", true ) )
     $script->setExitCode( 1 );
     $script->shutdown();
 }
-?>

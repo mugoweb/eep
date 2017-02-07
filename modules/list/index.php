@@ -217,12 +217,12 @@ EOT;
         if( !eepValidate::validateContentNodeId( $parentNodeId ) )
             throw new Exception( "This is not an node id: [" .$parentNodeId. "]" );
 
-        
+
         $params[ "Depth" ] = 1;
         //$parms[ "MainNodeOnly" ] = true;
         $params[ "IgnoreVisibility" ] = true;
         $params[ 'Limitation' ] = array();
-        
+
         $limitTitleString = '';
         if( isset($additional["limit"]) )
         {
@@ -848,4 +848,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

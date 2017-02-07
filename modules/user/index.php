@@ -12,7 +12,7 @@ class user_commands
 {
     const user_editlog = "editlog";
     const user_visit = "visit";
-    
+
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -28,7 +28,7 @@ class user_commands
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 editlog
 - dump list of users who have edited content in the last N months (defaults to 3) and who have edited more than 1 piece of content.
@@ -37,7 +37,7 @@ eep user editlog
 visit
 - return user visit information e.g. last login, login count
 eep user visit <user_id>
-    
+
 EOT;
     }
 
@@ -48,7 +48,7 @@ EOT;
 
         if( !$userId )
         {
-            throw new Exception( "user_id parameter missing" );   
+            throw new Exception( "user_id parameter missing" );
         }
         if( !eepValidate::validateContentObjectId( $userId ) )
         {
@@ -57,9 +57,9 @@ EOT;
 
         $db  = eZDB::instance();
         $sql = "
-        SELECT 
+        SELECT
             *
-        FROM 
+        FROM
             `ezuservisit` uv
         WHERE
             uv.`user_id` = {$userId};";
@@ -78,7 +78,7 @@ EOT;
             while( $row = $query->fetch_assoc() )
             {
                 $results[] = array
-                ( 
+                (
                     $row[ "current_visit_timestamp" ]
                     , $row[ "failed_login_attempts" ]
                     , $row[ "last_visit_timestamp" ]
@@ -92,7 +92,7 @@ EOT;
             }
         }
     }
-    
+
     //--------------------------------------------------------------------------
     private function user_editlog( $durationOverride )
     {
@@ -102,7 +102,7 @@ EOT;
             $months = (integer )$durationOverride;
         }
         $duration = 30 * 24 * 60 * 60 * $months;
-        
+
         $db  = eZDB::instance();
         $sql = "SELECT
                     COUNT( DISTINCT ezcontentobject_version.creator_id, ezcontentobject_version.contentobject_id ) as editor_count,
@@ -127,20 +127,20 @@ EOT;
             while( $row = $query->fetch_assoc() )
             {
                 $results[] = array
-                ( 
+                (
                     $row[ "editor_count" ]
                     , $row[ "email" ]
-                    , $row[ "creator_id" ] 
+                    , $row[ "creator_id" ]
                 );
             }
             eep::printTable( $results, "Numbers of objects edited in last " . $months . " months" );
         }
         else
         {
-            throw new Exception( "SQL failed to run -- sorry.\n" );   
+            throw new Exception( "SQL failed to run -- sorry.\n" );
         }
     }
-    
+
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
@@ -166,12 +166,12 @@ EOT;
             case self::user_visit:
                 $this->user_visit( $param1 );
                 break;
-            
+
             case self::user_editlog:
                 $this->user_editlog( $param1 );
                 break;
         }
-    } 
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -182,4 +182,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

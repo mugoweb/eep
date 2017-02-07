@@ -137,7 +137,7 @@ EOT;
             case "trim":
                 $conversionFunc = "convertTrim";
                 break;
-            
+
             case "date2ts":
                 $conversionFunc = "dateToTS";
                 break;
@@ -262,7 +262,7 @@ EOT;
                 $attributeIdentifier = $param2;
                 echo AttributeFunctions::toString( $contentObjectId, $attributeIdentifier ) . "\n";
                 break;
-            
+
             case self::attribute_createalias:
                 $contentObjectId = $param1;
                 $attributeIdentifier = $param2;
@@ -287,4 +287,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

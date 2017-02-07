@@ -20,14 +20,14 @@ class cache_commands
         , self::cache_cacheclear
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 cacheclear
 - executes a safe cache clear, clearing the most stuff without making the host vulnerable to
@@ -50,23 +50,23 @@ EOT;
         }
 
         $eepCache = eepCache::getInstance();
-        
+
         switch( $command )
         {
             case "help":
                 echo "\nAvailable commands: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::cache_cacheclear:
                 //$cacheClearCommand = "php bin/php/ezcache.php --clear-id=global_ini,ini,classid,template,template-block,content,template-override,rss_cache,design_base,state_limitations";
                 //echo shell_exec( $cacheClearCommand );
                 $this->cacheclear();
-                
+
                 break;
         }
     }
-    
+
     // determines the cache clear operations available, then does the most cache clearing possible without
     // doing too much - especially not clearing image aliases which tends to crush a busy server
     private function cacheclear()
@@ -113,4 +113,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>
