@@ -12,8 +12,5 @@ $co = eZContentObject::fetch( 2467 );
 //print_r( $co->attribute( 'state_id_array' ) );
 
 // $co->attribute( 'state_id_array' )
-    
+
 print_r( $co->allowedAssignStateIDList() );
-    
-    
-?>

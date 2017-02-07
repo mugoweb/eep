@@ -12,7 +12,7 @@ class section_commands
 {
     const section_list = "list";
     const section_allobjects = "allobjects";
-    
+
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -28,17 +28,17 @@ class section_commands
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 allobjects
 - list all objects in the section
-- supports --limit and --offset  
+- supports --limit and --offset
   eep section allobjects <section id>
 
 list
 - list all sections
   eep section list
-    
+
 EOT;
     }
 
@@ -68,7 +68,7 @@ EOT;
         }
         eep::printTable( $results, "all sections" );
     }
-    
+
     //--------------------------------------------------------------------------
     //$list = eZSectionFunctionCollection::fetchObjectList( $sectionID, $offset = false, $limit = false, $sortOrder = false, $status = false )
     private function allobjects( $sectionId, $additional )
@@ -111,17 +111,17 @@ EOT;
                 echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::section_list:
                 $this->section_list();
                 break;
-            
+
             case self::section_allobjects:
                 $sectionId = $param1;
                 $this->allobjects( $sectionId, $additional );
                 break;
         }
-    } 
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -132,4 +132,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

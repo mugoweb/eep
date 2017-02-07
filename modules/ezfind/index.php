@@ -36,14 +36,14 @@ class ezfind_commands
         , self::ezfind_testquery
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 advanced
   eep ezfind advanced <statement> <fields to return> <filter> [--offset=## --limit=## --show-complex=1 --output=xml|csv|json]
@@ -68,7 +68,7 @@ eject
 fields
   eep ezfind fields <object id>
 
-lastindexed 
+lastindexed
   eep ezfind lastindexed <object id>
 
 startsolr
@@ -80,7 +80,7 @@ testquery
   eep ezfind testquery
 EOT;
     }
-    
+
     //--------------------------------------------------------------------------
     private function advanced( $args, $additional )
     {
@@ -150,7 +150,7 @@ EOT;
                 {
                     $header[] = $index;
                 }
-                
+
                 $results[] = $header;
                 $fieldListCount = count( explode( ',', $parameters['fl'] ) );
                 foreach( $search['response']['docs'] as $doc )
@@ -172,7 +172,7 @@ EOT;
                         }
                         else if( is_object( $attribute ) )
                         {
-                            
+
                             if( $showComplex )
                             {
                                 $result[] = implode( '¦', (array) $attribute );
@@ -252,7 +252,7 @@ EOT;
         $search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
         if( $search["SearchCount"] )
         {
-            echo "yes\n";       
+            echo "yes\n";
         }
         else
         {
@@ -271,13 +271,13 @@ EOT;
         else
         {
             echo "invalid object id\n";
-        }        
-        
+        }
+
     }
     //--------------------------------------------------------------------------
     private function fields( $objectId )
     {
-        $parameters = array();       
+        $parameters = array();
         $parameters['q'] = 'meta_id_si:' . $objectId ;
         $query  = array
         (
@@ -310,7 +310,7 @@ EOT;
         }
         else
         {
-            echo "No results\n";        
+            echo "No results\n";
         }
     }
     //--------------------------------------------------------------------------
@@ -324,14 +324,14 @@ EOT;
         if( count( $search["response"]["docs"] ) )
         {
             $datetime = strtotime( $search["response"]["docs"][( count($search["response"]["docs"]) - 1 )]["timestamp"] );
-            echo date( 'Y:m:d H:i:s', $datetime ) . "\n";  
-        }  
+            echo date( 'Y:m:d H:i:s', $datetime ) . "\n";
+        }
         else
         {
             echo "not-indexed\n";
         }
     }
-    
+
     //--------------------------------------------------------------------------
     private function startsolr( $ezRootPath )
     {
@@ -366,16 +366,16 @@ EOT;
         $query = "/select/?";
         $query .= "fl=score,meta_main_url_alias_s&";
         $query .= "start=0&";
-        
+
         $query .= "q=submeta_bisac_categories-main_node_id_si:2553";
         $query .= "%20AND%20meta_path_si:1";
         $query .= "%20AND%20meta_path_si:2";
         $query .= "%20AND%20meta_path_si:93";
         $query .= "%20AND%20meta_path_si:303";
         $query .= "&";
-        
+
         $query .= "rows=10";
-        
+
         $result = eZFunctionHandler::execute
         (
             'ezfind'
@@ -396,18 +396,18 @@ EOT;
         $command = @$argv[2];
         $param1 = @$argv[3];
         $param2 = @$argv[4];
-        
+
         if( !in_array( $command, $this->availableCommands ) )
         {
             throw new Exception( "Command '" . $command . "' not recognized." );
         }
-        
-        if ( !$this->isSolrRunning() 
+
+        if ( !$this->isSolrRunning()
              && $command != self::ezfind_startsolr
              && $command != "help" )
         {
             echo "solr is not available\n";
-        
+
         }
         else
         {
@@ -420,8 +420,8 @@ EOT;
                     echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                     echo "\n".$this->help."\n";
                     break;
-                
-                case self::ezfind_advanced:                    
+
+                case self::ezfind_advanced:
                     $this->advanced( $argv, $additional );
                     break;
                 case self::ezfind_indexobject:
@@ -471,12 +471,12 @@ EOT;
                         $objectId = $param1;
                     }
                     $this->lastindexed( $objectId );
-                    break;            
+                    break;
                 case self::ezfind_startsolr:
                     $ezRootPath = $eepCache->readFromCache( eepCache::use_key_ezroot );
                     $this->startsolr( $ezRootPath );
                     break;
-                
+
                 case self::ezfind_testquery:
                     $this->testQuery( $param1 );
                     break;
@@ -493,4 +493,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

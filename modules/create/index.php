@@ -24,14 +24,14 @@ class create_commands
         , self::create_quick
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 NOTE: Currently only generates random content based on a given content class and
 given parent node.
@@ -43,7 +43,7 @@ content
   eep use contentclass <class identifier>
   eep use contentnode <parent node id>
   eep create content random
-  
+
 quick
 - just create an empty object, return obj id and node id so that the object can be populated
 - the output is, eg:
@@ -124,17 +124,17 @@ EOT;
 
         return $result;
     }
-        
+
     //--------------------------------------------------------------------------
     private function createContentObject( $classIdentifier, $parentNodeId, $fillMode )
     {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         if( !$contentClass )
             throw new Exception( "This content class does not exist: [" . $classIdentifier . "]" );
-        
+
         if( !eepValidate::validateContentNodeId( $parentNodeId ) )
             throw new Exception( "This is not an node id: [" .$parentNodeId. "]" );
-        
+
         // todo, in addition to "random" mode, datamap content should be
         // pullable from a suitable xml file; might also provide a way to dump
         // the framework for a content class "as xml"
@@ -142,9 +142,9 @@ EOT;
         {
             $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
             $attributeList = eZContentClassAttribute::fetchListByClassID( $classId );
-            
+
             $words = explode( " ", self::fake_text );
-            
+
             $dataSet = array();
             foreach( $attributeList as $attr )
             {
@@ -161,7 +161,7 @@ EOT;
                         $randomWords = array_intersect_key( $words, $randomKeys );
                         $dataSet[ $attr->Identifier ] = implode( ",", $randomWords );
                         break;
-                    
+
                     case "ezstring":
                         $randomKeys = array_flip( array_rand( $words, 5 ) );
                         $randomWords = array_intersect_key( $words, $randomKeys );
@@ -177,7 +177,7 @@ EOT;
                     case "ezdatetime":
                         $dataSet[ $attr->Identifier ] = time();
                         break;
-                    
+
                     case "ezxmltext":
                         $text = "";
                         for( $paraCount=0; $paraCount<5; $paraCount+=1 )
@@ -191,7 +191,7 @@ EOT;
                         $dataSet[ $attr->Identifier ] = eZXMLTextType::domString( $document );
                         break;
                 }
-            }        
+            }
             $createResults = $this->create( $parentNodeId, $classIdentifier, $dataSet );
             //echo "\nobject creation results\n";
             //var_dump( $createResults );
@@ -201,15 +201,15 @@ EOT;
             throw new Exception( "Only 'random' is currently supported." );
         }
     }
-    
+
     //--------------------------------------------------------------------------
     private function create_quick( $parentNodeId, $classIdentifier )
     {
         if( !eepValidate::validateContentNodeId( $parentNodeId ) )
             throw new Exception( "This is an invalid parent node id: [" .$parentNodeId. "]" );
-        
+
         $results = $this->create( $parentNodeId, $classIdentifier, array() );
-        
+
         echo "new object id " . $results[ "contentobjectid" ] . "\n";
         echo "new node id " . $results[ "mainnodeid" ] . "\n";
     }
@@ -227,20 +227,20 @@ EOT;
         }
 
         $eepCache = eepCache::getInstance();
-        
+
         switch( $command )
         {
             case "help":
                 echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::create_content:
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 $parentNodeId = $eepCache->readFromCache( eepCache::use_key_contentnode );
                 $this->createContentObject( $classIdentifier, $parentNodeId, $param1 );
                 break;
-            
+
             case self::create_quick:
                 $nodeId = $param1;
                 $classIdentifier = $param2;
@@ -258,4 +258,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

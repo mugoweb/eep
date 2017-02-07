@@ -12,7 +12,7 @@ class ezflow_commands
 {
     const ezflow_find = "find";
     const ezflow_list = "list";
-    
+
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -28,13 +28,13 @@ class ezflow_commands
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 find
 - return content classes using the ezpage attribute
   eep ezflow find ezpage
 
-  OR 
+  OR
 
 - return content objects using a specific block type
   eep ezflow find blocktype <block_type>
@@ -43,7 +43,7 @@ list
 - list all ezflow block types in use
   eep ezflow list blocktypes [grouped]
 
-    
+
 EOT;
     }
 
@@ -52,15 +52,15 @@ EOT;
     {
         $db  = eZDB::instance();
         $sql = "
-        SELECT 
-            cca.contentclass_id, 
-            cc.identifier 
-        FROM 
-            `ezcontentclass_attribute` cca, 
-            `ezcontentclass` cc 
-        WHERE 
-            cca.`data_type_string` = 'ezpage' 
-        AND 
+        SELECT
+            cca.contentclass_id,
+            cc.identifier
+        FROM
+            `ezcontentclass_attribute` cca,
+            `ezcontentclass` cc
+        WHERE
+            cca.`data_type_string` = 'ezpage'
+        AND
             cca.`contentclass_id` = cc.`id`";
 
         if ( $query = $db->query( $sql ) )
@@ -74,9 +74,9 @@ EOT;
             while( $row = $query->fetch_assoc() )
             {
                 $results[] = array
-                ( 
+                (
                     $row[ 'contentclass_id' ]
-                    , $row[ 'identifier' ] 
+                    , $row[ 'identifier' ]
                 );
             }
             eep::printTable( $results, "ezpage used in ..." );
@@ -88,13 +88,13 @@ EOT;
     {
         $db  = eZDB::instance();
         $sql = "
-        SELECT 
+        SELECT
             b.node_id, b.name, b.zone_id, b.overflow_id,
             p.object_id, p.block_id
-        FROM 
+        FROM
             `ezm_block` b,
             `ezm_pool` p
-        WHERE 
+        WHERE
             b.`block_type` = '" . mysql_real_escape_string( $block_type ) . "'
         AND
             b.`id` = p.`block_id`;";
@@ -114,7 +114,7 @@ EOT;
             while( $row = $query->fetch_assoc() )
             {
                 $results[] = array
-                ( 
+                (
                     $row[ 'node_id' ]
                     , $row[ 'object_id' ]
                     , $row[ 'name' ]
@@ -131,34 +131,34 @@ EOT;
     private function ezflow_list_blocktypes( $output )
     {
         $validOutput = array( 'simple', 'grouped' );
-        
+
         if( !in_array( $output, $validOutput ) )
         {
             $output = 'simple';
         }
 
         $db = eZDB::instance();
-        
+
         $sql[ 'simple' ]    = "SELECT block_type, id as block_id FROM `ezm_block` ORDER BY `block_type` ASC";
         $sql[ 'grouped' ] = "
-            SELECT 
-                block_type, 
-                COUNT(block_type) as count, 
-                (SELECT 
-                    GROUP_CONCAT(id) 
-                FROM 
-                    `ezm_block` t2 
-                WHERE 
+            SELECT
+                block_type,
+                COUNT(block_type) as count,
+                (SELECT
+                    GROUP_CONCAT(id)
+                FROM
+                    `ezm_block` t2
+                WHERE
                     t1.block_type = t2.block_type
-                ) as block_ids 
-            FROM 
-                `ezm_block` t1 
-            GROUP BY t1.block_type 
+                ) as block_ids
+            FROM
+                `ezm_block` t1
+            GROUP BY t1.block_type
             ORDER BY t1.`block_type` ASC;";
 
         // header field names for each output mode
         $headers[ 'simple' ]    = array
-        ( 
+        (
             "block_type"
             , "block_id"
         );
@@ -212,7 +212,7 @@ EOT;
                 echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::ezflow_find:
                     if( $param1 == "ezpage" )
                     {
@@ -232,7 +232,7 @@ EOT;
                     }
                 break;
         }
-    } 
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -243,4 +243,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

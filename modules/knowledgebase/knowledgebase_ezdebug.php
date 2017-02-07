@@ -46,5 +46,3 @@ DevelopmentMode=enabled
 ViewCaching=disabled
 
 EOT;
-
-?>

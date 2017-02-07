@@ -27,9 +27,9 @@ class eepCache
     const use_key_attribute             = "attribute";
 
     const misc_key_availablemodules     = "availablemodules";
-        
+
     private static $singleInstance;
-    
+
     var $userDataCache = null;
     var $userDataCacheFile = null;
 
@@ -37,9 +37,9 @@ class eepCache
     function __construct()
     {
         global $eepLogger;
-        
+
         $this->userDataCacheFile = eepSetting::DataCacheFile;
-        
+
         if( file_exists( $this->userDataCacheFile ) )
         {
             $this->userDataCache = file_get_contents( $this->userDataCacheFile );
@@ -77,13 +77,13 @@ class eepCache
         }
         else
         {
-            $this->userDataCache[ $key ] = $value;            
+            $this->userDataCache[ $key ] = $value;
         }
         $fh = fopen( $this->userDataCacheFile, "w" );
         fwrite( $fh, serialize( $this->userDataCache ) );
         fclose( $fh );
     }
-    
+
     //--------------------------------------------------------------------------
     public function readFromCache( $key )
     {
@@ -109,4 +109,3 @@ class eepCache
         return isset( $this->userDataCache[ $key ] );
     }
 }
-?>

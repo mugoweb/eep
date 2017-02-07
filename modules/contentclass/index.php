@@ -63,7 +63,7 @@ deleteclass
   eep contentclass deleteclass
   or
   eep contentclass deleteclass <class identifier>
-  
+
 fetchallinstances
   - note that this supports limit and offset parameters
   eep use contentclass <class identifier>
@@ -74,23 +74,23 @@ fetchallinstances
 info
 - dumps the internal fields that ez manages for the content class, like 'url pattern' and etc.
   eep contentclass info <class identifier>
-  
+
 listattributes
   eep use contentclass <class identifier>
   eep contentclass listattributes
 
 removefromgroup
    eep contentclass removefromgroup <content class identifier> <group identifier>
-  
+
 setclassobjectidentifier
 - set the string used to name instances of the class, uses the same syntax as in
   the admin ui
   eep contentclass setclassobjectidentifier <class identifier> <object naming string or pattern>
 
-setfield  
+setfield
 - set any of the internal fields that ez manages, see 'info' for the list
   eep contentclass setfield <content class identifier> <field name> <new value>
-  
+
 setiscontainer
 - set or unset the 'is container' flag on the class
   eep contentclass setiscontainer <class identifier> <0|1>
@@ -245,7 +245,7 @@ EOT;
         $db->commit();
         echo "Successfully removed class [" .$classIdentifier. "] from group [" .$groupIdentifier. "]";
     }
-    
+
     //--------------------------------------------------------------------------
     private function createClass( $displayName, $classIdentifier, $groupIdentifier, $groupId )
     {
@@ -337,7 +337,7 @@ EOT;
                 }
                 $this->appendToGroup( $classIdentifier, $groupIdentifier );
                 break;
-            
+
             case self::contentclass_removefromgroup:
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 if( $param1 )
@@ -354,7 +354,7 @@ EOT;
                 }
                 $this->removeFromGroup( $classIdentifier, $groupIdentifier );
                 break;
-            
+
             // eep createclass <Display name> <Content class group identifier>
             case self::contentclass_createclass:
                 $displayName = $param1;
@@ -381,7 +381,7 @@ EOT;
                 $this->createClass( $displayName, $classIdentifier, $groupIdentifier, $groupId );
                 echo "created " . $classIdentifier . " ok\n";
                 break;
-            
+
             // eep contentclass setclassobjectidentifier <class identifier> <object naming string or pattern>
             case self::contentclass_setclassobjectidentifier:
                 $classIdentifier = $param1;
@@ -394,7 +394,7 @@ EOT;
                 $contentClass->setAttribute( 'contentobject_name', $param2 );
                 $contentClass->store();
                 break;
-            
+
             case self::contentclass_setiscontainer:
                 $classIdentifier = $param1;
                 $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
@@ -428,7 +428,7 @@ EOT;
                 }
                 eep::printTable( $results, "Class fields" );
                 break;
-            
+
             case self::contentclass_setfield:
                 // test the content class identifier, and fetch the content class object
                 $classIdentifier = $param1;
@@ -461,4 +461,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

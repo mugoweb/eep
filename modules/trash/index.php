@@ -13,36 +13,36 @@ class trash_commands
 {
     const trash_count             = "count";
     const trash_list              = "list";
-    
+
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
         "help"
         , self::trash_count
-        , self::trash_list 
+        , self::trash_list
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 count
   eep trash count
 
 delete
 - there is no delete function since you can use contentobject delete
-  
+
 list
   eep trash list
 
 EOT;
     }
-    
+
     //--------------------------------------------------------------------------
     private function trash_count()
     {
@@ -60,7 +60,7 @@ EOT;
         $trashObjects = eZContentObjectTrashNode::trashList( $params, $asCount );
         eep::displayNodeList( $trashObjects, "Garbage Nodes" );
     }
-    
+
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
@@ -81,15 +81,15 @@ EOT;
                 echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::trash_count:
                 echo $this->trash_count() . "\n";
                 break;
-            
+
             case self::trash_list:
                 $this->trash_list();
                 break;
-            
+
         }
     }
 }
@@ -102,4 +102,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

@@ -22,7 +22,7 @@ class contentnode_commands
     const contentnode_setsortorder       = "setsortorder";
     const contentnode_hidesubtree        = "hidesubtree";
     const contentnode_unhidesubtree      = "unhidesubtree";
-        
+
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -40,20 +40,20 @@ class contentnode_commands
         , self::contentnode_unhidesubtree
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 Note: You need to do "eep use ezroot <path>" before starting work with a new local instance of eZ Publish.
 
 clearsubtreecache
   eep contentnode clearsubtreecache <subtree node id>
-  
+
 contentobject
 - convert a content node id to a content object id
   eep contentnode contentobject <content node id>
@@ -72,19 +72,19 @@ deletesubtree
 dump
 - dump all the data associated with a content node into an XML structure; suitable for dumping an eZ Publish instance for import into some other system, or etc.
   eep contentnode dump <node id>
-  
+
 find
 - supports --limit=N and/or --offset=M
-  eep cn find <content class> <parent node id> <search string>P  
+  eep cn find <content class> <parent node id> <search string>P
 
 hidesubtree
 - hide node and make subtree invisible
   eep contentnode hidesubtree <subtree node id>
-  
+
 unhidesubtree
 - unhide node and children
   eep contentnode unhidesubtree <subtree node id>
-  
+
 info
   eep use contentnode <node id>
   eep contentnode info
@@ -95,14 +95,14 @@ location
 - put content object at an additional location
   eep use contentobject <object id>
   eep contentnode location <new parent node id>
-  
+
 move
 - move provided node to be child at new location
   eep use contentnode <node id>
   eep contentnode move <new parent node id>
   or
   eep contentnode move <node id> <new parent node id>
-  
+
 setsortorder
 - set the sort order for children of this node
 - (you may have to republish the object to make the change visible)
@@ -134,24 +134,24 @@ EOT;
         {
             $effectiveLimit = $additional["limit"];
         }
-        
+
         if( !eepValidate::validateContentNodeId( $subtreeNodeId ) )
             throw new Exception( "This is not a node id: [" .$subtreeNodeId. "]" );
-            
+
         // need to operate in a privileged account
         $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
         $adminUserObject->loginCurrent();
         // get the name, just for display purposes
         $subtreeNode = eZContentObjectTreeNode::fetch( $subtreeNodeId );
         $subtreeName = $subtreeNode->getName();
-    
+
         $subtreeCount = eZContentObjectTreeNode::subTreeCountByNodeID( array(), $subtreeNodeId );
         if( ($subtreeCount > $effectiveLimit ) && (0 != $effectiveLimit) )
         {
             echo "The number of subitems [" .$subtreeCount. "] exceeds the sanity check: [" .$effectiveLimit. "]\n";
             return false;
         }
-        
+
         /*
         // test that we can delete the subtree
         $info = eZContentObjectTreeNode::subtreeRemovalInformation( array($subtreeNodeId) );
@@ -175,13 +175,13 @@ EOT;
         }
         $adminUserObject->logoutCurrent();
     }
-        
+
     //--------------------------------------------------------------------------
     private function fetchNodeInfoFromId( $nodeId )
     {
         if( !eepValidate::validateContentNodeId( $nodeId ) )
             throw new Exception( "This is not a node id: [" .$nodeId. "]" );
-        
+
         $keepers = array
         (
             "Name"
@@ -200,9 +200,9 @@ EOT;
         );
         // get the node
         $node = eZContentObjectTreeNode::fetch( $nodeId );
-        
+
         //var_dump($node);
-        
+
         // extract the members we want
         $results[] = array( "key", "value" );
         foreach( $keepers as $key )
@@ -237,7 +237,7 @@ EOT;
         $classDataMap = $contentClass->attribute( "data_map" );
         if( !isset( $classDataMap[ $attributeIdentifier ] ) )
             throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $attributeIdentifier . "]" );
-        
+
         $qualifiedAttributeName = $classIdentifier ."/". $attributeIdentifier;
 
         $limit = 100;
@@ -250,7 +250,7 @@ EOT;
         {
             $offset = $additional["offset"];
         }
-        
+
         $params[ "ClassFilterType" ] = "include";
         $params[ "ClassFilterArray" ] = array( $classIdentifier );
         //$params[ "Depth" ] = 1;
@@ -265,14 +265,14 @@ EOT;
             default:
                 throw new Exception( "in contentobject_commands:searchForObjects_byAttribute(), comparison operator [" .$op. "] is not recognized" );
                 break;
-            
+
             case "=":
                 $params[ "AttributeFilter" ] = array
                 (
                     array( $qualifiedAttributeName, "=", $searchString )
                 );
                 break;
-            
+
             case "like":
                 $params[ "AttributeFilter" ] = array
                 (
@@ -280,15 +280,15 @@ EOT;
                     , array( $qualifiedAttributeName, "like", "*".$searchString."*" )
                 );
                 break;
-            
+
             case "!=":
                 $params[ "AttributeFilter" ] = array
                 (
                     array( $qualifiedAttributeName, "!=", $searchString )
                 );
                 break;
-        }        
-        
+        }
+
         $matches = eZContentObjectTreeNode::subTreeByNodeID( $params, $parentNodeId );
         $title = "Search on '" .$qualifiedAttributeName. "' for '" .$op." ".$searchString. "' from parent ".$parentNodeId;
         eep::displayNodeList( $matches, $title );
@@ -300,10 +300,10 @@ EOT;
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         if( !$contentClass )
             throw new Exception( "This content class does not exist: [" . $classIdentifier . "]" );
-            
+
         if( !eepValidate::validateContentNodeId( $parentNodeId ) )
             throw new Exception( "This is not a node id: [" .$parentNodeId. "]" );
-        
+
         $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
         $attributeList = eZContentClassAttribute::fetchListByClassID( $classId );
 
@@ -325,7 +325,7 @@ EOT;
         $params[ 'Limitation' ] = array();
         $params[ 'Offset' ] = $offset;
         $params[ 'Limit' ] = $limit;
-                
+
         $searchStringIsNumeric = is_numeric( $searchString );
         $numericTypes = array
         (
@@ -334,7 +334,7 @@ EOT;
             , "ezdatetime"
             , "ezboolean"
         );
-        
+
         $params[ "AttributeFilter" ] = array( "or" );
         foreach( $attributeList as $attribute )
         {
@@ -350,35 +350,35 @@ EOT;
             // many hits ...
             $params[ "AttributeFilter" ][] = array( $qualifiedAttributeName, "like", "*".$searchString."*" );
         }
-        
-        $matches = eZContentObjectTreeNode::subTreeByNodeID( $params, $parentNodeId );        
+
+        $matches = eZContentObjectTreeNode::subTreeByNodeID( $params, $parentNodeId );
         $title = "Search on all attributes in '" .$classIdentifier. "' for '".$searchString. "' from parent ".$parentNodeId;
         eep::displayNodeList( $matches, $title );
     }
-    
+
     //--------------------------------------------------------------------------
     private function location( $objectId, $parentNodeId )
     {
         if( !eepValidate::validateContentObjectId( $objectId ) )
             throw new Exception( "This is not an object id: [" .$objectId. "]" );
-        
+
         if( !eepValidate::validateContentNodeId( $parentNodeId ) )
             throw new Exception( "This is not a node id: [" .$parentNodeId. "]" );
-        
+
         $object = eZContentObject::fetch( $objectId );
         $object->addLocation( $parentNodeId );
 
         // this is a guess; but otherwise, the new node doesn't become available
         eep::republishObject( $objectId );
     }
-    
+
     //--------------------------------------------------------------------------
     private function convertToContentObjectId( $nodeId )
     {
         $object = eZContentObject::fetchByNodeID( $nodeId, false );
         return $object[ "id" ];
     }
-    
+
     //--------------------------------------------------------------------------
     private function move( $nodeId, $parentNodeId )
     {
@@ -424,7 +424,7 @@ EOT;
                 eZContentCacheManager::clearContentCacheIfNeeded( $objectID );
         }
     }
-    
+
     //--------------------------------------------------------------------------
     private function setSortOrder( $nodeId, $sortField, $sortOrder )
     {
@@ -443,29 +443,29 @@ EOT;
             , "NODE_ID"             => eZContentObjectTreeNode::SORT_FIELD_NODE_ID
             , "CONTENTOBJECT_ID"    => eZContentObjectTreeNode::SORT_FIELD_CONTENTOBJECT_ID
         );
-        
+
         $availableSortDirections = array
         (
             "DESC"                  => eZContentObjectTreeNode::SORT_ORDER_DESC
             , "ASC"                 => eZContentObjectTreeNode::SORT_ORDER_ASC
         );
-        
+
         if( !eepValidate::validateContentNodeId( $nodeId ) )
             throw new Exception( "This is not a node id: [" .$nodeId. "]" );
-        
+
         if( !isset( $availableSortFields[ $sortField ] ) )
             throw new Exception( "This sort field is not recognized: [" . $sortField . "]" );
-        
+
         if( !isset( $availableSortDirections[ $sortOrder ] ) )
             throw new Exception( "This sort field is not recognized: [" . $sortOrder . "]" );
-        
+
         $node = eZContentObjectTreeNode::fetch( $nodeId );
-        
+
         $node->setAttribute( 'sort_field', $availableSortFields[ $sortField ] );
         $node->setAttribute( 'sort_order', $availableSortDirections[ $sortOrder ] );
-        
+
         $node->store();
-        
+
         echo "set sort order on node id: " . $nodeId . " on attribute: " . $sortField . " to " . $sortOrder . "\n";
     }
 
@@ -474,9 +474,9 @@ EOT;
     {
         if( !eepValidate::validateContentNodeId( $nodeId ) )
             throw new Exception( "This is not a node id: [" .$nodeId. "]" );
-        
+
         $node = eZContentObjectTreeNode::fetch( $nodeId );
-        
+
         eZContentObjectTreeNode::hideSubTree( $node );
     }
 
@@ -485,12 +485,12 @@ EOT;
     {
         if( !eepValidate::validateContentNodeId( $nodeId ) )
             throw new Exception( "This is not a node id: [" .$nodeId. "]" );
-        
+
         $node = eZContentObjectTreeNode::fetch( $nodeId );
-        
+
         eZContentObjectTreeNode::unhideSubTree( $node );
     }
-    
+
     //--------------------------------------------------------------------------
     const dump_interestingNodeMembers = array
     (
@@ -513,7 +513,7 @@ EOT;
         , "IsHidden"
         , "IsInvisible"
     );
-    
+
     const dump_interestingContentObjectMembers = array
     (
         "ID"
@@ -537,7 +537,7 @@ EOT;
         , "OriginalPasswordConfirm"
         , "ContentObjectID"
     );
-    
+
     const dump_interestingAttributeMembers = array
     (
         "ID"
@@ -568,8 +568,8 @@ EOT;
         , "DataInt"
         , "DataFloat"
     );
-    
-    
+
+
     //--------------------------------------------------------------------------
     // kind of a massive function using a bunch of furniture; look at the furniture
     // for how to tweak the export to suit your purposes
@@ -583,14 +583,14 @@ EOT;
         $adminUserObject->loginCurrent();
 
         $needToDumpeZUserData = false;
-        
+
         $eepLogger = new eepLog( eepSetting::LogFolder, eepSetting::LogFile );
-        
+
         $node = eZFunctionHandler::execute( "content", "node", array( "node_id" => $nodeId ) );
         //print_r( $node );
-        
+
         $contentClassIdentifier = $node->ClassIdentifier;
-        
+
         eep::writeXMLTag( 0, "item", null );
         eep::writeXMLTag( 4, "node", null );
         // dump the interesting data for the node
@@ -598,7 +598,7 @@ EOT;
         {
             if( isset( $node->$member ) )
             {
-                eep::writeXMLTag( 8, $member, $node->$member );    
+                eep::writeXMLTag( 8, $member, $node->$member );
             }
             else
             {
@@ -606,7 +606,7 @@ EOT;
             }
         }
         eep::writeXMLTag( 4, "/node", null );
-        
+
         // dump the interesting data for the content object
         $object = $node->attribute( 'object' );
         eep::writeXMLTag( 4, "content-object", null );
@@ -614,7 +614,7 @@ EOT;
         {
             if( isset( $object->$member ) )
             {
-                eep::writeXMLTag( 8, $member, $object->$member );    
+                eep::writeXMLTag( 8, $member, $object->$member );
             }
             else
             {
@@ -622,7 +622,7 @@ EOT;
             }
         }
         eep::writeXMLTag( 4, "/content-object", null );
-        
+
         // get list of active languages
         $activeLanguageStructs = eZContentLanguage::fetchList( true );
         $activeLanguages = array();
@@ -631,7 +631,7 @@ EOT;
             $activeLanguages[] = $als->Locale;
         }
         //print_r( $activeLanguages );
-        
+
         // dump all the attributes, associated by translation
         eep::writeXMLTag( 4, "attributes", null );
         foreach( $activeLanguages as $languageCode )
@@ -660,7 +660,7 @@ EOT;
                     $contentClassIdentifier = false;
                 }
                 //echo "\n\n" . $attribute->DataTypeString . "\n\n";
-                    
+
                 eep::writeXMLTag( 12, "attribute", null );
                 foreach( contentnode_commands::dump_interestingAttributeMembers as $member )
                 {
@@ -703,7 +703,7 @@ EOT;
 
         $adminUserObject->logoutCurrent();
     }
-    
+
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
@@ -725,7 +725,7 @@ EOT;
                 echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                 echo "\n".$this->help."\n";
                 break;
-            
+
             case self::contentnode_info:
                 $nodeId = $eepCache->readFromCache( eepCache::use_key_contentnode );
                 if( $param1 )
@@ -734,20 +734,20 @@ EOT;
                 }
                 $this->fetchNodeInfoFromId( $nodeId );
                 break;
-            
+
             case self::contentnode_location:
                 $contentObjectId = $eepCache->readFromCache( eepCache::use_key_object );
                 $parentNodeId = $param1;
                 $this->location( $contentObjectId, $parentNodeId );
                 break;
-            
+
             case self::contentnode_find:
                 $classIdentifier = $param1;
                 $parentNodeId = $param2;
                 $searchString = $param3;
                 $this->searchForNodes( $parentNodeId, $classIdentifier, $searchString );
                 break;
-            
+
             case self::contentnode_deletesubtree:
                 $subtreeNodeId = $eepCache->readFromCache( eepCache::use_key_contentnode );
                 if( $param1 )
@@ -756,12 +756,12 @@ EOT;
                 }
                 $this->deleteSubtree( $subtreeNodeId, $additional );
                 break;
-            
+
             case self::contentnode_dump:
                 $nodeId = $param1;
                 echo $this->dumpNodeToXML( $nodeId );
                 break;
-            
+
             case self::contentnode_contentobject:
                 $nodeId = $eepCache->readFromCache( eepCache::use_key_contentnode );
                 if( $param1 )
@@ -770,7 +770,7 @@ EOT;
                 }
                 echo $this->convertToContentObjectId( $nodeId );
                 break;
-            
+
             case self::contentnode_move:
                 if( $param2 )
                 {
@@ -785,7 +785,7 @@ EOT;
                 }
                 $this->move( $nodeId, $parentNodeId );
                 break;
-            
+
             case self::contentnode_clearsubtreecache:
                 $nodeId = $eepCache->readFromCache( eepCache::use_key_contentnode );
                 if( $param1 )
@@ -794,7 +794,7 @@ EOT;
                 }
                 echo $this->clearSubtreeCache( $nodeId );
                 break;
-            
+
             case self::contentnode_setsortorder:
                 $nodeId = (integer )$param1;
                 $sortField = $param2;
@@ -806,7 +806,7 @@ EOT;
                 $nodeId = (integer )$param1;
                 $this->hidesubtree( $nodeId );
                 break;
-            
+
             case self::contentnode_unhidesubtree:
                 $nodeId = (integer )$param1;
                 $this->unhidesubtree( $nodeId );
@@ -823,4 +823,3 @@ if( !isset($argv[2]) )
 }
 $additional = eep::extractAdditionalParams( $argv );
 $operation->run( $argv, $additional );
-?>

@@ -11,7 +11,7 @@ $knowledgeBaseString = <<<EOT
     DirectoryIndex index.php
     DocumentRoot <<<ezroot>>>
     ServerName <<<servername>>>
-    
+
     LogFormat "%h %V %u %t \"%m %V%U%q %H\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" \"%{Cookie}i\"" special
     CustomLog <<<ezroot>>>/var/log/apache_access.log special
     ErrorLog  <<<ezroot>>>/var/log/apache_error.log.txt
@@ -53,4 +53,3 @@ $knowledgeBaseString = <<<EOT
 </VirtualHost>
 
 EOT;
-?>
