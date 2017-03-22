@@ -303,7 +303,7 @@ EOT;
 		{
 			$methodPrefix = "Related";
 		}
-        eep::printTable( $results, $methodPrefix . " objects [" .$objectId. "](count " . $rowCount . ")" );
+        eep::printTable( $results, $methodPrefix . " objects of oid: " .$objectId. " count: " . $rowCount . "" );
     }
 
     // todo, this does not return the full list of reverse related stuff
