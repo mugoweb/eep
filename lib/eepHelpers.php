@@ -710,7 +710,7 @@ class eep
     // by setting $data to null, can also write just an open or close tag:
     //   <tag>
     // the benefit is that that it makes the output homogeneous to call and supports indenting
-    function writeXMLTag( $indent, $tag, $data )
+    public static function writeXMLTag( $indent, $tag, $data )
     {
         $padding = str_pad( "", $indent );
         $data = eep::escapeForXML( $data );
@@ -735,7 +735,7 @@ class eep
     // Make a string safe for embedding in XML, mostly used for escaping XML so
     // that it can be carried in some other XML structure. Can be run on any string,
     // doesn't have to originally be XML.
-    function escapeForXML( $str )
+    public static function escapeForXML( $str )
     {
         // don't accidentally convert a null to a string -- because we care
         if( null === $str) return null;
