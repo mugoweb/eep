@@ -22,6 +22,12 @@ class contentnode_commands
     const contentnode_setsortorder       = "setsortorder";
     const contentnode_hidesubtree        = "hidesubtree";
     const contentnode_unhidesubtree      = "unhidesubtree";
+
+    // lists of ezp keywords to aid in dumping all available data
+    var $dump_interestingNodeMembers = array();
+    var $dump_interestingContentObjectMembers = array();
+    var $dump_userAttributes = array();
+    var $dump_interestingAttributeMembers = array();
         
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -124,6 +130,83 @@ setsortorder
     ASC
   eep contentnode setsortorder <node id> <sort ordering> <sort direction>
 EOT;
+
+        $this->dump_interestingNodeMembers = array
+        (
+            "Name"
+            , "MainNodeID"
+            , "NodeID"
+            , "ClassIdentifier"
+            , "ParentNodeID"
+            , "ContentObjectID"
+            , "ContentObjectVersion"
+            , "ContentObjectIsPublished"
+            , "Depth"
+            , "SortField"
+            , "SortOrder"
+            , "Priority"
+            , "ModifiedSubNode"
+            , "PathString"
+            , "PathIdentificationString"
+            , "RemoteID"
+            , "IsHidden"
+            , "IsInvisible"
+        );
+        
+        $this->dump_interestingContentObjectMembers = array
+        (
+            "ID"
+            , "SectionID"
+            , "OwnerID"
+            , "Published"
+            , "Modified"
+            , "CurrentVersion"
+            , "Status"
+        );
+    
+        $this->dump_userAttributes = array
+        (
+            "Login"
+            , "Email"
+            , "PasswordHash"
+            , "PasswordHashType"
+            //, "PersistentDataDirty"
+            , "Groups"
+            , "OriginalPassword"
+            , "OriginalPasswordConfirm"
+            , "ContentObjectID"
+        );
+        
+        $this->dump_interestingAttributeMembers = array
+        (
+            "ID"
+            //, "PersistentDataDirty"
+            , "HTTPValue"
+            , "Content"
+            , "DisplayInfo"
+            , "IsValid"
+            , "ContentClassAttributeID"
+            //, "ValidationError"
+            //, "ValidationLog"
+            , "ContentClassAttributeIdentifier"
+            , "ContentClassAttributeCanTranslate"
+            , "ContentClassAttributeName"
+            , "ContentClassAttributeIsInformationCollector"
+            , "ContentClassAttributeIsRequired"
+            //, "InputParameters"
+            //, "HasValidationError"
+            , "DataTypeCustom"
+            , "ContentObjectID"
+            , "Version"
+            , "LanguageCode"
+            , "AttributeOriginalID"
+            , "SortKeyInt"
+            , "SortKeyString"
+            , "DataTypeString"
+            , "DataText"
+            , "DataInt"
+            , "DataFloat"
+        );
     }
 
     //--------------------------------------------------------------------------
@@ -491,83 +574,6 @@ EOT;
         eZContentObjectTreeNode::unhideSubTree( $node );
     }
     
-    //--------------------------------------------------------------------------
-    const dump_interestingNodeMembers = array
-    (
-        "Name"
-        , "MainNodeID"
-        , "NodeID"
-        , "ClassIdentifier"
-        , "ParentNodeID"
-        , "ContentObjectID"
-        , "ContentObjectVersion"
-        , "ContentObjectIsPublished"
-        , "Depth"
-        , "SortField"
-        , "SortOrder"
-        , "Priority"
-        , "ModifiedSubNode"
-        , "PathString"
-        , "PathIdentificationString"
-        , "RemoteID"
-        , "IsHidden"
-        , "IsInvisible"
-    );
-    
-    const dump_interestingContentObjectMembers = array
-    (
-        "ID"
-        , "SectionID"
-        , "OwnerID"
-        , "Published"
-        , "Modified"
-        , "CurrentVersion"
-        , "Status"
-    );
-
-    const dump_userAttributes = array
-    (
-        "Login"
-        , "Email"
-        , "PasswordHash"
-        , "PasswordHashType"
-        //, "PersistentDataDirty"
-        , "Groups"
-        , "OriginalPassword"
-        , "OriginalPasswordConfirm"
-        , "ContentObjectID"
-    );
-    
-    const dump_interestingAttributeMembers = array
-    (
-        "ID"
-        //, "PersistentDataDirty"
-        , "HTTPValue"
-        , "Content"
-        , "DisplayInfo"
-        , "IsValid"
-        , "ContentClassAttributeID"
-        //, "ValidationError"
-        //, "ValidationLog"
-        , "ContentClassAttributeIdentifier"
-        , "ContentClassAttributeCanTranslate"
-        , "ContentClassAttributeName"
-        , "ContentClassAttributeIsInformationCollector"
-        , "ContentClassAttributeIsRequired"
-        //, "InputParameters"
-        //, "HasValidationError"
-        , "DataTypeCustom"
-        , "ContentObjectID"
-        , "Version"
-        , "LanguageCode"
-        , "AttributeOriginalID"
-        , "SortKeyInt"
-        , "SortKeyString"
-        , "DataTypeString"
-        , "DataText"
-        , "DataInt"
-        , "DataFloat"
-    );
     
     
     //--------------------------------------------------------------------------
@@ -594,7 +600,7 @@ EOT;
         eep::writeXMLTag( 0, "item", null );
         eep::writeXMLTag( 4, "node", null );
         // dump the interesting data for the node
-        foreach( contentnode_commands::dump_interestingNodeMembers as $member )
+        foreach( $this->dump_interestingNodeMembers as $member )
         {
             if( isset( $node->$member ) )
             {
@@ -610,7 +616,7 @@ EOT;
         // dump the interesting data for the content object
         $object = $node->attribute( 'object' );
         eep::writeXMLTag( 4, "content-object", null );
-        foreach( contentnode_commands::dump_interestingContentObjectMembers as $member )
+        foreach( $this->dump_interestingContentObjectMembers as $member )
         {
             if( isset( $object->$member ) )
             {
@@ -662,7 +668,7 @@ EOT;
                 //echo "\n\n" . $attribute->DataTypeString . "\n\n";
                     
                 eep::writeXMLTag( 12, "attribute", null );
-                foreach( contentnode_commands::dump_interestingAttributeMembers as $member )
+                foreach( $this->dump_interestingAttributeMembers as $member )
                 {
                     if( "DataText"==$member && "ezxmltext"==$attribute->DataTypeString )
                     {
@@ -692,7 +698,7 @@ EOT;
             {
                 eep::writeXMLTag( 4, "user", null );
                 $user = eZUser::fetch( $object->ID );
-                foreach( contentnode_commands::dump_userAttributes as $member )
+                foreach( $this->dump_userAttributes as $member )
                 {
                     eep::writeXMLTag( 8, $member, $user->$member );
                 }
