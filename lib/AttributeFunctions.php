@@ -101,13 +101,15 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
              <maxtags>0</maxtags>
         </eztags>
 
-        <!-- not fully supported
         <ezmatrix>
             <default_row_count>
                 3
             </default_row_count>
+            <column>
+                <id>key</id>
+                <display>Value Identifier (aka Key)</display>
+            </column>
         </ezmatrix>
-        -->
     </additional_for_specific_datatype>
 </newattribute>
 AttributeFunctions_XML;
