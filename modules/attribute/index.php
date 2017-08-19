@@ -18,6 +18,7 @@ class attribute_commands
     const attribute_fromstring      = "fromstring";
     const attribute_tostring        = "tostring";
     const attribute_setfield        = "setfield";
+    const attribute_get             = "get";
     const attribute_set             = "set";
     const attribute_info            = "info";
     const attribute_createalias     = "createalias";
@@ -34,6 +35,7 @@ class attribute_commands
         , self::attribute_newattributexml
         , self::attribute_update
         , self::attribute_setfield
+        , self::attribute_get
         , self::attribute_set
         , self::attribute_info
         , self::attribute_createalias
@@ -79,6 +81,10 @@ setfield
 - directly sets one of the attribute fields (e.g. data_int, data_text1 etc.)
   eep attribute setfield <class identifier> <attributename> <fieldname> <fieldvalue>
 
+get
+- display contentobject attributes (via get_attribute() )
+  eep attribute get <content object id> <attribute identifier>
+  
 set
 - directly sets one of the contentobject attributes (e.g. owner_id, published etc.)
   eep attribute set <content object id> <attribute identifier> <attribute value>
@@ -228,6 +234,38 @@ EOT;
                 AttributeFunctions::setField( $classIdentifier, $attributeIdentifier, $fieldIdentifier, $fieldValue );
                 break;
 
+            case self::attribute_get:
+                $contentObjectId = $param1;
+                $attributeIdentifier = $param2;
+                
+                $contentObject = eZContentObject::fetch( $contentObjectId );
+                if ( !$contentObject )
+                {
+                    throw new Exception( "This is not a content object [" . $contentObjectId . "]" );
+                }
+                
+                
+                print_r($contentObject);
+
+                $userSetting = eZUserSetting::fetch( $contentObject->attribute( 'id' ) );
+
+        
+        
+                
+                // this does not work:
+                $value = $contentObject->attribute( 'is_enabled' );
+                
+                // this works:
+                //$value = $userSetting->attribute( 'is_enabled' );
+                
+                
+                
+                echo $value . "\n";
+                
+                
+                //AttributeFunctions::setAttribute( $contentObjectId, $attributeIdentifier, $attributeValue );
+                break;
+                
             case self::attribute_set:
                 $contentObjectId = $param1;
                 $attributeIdentifier = $param2;

@@ -385,8 +385,7 @@ class AttributeFunctions
 
             case "ezmatrix":
                 /*
-                todo, add these to the xml and confirm that they are interpreted correctly upon
-                attribute creation
+                todo, decide wth these attributes are and if we need to support them
                 
                 // ezmatrix specific values
                 $params['matrix'] = array();
@@ -394,24 +393,23 @@ class AttributeFunctions
                 $params['matrix']['path'] = 'Path';
                 $params['matrix']['title'] = 'Title';
                 $params['matrix']['site_name'] = 'Site Name';
-                $params['default_row_count'] = 0;
                 */
-                /*
-                note that $params is wrong, and has been replaced by the xpath data
+                
+                $columnList = $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezmatrix/column" );
+                if( 0 < $columnList->length )
                 {
                     $matrix = new eZMatrixDefinition();
-                    if( !empty( $params[ "matrix" ] ) )
+                    for( $n=1; $n<=$columnList->length; $n+=1 )
                     {
-                        foreach( $params[ "matrix" ] as $identifier => $name )
-                        {
-                            $matrix->addColumn( $name, $identifier );
-                        }
+                        $identifier = trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezmatrix/column[".$n."]/id" )->item( 0 )->nodeValue );
+                        $name  = trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezmatrix/column[".$n."]/display" )->item( 0 )->nodeValue );
+                        $matrix->addColumn( $name, $identifier );
                     }
                     $classAttribute->setContent( $matrix );
-                    $classAttribute->setAttribute( "data_int1", $params[ "default_row_count" ] );
-                    $classAttribute->store();
                 }
-                */
+            
+                $classAttribute->setAttribute( "data_int1", (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezmatrix/default_row_count" )->item( 0 )->nodeValue ) );
+                $classAttribute->store();
                 break;
 
             default:
