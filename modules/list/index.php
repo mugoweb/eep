@@ -35,17 +35,19 @@ class list_commands
     const list_subtree              = "subtree";
     const list_subtreeordered       = "subtreeordered";
     const list_extensions           = "extensions";
+    const list_links                = "links";
 
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
         "help"
-        , self::list_attributes
         , self::list_all_attributes
+        , self::list_allinifiles
+        , self::list_attributes
         , self::list_children
         , self::list_contentclasses
         , self::list_extensions
-        , self::list_allinifiles
+        , self::list_links
         , self::list_siteaccesses
         , self::list_subtree
         , self::list_subtreeordered
@@ -73,6 +75,11 @@ allattributes
   eep use ezroot <path>
   eep list allattributes
 
+allinifiles
+- list all inifiles
+  eep use ezroot <path>
+  eep list inifiles
+  
 children
 - list children of node
 - supports --limit=N and/or --offset=M
@@ -92,10 +99,15 @@ extensions
   eep use ezroot <path>
   eep list extensions
 
-allinifiles
-- list all inifiles
+links
+- list all ez links, so to review all the outbound links on the site
+  the output is CSV and can take quite a while to generate since it pings all destinations
   eep use ezroot <path>
-  eep list inifiles
+  eep list links <public domain and protocol> <admin domain and protocol> <node view path>
+  where:
+    <public domain and protocol> is for the public side, eg http://foo.com
+    <admin domain and protocol> eg, https://admin.foo.com
+    <node view path> eg, /manage/content/view/full/
 
 siteaccesses
 - list all siteaccesses
@@ -761,11 +773,192 @@ EOT;
     }
 
     //--------------------------------------------------------------------------
+    private function generateCSVLinksReport( $publicDomainAndProtocol, $adminDomainAndProtocol, $nodeViewPath )
+    {
+        $debugListUrls = true;
+        $debugListUrlsURLObjectId = 1230;
+
+        // test and canonicalize the inputs
+        
+        // test the public domain
+        $urlParts = parse_url( $publicDomainAndProtocol );
+        if( !isset( $urlParts[ "scheme" ] )
+             || !isset( $urlParts[ "host" ] )
+             || ( isset( $urlParts[ "path" ] ) && "/" != $urlParts[ "path" ] ) )
+        {
+            throw new Exception( "The public domain and protocol is invalid: " . $publicDomainAndProtocol );
+        }
+        // no trailing slash
+        $publicDomainAndProtocol = $urlParts[ "scheme" ] . "://" . $urlParts[ "host" ];
+        
+        // test the admin domain
+        $urlParts = parse_url( $adminDomainAndProtocol );
+        if( !isset( $urlParts[ "scheme" ] )
+             || !isset( $urlParts[ "host" ] )
+             || ( isset( $urlParts[ "path" ] ) && "/" != $urlParts[ "path" ] ) )
+        {
+            throw new Exception( "The admin domain and protocol is invalid: " . $adminDomainAndProtocol );
+        }
+        // no trailing slash
+        $adminDomainAndProtocol = $urlParts[ "scheme" ] . "://" . $urlParts[ "host" ];
+        
+        $urlParts = parse_url( $nodeViewPath );
+        // needs to have leading and trailing slashes
+        $nodeViewPath = "/" . $urlParts[ "path" ] . "/";
+        $nodeViewPath = preg_replace( "|[/]+|", "/", $nodeViewPath );
+        if( 1 >= strlen( $nodeViewPath ) )
+        {
+            throw new Exception( "The node view path is missing?: " . $nodeViewPath );
+        }
+        
+        $db = eZDB::instance();
+        
+        // get the list of all the controlled URLs 
+        $linkList = eZURL::fetchList();
+        
+        foreach( $linkList as $n => $linkRecord )
+        {
+            if( $debugListUrlsURLObjectId && $debugListUrlsURLObjectId != (integer )$linkRecord->ID ) continue;
+            
+            if( $debugListUrls ) echo "\n-------------------------\n";
+            $urlTarget = $linkRecord->URL;
+            $urlParts = parse_url( $urlTarget );
+            if( $debugListUrls ) echo "ezurl object id: " . (integer )$linkRecord->ID . "\n";
+            
+            // if there is no host, we have to assume that the URL is on the current server, specifically, on the public ui
+            if( 0 == strlen( $urlParts[ "host" ] ) )
+            {
+                $urlTarget = $publicDomainAndProtocol . $urlTarget;
+                // redo this so as to capture the protocol and host
+                $urlParts = parse_url( $urlTarget );
+            }
+            if( $debugListUrls ) echo "URL Target: " . $urlTarget . "\n";
+            
+            // test the destination of each URL:
+            $targetPageStatus = "unknown";
+            
+            // ping the web port
+            $errno = "";
+            $errstr = "";
+            $port = 80;
+            if( "https" == strtolower( $urlParts[ "scheme" ] ) )
+            {
+                $port = 80;
+            }
+            $fP = fSockOpen( $urlParts[ "host" ], $port, $errno, $errstr, 10 );
+            
+            if( $fP )
+            {
+                if( $debugListUrls ) echo "server pinged ok\n";
+                
+                fclose( $fp );
+                
+                // test headers from web server
+                $headers = get_headers( $urlTarget, 0 );
+                print_r( $headers );
+                if( 0 != count( $headers ) )
+                {
+                    if( $debugListUrls ) echo "server provided headers\n";
+                    
+                    foreach( $headers as $headerLine )
+                    {
+                        $matches = array();
+                        $result = preg_match( "/^HTTP[^ ]+ ([^ ]+)/", $headerLine, $matches );
+                        if( $result )
+                        {
+                            // capture and retain the last HTTP status code, so as to deal with redirections, etc
+                            $targetPageStatus = $matches[ 1 ]; // typically "200" or "404", etc
+                            if( $debugListUrls ) echo "http header line: " . $matches[ 0 ] . "\n";
+                        }
+                    }
+                }
+                else
+                {
+                    $targetPageStatus = "headers-fail";
+                }
+            }
+            else
+            {
+                $targetPageStatus = $urlParts[ "scheme" ] . "-fail";
+            }
+            
+            if( $debugListUrls ) echo "targetPageStatus: " . $targetPageStatus . "\n";
+        
+            // figure out the associated content objects
+            $sql = "select * from ezurl_object_link where url_id=" . (integer )$linkRecord->ID;
+        
+            $query = $db->query( $sql );
+        
+            $reportRows = array(); // one report row per content object that uses this link
+            $count = 0;
+            while( $row = $query->fetch_assoc() )
+            {
+                $reportRows[ $count ][ "status" ] = "\"" . $targetPageStatus . "\"";
+                $reportRows[ $count ][ "target" ] = "=HYPERLINK(\"" . $urlTarget . "\")";
+                $reportRows[ $count ][ "linkid" ] = "\"" . (integer )$linkRecord->ID . "\"";
+                
+                // fetch the actual url object because it contains the data required to locate the associated content objects
+                // static function fetch( $urlID, $contentObjectAttributeID, $contentObjectAttributeVersion, $asObject = true )
+                $urlObject = eZURLObjectLink::fetch
+                (
+                    $row[ "url_id" ]
+                    , $row[ "contentobject_attribute_id" ]
+                    , $row[ "contentobject_attribute_version" ]
+                );
+        
+                // get the attribute that is associated with the urlobject        
+                //$objectAttribute = eZContentObjectAttribute::fetch( $objectAttributeID, $objectAttributeVersion );
+                $objectAttribute = eZContentObjectAttribute::fetch
+                (
+                    $row[ "contentobject_attribute_id" ]
+                    , $row[ "contentobject_attribute_version" ]
+                );
+                $oid = $objectAttribute->ContentObjectID;
+                if( $debugListUrls ) echo "object id: " . $oid . "\n";
+                
+                // attempt to fetch the associated object
+                if( $oid )
+                {
+                    $co = eZContentObject::fetch( $oid );
+        
+                    // the content object name of the object that is using the link
+                    $name = $co->Name;
+                    str_replace( "\"", "foo", $name );
+                    $reportRows[ $count ][ "name" ] = "\"" . $name . "\"";
+                    if( $debugListUrls ) echo "name: " . $name . "\n";
+        
+                    $nid = $co->mainNodeId();
+                    if( $debugListUrls ) echo "nid: " . $nid . "\n";
+                    
+                    $reportRows[ $count ][ "editURL" ] = "=HYPERLINK(\"" . $adminDomainAndProtocol . $nodeViewPath . $nid . "\")";
+                    
+                    $node = eZContentObjectTreeNode::fetch( $nid );
+                    if( $node )
+                    {
+                        $reportRows[ $count ][ "urlalias" ] = "=HYPERLINK(\"" . $publicDomainAndProtocol . "/" . $node->urlAlias() . "\")";
+                    }
+                    else
+                    {
+                        $reportRows[ $count ][ "status" ] = "\"no-node\"";
+                    }
+        
+                    if( $debugListUrls ) $reportRows[ $count ][ "oid" ] = "\"" . $oid . "\"";
+                    if( $debugListUrls ) $reportRows[ $count ][ "nid" ] = "\"" . $nid . "\"";
+                    
+                    echo implode( ",", $reportRows[ $count ] ) . "\n";
+                }
+                $count += 1;
+            }
+        }
+    }
+    
+    //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
         $command = @$argv[2];
         $param1 = @$argv[3];
         $param2 = @$argv[4];
+        $param3 = @$argv[5  ];
 
         if( !in_array( $command, $this->availableCommands ) )
         {
@@ -835,6 +1028,13 @@ EOT;
 
             case self::list_extensions:
                 $this->listExtensions();
+                break;
+            
+            case self::list_links:
+                $publicDomainAndProtocol = $param1;
+                $adminDomainAndProtocol = $param2;
+                $nodeViewPath = $param3;
+                $this->generateCSVLinksReport( $publicDomainAndProtocol, $adminDomainAndProtocol, $nodeViewPath );
                 break;
         }
     }
