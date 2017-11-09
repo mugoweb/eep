@@ -775,8 +775,8 @@ EOT;
     //--------------------------------------------------------------------------
     private function generateCSVLinksReport( $publicDomainAndProtocol, $adminDomainAndProtocol, $nodeViewPath )
     {
-        $debugListUrls = true;
-        $debugListUrlsURLObjectId = 1230;
+        $debugListUrls = false;
+        //$debugListUrlsURLObjectId = 1230;
 
         // test and canonicalize the inputs
         
@@ -855,7 +855,7 @@ EOT;
                 
                 // test headers from web server
                 $headers = get_headers( $urlTarget, 0 );
-                print_r( $headers );
+                //print_r( $headers );
                 if( 0 != count( $headers ) )
                 {
                     if( $debugListUrls ) echo "server provided headers\n";
