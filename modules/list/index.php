@@ -843,7 +843,7 @@ EOT;
             $port = 80;
             if( "https" == strtolower( $urlParts[ "scheme" ] ) )
             {
-                $port = 80;
+                $port = 443;
             }
             $fP = fSockOpen( $urlParts[ "host" ], $port, $errno, $errstr, 10 );
             
