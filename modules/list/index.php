@@ -773,8 +773,9 @@ EOT;
     }
 
     //--------------------------------------------------------------------------
-    private function generateCSVLinksReport( $publicDomainAndProtocol, $adminDomainAndProtocol, $nodeViewPath )
+    private function generateCSVLinksReport( $publicDomainAndProtocol, $adminDomainAndProtocol, $nodeViewPath, $delay=0 )
     {
+        $delay = (integer )$delay;
         $debugListUrls = false;
         //$debugListUrlsURLObjectId = 1230;
 
@@ -845,13 +846,17 @@ EOT;
             {
                 $port = 443;
             }
+            if( $delay )
+            {
+                sleep( $delay );
+            }
             $fP = fSockOpen( $urlParts[ "host" ], $port, $errno, $errstr, 10 );
             
             if( $fP )
             {
                 if( $debugListUrls ) echo "server pinged ok\n";
                 
-                fclose( $fp );
+                fclose( $fP );
                 
                 // test headers from web server
                 $headers = get_headers( $urlTarget, 0 );
@@ -958,7 +963,8 @@ EOT;
         $command = @$argv[2];
         $param1 = @$argv[3];
         $param2 = @$argv[4];
-        $param3 = @$argv[5  ];
+        $param3 = @$argv[5];
+        $param4 = @$argv[6];
 
         if( !in_array( $command, $this->availableCommands ) )
         {
@@ -1034,7 +1040,8 @@ EOT;
                 $publicDomainAndProtocol = $param1;
                 $adminDomainAndProtocol = $param2;
                 $nodeViewPath = $param3;
-                $this->generateCSVLinksReport( $publicDomainAndProtocol, $adminDomainAndProtocol, $nodeViewPath );
+                $delay = $param4;
+                $this->generateCSVLinksReport( $publicDomainAndProtocol, $adminDomainAndProtocol, $nodeViewPath, $delay );
                 break;
         }
     }
