@@ -354,11 +354,27 @@ EOT;
         // ping solr, to find out if it is (already) running
         $ini = eZINI::instance( 'solr.ini' );
         $url = $ini->variable( 'SolrBase', 'SearchServerURI' );
+        $pingURL = $url . "admin/ping";
+        $pingXML = file_get_contents( $pingURL );
 
-        $solrBase = new eZSolrBase( $url );
-        $pingResult = $solrBase->ping();
-
-        return isset( $pingResult[ 'status' ] ) && $pingResult[ 'status' ] === 'OK';
+	$matches = array();
+	if( preg_match( '#<str name="status">([^<]+)</str>#', $pingXML, $matches ) )
+	{
+	    if( "OK" == $matches[ 1 ] )
+	    {
+		return true;
+	    }
+	    else
+	    {
+		echo "Unexpected response to ping:" . $matches[ 1 ] . "\n";
+		return false;
+	    }
+	}
+	else
+	{
+	    echo "Unparseable response to ping\n";
+	    return false;
+	}
     }
     //--------------------------------------------------------------------------
     private function testQuery( $testQuery=null )
