@@ -349,45 +349,157 @@ EOT;
         }
     }
     //--------------------------------------------------------------------------
+    // ensure that the base url is terminated with a slash
+    private function getSolrBaseURL()
+    {
+        $ini = eZINI::instance( 'solr.ini' );
+        $url = $ini->variable( 'SolrBase', 'SearchServerURI' );
+        if( "/" != substr( $url, strlen($url)-1 ) )
+        {
+            $url .= "/";
+        }
+        return $url;
+    }
+    //--------------------------------------------------------------------------
     private function isSolrRunning()
     {
         // ping solr, to find out if it is (already) running
-        $ini = eZINI::instance( 'solr.ini' );
-        $url = $ini->variable( 'SolrBase', 'SearchServerURI' );
-        $pingURL = $url . "admin/ping";
+        $pingURL = $this->getSolrBaseURL() . "admin/ping";
+        // the result ought to be a page-full of XML, probably only 1 value is interesting
         $pingXML = file_get_contents( $pingURL );
-
-	$matches = array();
-	if( preg_match( '#<str name="status">([^<]+)</str>#', $pingXML, $matches ) )
-	{
-	    if( "OK" == $matches[ 1 ] )
-	    {
-		return true;
-	    }
-	    else
-	    {
-		echo "Unexpected response to ping:" . $matches[ 1 ] . "\n";
-		return false;
-	    }
-	}
-	else
-	{
-	    echo "Unparseable response to ping\n";
-	    return false;
-	}
+        $matches = array();
+        if( preg_match( '#<str name="status">([^<]+)</str>#', $pingXML, $matches ) )
+        {
+            if( "OK" == $matches[ 1 ] )
+            {
+                return true;
+            }
+            else
+            {
+                echo "Unexpected response to ping:" . $matches[ 1 ] . "\n";
+                return false;
+            }
+        }
+        else
+        {
+            echo "Unparseable response to ping\n";
+            return false;
+        }
     }
     //--------------------------------------------------------------------------
     private function testQuery( $testQuery=null )
     {
-        $query = "/select/?";
-        $query .= "fl=score,meta_main_url_alias_s&";
+        
+            $url = $this->getSolrBaseURL() . "select/?";
+            
+            $parameters_ezpublish = array
+            (
+                "q"                 => "article"
+                , "bq"              => "meta_installation_id_ms%3Acb65c01401fd78d5533037abb17499e5%5E1.5+meta_language_code_ms%3Aeng-US%5E1.2"
+                , "qf"              => "attr_author_t+attr_body_t+attr_caption_t+attr_description_t+attr_first_name_t+attr_id_t+attr_image_t+attr_intro_t+attr_last_name_t+attr_message_t+attr_name_t+attr_short_description_t+attr_short_name_t+attr_short_title_t+attr_signature_t+attr_subject_t+attr_title_t+attr_user_account_t+meta_name_t+meta_owner_name_t"
+                , "qt"              => "ezpublish"
+                , "start"           => "0"
+                , "rows"            => "10"
+                , "sort"            => "score+desc"
+                , "indent"          => "on"
+                , "version"         => "2.2"
+                , "fl"              => "meta_guid_ms+meta_installation_id_ms+meta_main_url_alias_ms+meta_installation_url_ms+meta_id_si+meta_main_node_id_si+meta_language_code_ms+meta_name_t+score+meta_published_dt+meta_path_string_ms+meta_main_path_string_ms+meta_is_invisible_b+%5Belevated%5D+"
+                , "fq"              => "meta_path_si%3A1"
+                , "fq"              => "%28meta_installation_id_ms%3Acb65c01401fd78d5533037abb17499e5%29"
+                , "fq"              => "meta_language_code_ms%3Aeng-US"
+                , "hl"              => "true"
+                , "hl.fl"           => "attr_author_t+attr_body_t+attr_caption_t+attr_description_t+attr_first_name_t+attr_id_t+attr_image_t+attr_intro_t+attr_last_name_t+attr_message_t+attr_name_t+attr_short_description_t+attr_short_name_t+attr_short_title_t+attr_signature_t+attr_subject_t+attr_title_t+attr_user_account_t"
+                , "hl.snippets"     => "1"
+                , "hl.fragsize"     => "200"
+                , "hl"              => "requireFieldMatch=true"
+                , "hl.simple.pre"   => "%3Cb%3E"
+                , "hl.simple.post"  => "%3C%2Fb%3E"
+                , "wt"              => "php"
+                , "forceElevation"  => "false"
+                , "enableElevation" => "true"
+                , "clustering"      => "false"
+            );
+
+            $parameters_worked = array
+            (
+                "q"                 => "article"
+                //, "bq"              => "meta_installation_id_ms%3Acb65c01401fd78d5533037abb17499e5%5E1.5+meta_language_code_ms%3Aeng-US%5E1.2"
+                //, "qf"              => "attr_author_t+attr_body_t+attr_caption_t+attr_description_t+attr_first_name_t+attr_id_t+attr_image_t+attr_intro_t+attr_last_name_t+attr_message_t+attr_name_t+attr_short_description_t+attr_short_name_t+attr_short_title_t+attr_signature_t+attr_subject_t+attr_title_t+attr_user_account_t+meta_name_t+meta_owner_name_t"
+                //, "qt"              => "ezpublish"
+                //, "start"           => "0"
+                //, "rows"            => "10"
+                //, "sort"            => "score+desc"
+                , "indent"          => "on" // true?
+                //, "version"         => "2.2"
+                , "fl"              => "*"
+                //, "fq"              => "meta_path_si%3A1"
+                //, "fq"              => "%28meta_installation_id_ms%3Acb65c01401fd78d5533037abb17499e5%29"
+                //, "fq"              => "meta_language_code_ms%3Aeng-US"
+                //, "hl"              => "true"
+                //, "hl.fl"           => "attr_author_t+attr_body_t+attr_caption_t+attr_description_t+attr_first_name_t+attr_id_t+attr_image_t+attr_intro_t+attr_last_name_t+attr_message_t+attr_name_t+attr_short_description_t+attr_short_name_t+attr_short_title_t+attr_signature_t+attr_subject_t+attr_title_t+attr_user_account_t"
+                //, "hl.snippets"     => "1"
+                //, "hl.fragsize"     => "200"
+                //, "hl"              => "requireFieldMatch=true"
+                //, "hl.simple.pre"   => "%3Cb%3E"
+                //, "hl.simple.post"  => "%3C%2Fb%3E"
+                , "wt"              => "php"
+                //, "forceElevation"  => "false"
+                //, "enableElevation" => "true"
+                //, "clustering"      => "false"
+                
+                , "df"              => "*"
+            );
+
+            $parameters = array
+            (
+                "q"                 => "article"
+                , "bq"              => "meta_installation_id_ms%3Acb65c01401fd78d5533037abb17499e5%5E1.5+meta_language_code_ms%3Aeng-US%5E1.2"
+                , "qf"              => "attr_author_t+attr_body_t+attr_caption_t+attr_description_t+attr_first_name_t+attr_id_t+attr_image_t+attr_intro_t+attr_last_name_t+attr_message_t+attr_name_t+attr_short_description_t+attr_short_name_t+attr_short_title_t+attr_signature_t+attr_subject_t+attr_title_t+attr_user_account_t+meta_name_t+meta_owner_name_t"
+                , "qt"              => "ezpublish"
+                , "start"           => "0"
+                , "rows"            => "10"
+                , "sort"            => "score+desc"
+                , "indent"          => "true" // true? on?
+                , "version"         => "2.2"
+                , "fl"              => "*"
+                , "fq"              => "meta_path_si%3A1"
+                //, "fq"              => "%28meta_installation_id_ms%3Acb65c01401fd78d5533037abb17499e5%29"
+                //, "fq"              => "meta_language_code_ms%3Aeng-US"
+                , "hl"              => "true"
+                , "hl.fl"           => "attr_author_t+attr_body_t+attr_caption_t+attr_description_t+attr_first_name_t+attr_id_t+attr_image_t+attr_intro_t+attr_last_name_t+attr_message_t+attr_name_t+attr_short_description_t+attr_short_name_t+attr_short_title_t+attr_signature_t+attr_subject_t+attr_title_t+attr_user_account_t"
+                , "hl.snippets"     => "1"
+                , "hl.fragsize"     => "200"
+                , "hl.requireFieldMatch" => "true"
+                , "hl.simple.pre"   => "%3Cb%3E"
+                , "hl.simple.post"  => "%3C%2Fb%3E"
+                , "wt"              => "php"
+                , "forceElevation"  => "false"
+                , "enableElevation" => "true"
+                , "clustering"      => "false"
+                
+                //, "df"              => "*"
+            );
+
+            
+            $parameterString = "";
+            $ampersand = "";
+            foreach( $parameters as $key => $value)
+            {
+                $parameterString .= $ampersand . $key . "=" . $value;
+                $ampersand = "&";
+            }
+            
+            $finalURL = $url . $parameterString;
+            echo "finalURL: " . $finalURL . "\n";
+
+            $result = file_get_contents( $url . $parameterString );
+            
+        /*
+        $query = "/ezp-default/select/?";
+        $query .= "fl=*&";
         $query .= "start=0&";
         
-        $query .= "q=submeta_bisac_categories-main_node_id_si:2553";
-        $query .= "%20AND%20meta_path_si:1";
-        $query .= "%20AND%20meta_path_si:2";
-        $query .= "%20AND%20meta_path_si:93";
-        $query .= "%20AND%20meta_path_si:303";
+        $query .= "q=publish";
         $query .= "&";
         
         $query .= "rows=10";
@@ -402,6 +514,7 @@ EOT;
                 , 'request' => $query
             )
         );
+        */
 
         var_dump($result);
     }

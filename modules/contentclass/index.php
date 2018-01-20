@@ -21,7 +21,10 @@ class contentclass_commands
     const contentclass_removefromgroup      = "removefromgroup";
     const contentclass_info                 = "info";
     const contentclass_setfield             = "setfield";
-
+    const contentclass_translationcreate    = "translationcreate";
+    const contentclass_translationsetmain   = "translationsetmain";
+    const contentclass_translationremove    = "translationremove";
+    
     //--------------------------------------------------------------------------
     var $availableCommands = array
     (
@@ -36,6 +39,9 @@ class contentclass_commands
         , self::contentclass_setclassobjectidentifier
         , self::contentclass_setfield
         , self::contentclass_setiscontainer
+        , self::contentclass_translationcreate
+        , self::contentclass_translationsetmain
+        , self::contentclass_translationremove
     );
     var $help = "";                     // used to dump the help string
 
@@ -95,6 +101,19 @@ setiscontainer
 - set or unset the 'is container' flag on the class
   eep contentclass setiscontainer <class identifier> <0|1>
 
+translationcreate
+- add a new translation for the content class, optionally copy the translation from an existing one
+  note that 'locale's are, eg., eng-GB or eng-US
+  eep contentclass translationcreate <class identifier> <new locale> [<existing locale>]
+
+translationsetmain
+- set the main translation, eg. in preparation to removing eng-GB as a supported translation
+  eep contentclass translationsetmain <class identifier> <locale>
+  
+translationremove
+- remove a translation from the content class
+  eep contentclass translationremove <class identifier> <locale>
+  
 EOT;
     }
 
@@ -449,6 +468,136 @@ EOT;
                 $contentClass->setAttribute( $fieldName, $param3 );
                 $contentClass->store();
                 break;
+  
+            case self::contentclass_translationcreate:
+                // eep contentclass translationcreate <class identifier> <new locale> [<existing locale>]
+                $classIdentifier = $param1;
+                $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
+                $contentClass = eZContentClass::fetch( $classId );
+                if( !is_object( $contentClass ) )
+                {
+                    throw new Exception( "Failed to instantiate content class. [" . $classIdentifier . "]" );
+                }
+                $newLocale = $param2;
+                $newLocalId = false; // just using this for the validation step
+                // validate or create the new locale
+                $languageList = eZContentLanguage::fetchList( true /*force reload*/ );
+                foreach( $languageList as $languageId => $eZContentLanguage )
+                {
+                    if( $newLocale == $eZContentLanguage->Locale )
+                    {
+                        $newLocalId = $languageId;
+                    }
+                }
+                if( false === $newLocalId )
+                {
+                    // so, we did not find the requested language/locale, so we have to add it
+                    $newLocalId = eZContentLanguage::addLanguage( $newLocale );
+                }
+                if( !($newLocalId > 0) )
+                {
+                    throw new Exception( "Failed to locate or create locale: [" . $newLocale . "]" );
+                }
+                // todo, should validate the sourceLocale somehow ... make sure that the content class does have that translation?
+                $sourceLocale = $param3;
+                // init the translatable values in the content class
+                $attributes = $contentClass->fetchAttributes();
+                foreach( array_keys( $attributes ) as $key )
+                {
+                    if( $sourceLocale )
+                    {
+                        $name         = $attributes[$key]->name( $sourceLocale );
+                        $description  = $attributes[$key]->description( $sourceLocale );
+                        $i18nDataText = $attributes[$key]->dataTextI18n( $sourceLocale );
+                    }
+                    else
+                    {
+                        $name         = "";
+                        $description  = "";
+                        $i18nDataText = "";
+                    }
+                    $attributes[$key]->setName( $name, $newLocale );
+                    $attributes[$key]->setDescription( $description, $newLocale );
+                    $attributes[$key]->setDataTextI18n( $i18nDataText, $newLocale );
+                }
+                $contentClass->store( $attributes );
+                if( $sourceLocale )
+                {
+                    $name = $contentClass->name( $sourceLocale );
+                    $description = $contentClass->description( $sourceLocale );
+                }
+                else
+                {
+                    $name = "";
+                    $description = "";
+                }
+                $contentClass->setName( $name, $newLocale );
+                $contentClass->setDescription( $description, $newLocale );
+                $contentClass->store();
+                echo "Added translation [" . $locale . "] to " . $classIdentifier . "\n";
+                break;
+            
+            case self::contentclass_translationsetmain:
+                $classIdentifier = $param1;
+                $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
+                $contentClass = eZContentClass::fetch( $classId );
+                if( !is_object( $contentClass ) )
+                {
+                    throw new Exception( "Failed to instantiate content class. [" . $classIdentifier . "]" );
+                }
+                $locale = $param2;
+                $languageList = eZContentLanguage::fetchList( true /*force reload*/ );
+                // get the id of the desired translation and set it to be the main
+                $success = false;
+                foreach( $languageList as $languageId => $eZContentLanguage )
+                {
+                    if( $locale == $eZContentLanguage->Locale )
+                    {
+                        $contentClass->setAttribute( 'initial_language_id', $languageId );
+                        $contentClass->setAlwaysAvailableLanguageID( $languageId );
+                        $contentClass->store();
+                        $success = true;
+                    }
+                }
+                if( $success )
+                {
+                    echo "Set main " . $locale . " with id " . $languageId . "\n";
+                }
+                else
+                {
+                    echo "Failed to locate locale [" . $locale . "] did not set main.\n";
+                }
+                break;
+            
+            case self::contentclass_translationremove:
+                $classIdentifier = $param1;
+                $classId = eZContentClass::classIDByIdentifier( $classIdentifier );
+                $contentClass = eZContentClass::fetch( $classId );
+                if( !is_object( $contentClass ) )
+                {
+                    throw new Exception( "Failed to instantiate content class. [" . $classIdentifier . "]" );
+                }
+                $locale = $param2;
+                $languageList = eZContentLanguage::fetchList( true /*force reload*/ );
+                $success = false;
+                foreach( $languageList as $languageId => $eZContentLanguage )
+                {
+                    if( $locale == $eZContentLanguage->Locale )
+                    {
+                        $contentClass->removeTranslation( $languageId );
+                        $contentClass->store();
+                        $success = true;
+                    }
+                }
+                if( $success )
+                {
+                    echo "Removed translation " . $locale . " with id " . $languageId . "\n";
+                }
+                else
+                {
+                    echo "Failed to locate locale [" . $locale . "] did not remove translation.\n";
+                }
+                break;            
         }
     }
 }
