@@ -268,7 +268,12 @@ EOT;
     //--------------------------------------------------------------------------
     private function createClass( $displayName, $classIdentifier, $groupIdentifier, $groupId )
     {
-        $adminUserObject = eZUser::fetchByName( "admin" );
+        $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
+        if( null === $adminUserObject )
+        {
+            throw new Exception( "eepSetting::PrivilegedAccountId value of " . $eepSetting::PrivilegedAccountId . " is invalid. Exiting." );
+            exit( 1 );
+        }
         $adminUserObject->loginCurrent();
         $adminUserId = $adminUserObject->attribute( 'contentobject_id' );
         $language = eZContentLanguage::topPriorityLanguage();
