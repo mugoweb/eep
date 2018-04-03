@@ -228,7 +228,7 @@ class AttributeFunctions
         }
         $classAttributeID = $newAttribute->attribute( "id" );
 
-        echo  "\n\nAttribute with ID " .$classAttributeID . " added\n\n";
+        echo  "Attribute with ID " .$classAttributeID . " added";
 
         return $classAttributeID;
     }

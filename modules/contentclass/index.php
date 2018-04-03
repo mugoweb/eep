@@ -271,7 +271,7 @@ EOT;
         $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
         if( null === $adminUserObject )
         {
-            throw new Exception( "eepSetting::PrivilegedAccountId value of " . $eepSetting::PrivilegedAccountId . " is invalid. Exiting." );
+            throw new Exception( "eepSetting::PrivilegedAccountId value of " . eepSetting::PrivilegedAccountId . " is invalid. Exiting." );
             exit( 1 );
         }
         $adminUserObject->loginCurrent();
