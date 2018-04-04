@@ -132,55 +132,26 @@ EOT;
 
         $totalObjectCount = eZContentObject::fetchSameClassListCount( $classId );
         echo "Deleting " . $totalObjectCount . " objects.\n";
-
         $moreToDelete = 0 < $totalObjectCount;
         $totalDeleted = 0;
 
-        // need to operate in a privileged account - use doug@mugo.ca
+        // need to operate in a privileged account
         $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
         $adminUserObject->loginCurrent();
 
         while( $moreToDelete )
         {
-            $params[ "IgnoreVisibility" ] = true;
-            $params[ 'Limitation' ] = array();
-            $params[ 'Limit' ] = $chunkSize;
-            $params[ 'ClassFilterType' ] = "include";
-            $params[ 'ClassFilterArray' ] = array( $classIdentifier );
-            $children = eZContentObjectTreeNode::subTreeByNodeID( $params, 2 );
-
+            $children = eZContentObject::fetchSameClassList( $classId, false, 0, $chunkSize ); // false to indicate, 'fetch not as objects'
             foreach( $children as $child )
             {
-                $info = eZContentObjectTreeNode::subtreeRemovalInformation( array($child->NodeID) );
-
-                if( !$info[ "can_remove_all" ] )
-                {
-                    $msg = " permission is denied for nodeid=".$child->NodeID;
-                    // todo, this can yield an infinite loop if some objects are
-                    // not deleteable, but you don't take that number into account
-                    // at the bottom of the loop - where there will always be
-                    // some >0 number of undeleteable objects left
-                    echo $msg . "\n";
-                    continue;
-                }
-
-                $removeResult = eZContentObjectTreeNode::removeSubtrees( array($child->NodeID), false, false );
-                if( true === $removeResult )
-                {
-                    $totalDeleted += 1;
-                }
-                else
-                {
-                    $msg = " failed to delete nodeid=".$child->NodeID;
-                    echo $msg . "\n";
-                }
-
+                eZContentObjectOperations::remove( $child[ "id" ], false ); // false to indicate, 'just purge it'
+                $totalDeleted += 1;
                 echo "Percent complete: " . sprintf( "% 3.3f", ($totalDeleted / $totalObjectCount)*100.0  ) . "%\r";
                 unset( $GLOBALS[ 'eZContentObjectContentObjectCache' ] );
                 unset( $GLOBALS[ 'eZContentObjectDataMapCache' ] );
                 unset( $GLOBALS[ 'eZContentObjectVersionCache' ] );
+                $moreToDelete = 0 < eZContentObject::fetchSameClassListCount( $classId );
             }
-            $moreToDelete = 0 < eZContentObject::fetchSameClassListCount( $classId );
         }
         echo "\nDone deleting objects.\n";
 

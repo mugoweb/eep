@@ -317,10 +317,7 @@ EOT;
     {
         $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
         $adminUserObject->loginCurrent();
-        
-        //$object = eZContentObject::fetch( $objectId );
-        $result = eZContentObjectOperations::remove( $objectId, true );
-
+        $result = eZContentObjectOperations::remove( $objectId, false ); // false to indicate, 'dont bother removing subtrees, just purge() it'
         $adminUserObject->logoutCurrent();
         if( $result )
         {
