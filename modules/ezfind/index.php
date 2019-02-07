@@ -354,6 +354,22 @@ EOT;
     {
         $ini = eZINI::instance( 'solr.ini' );
         $url = $ini->variable( 'SolrBase', 'SearchServerURI' );
+
+        $authentication = $ini->variable( 'SolrBase', 'SearchServerAuthentication' );
+        $userPass       = $ini->variable( 'SolrBase', 'SearchServerUserPass' );
+
+        if( $authentication === 'enabled' )
+        {
+            if( $userPass )
+            {
+                $url = str_replace( '://', '://' . $userPass . '@', $url );
+            }
+            else
+            {
+                echo "SearchServerAuthentication is enabled, but SearchServerUserPass is not set\n";
+            }
+        }
+
         if( "/" != substr( $url, strlen($url)-1 ) )
         {
             $url .= "/";
