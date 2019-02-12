@@ -317,7 +317,9 @@ EOT;
     {
         $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
         $adminUserObject->loginCurrent();
-        $result = eZContentObjectOperations::remove( $objectId, false ); // false to indicate, 'dont bother removing subtrees, just purge() it'
+        // the default behaviour is to delete the subtree, 
+        // FYI, purge(), the non-default behaviour, leaves all the children in place, but up 1 level, and does not update their node-paths ... that is, it corrupts the content structure
+        $result = eZContentObjectOperations::remove( $objectId ); 
         $adminUserObject->logoutCurrent();
         if( $result )
         {
