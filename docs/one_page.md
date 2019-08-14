@@ -1,4 +1,4 @@
-#eep - ease eZPublish
+# eep - ease eZPublish
 > eep is a command line tool to support developers using eZPublish.
 
 ## Installation
@@ -72,7 +72,7 @@ coid => contentobjectid   (method) e.g. eep at coid
 - [Creating a new module](#extending---new-module)
 - [Creating a new module method](#extending---new-module-method)
 
-#eep installation
+# eep installation
 
 ## Installation - Linux
 1. Extract to somewhere, like ```$ /home/dfp/eep```
@@ -133,7 +133,7 @@ icacls C:\wamp\scripts\eep\eep.php /T /Q /C /RESET
 ### Installation note
 You can override the settings by copying ```.../eep/eepSettings.php``` into your home folder and editing it. You may have to keep it uptodate with new versions, as these settings change.
 
-#Modules - attribute
+# Modules - attribute
 > The attribute module provides method to manipulate content object & content class attributes.
 
 - [delete](#delete)
@@ -236,7 +236,7 @@ Clears legacy cache in a safe way, basically clear everything that can be cleare
 $ eep cache cacheclear
 ```
 
-#Modules - contentclass
+# Modules - contentclass
 > The contentclass module provides methods to manipulate content classes.
 
 - [appendtogroup](#appendtogroup)
@@ -245,10 +245,13 @@ $ eep cache cacheclear
 - [fetchallinstances](#fetchallinstances)
 - [info](#info)
 - [listattributes](#listattributes)
+- [removefromgroup](#removefromgroup)
 - [setclassobjectidentifier](#setclassobjectidentifier)
 - [setfield](#setfield)
 - [setiscontainer](#setiscontainer)
-- [removefromgroup](#removefromgroup)
+- [translationcreate](#translationcreate)
+- [translationsetmain](#translationsetmain)
+- [translationremove](#translationremove)
 
 ## appendtogroup
 Append the content class to the content class group. Note, a class can exist in more than one group.
@@ -322,7 +325,25 @@ Sets or unsets the 'is container' flag on the class.
 ```sh
 $ eep contentclass setiscontainer <class identifier> <0|1>
 ```
-# Modules - contentclassgroup
+
+## translationcreate
+Add a new translation for the content class, optionally copy the translation from an existing one.
+Note that 'locale's are, eg., eng-GB or eng-US
+```sh
+$ eep contentclass translationcreate <class identifier> <new locale> [<existing locale>]
+```
+
+## translationsetmain
+Set the main translation, eg. in preparation to removing eng-GB as a supported translation.
+```sh
+$ eep contentclass translationsetmain <class identifier> <locale>
+```
+
+## translationremove
+Remove a translation from the content class.
+```sh
+$ eep contentclass translationremove <class identifier> <locale>
+```# Modules - contentclassgroup
 > The contentclassgroup module provides methods to manipulate content class groups.
 
 - [creategroup](#creategroup)
@@ -785,21 +806,29 @@ $ eep knowledgebase sqltofixenglish
 # Modules - list
 > The list module provides methods to display information for eZPublish content and settings.
 
-- [contentclasses](#contentclass)
-- [attributes](#attributes)
 - [allattributes](#allattributes)
-- [children](#children)
-- [siteaccesses](#siteaccess)
 - [allinifiles](#allinifiles)
+- [attributes](#attributes)
+- [children](#children)
+- [contentclasses](#contentclass)
+- [extensions](#extensions)
+- [links](#links)
+- [siteaccesses](#siteaccess)
 - [subtree](#subtree)
 - [subtreeordered](#subtreeordered)
-- [extensions](#extensions)
 
-## contentclasses
-Lists all content classes.
+## allattributes
+Lists all attributes present in the system.
 ```sh
 $ eep use ezroot <path>
-$ eep list contentclasses
+$ eep list allattributes
+```
+
+## allinifiles
+Lists all INI files.
+```sh
+$ eep use ezroot <path>
+$ eep list inifiles
 ```
 
 ## attributes
@@ -810,13 +839,6 @@ $ eep use contentclass <class identifier>
 $ eep list attributes
 or
 $ eep list attributes <class identifier>
-```
-
-## allattributes
-Lists all attributes present in the system.
-```sh
-$ eep use ezroot <path>
-$ eep list allattributes
 ```
 
 ## children
@@ -831,18 +853,37 @@ or
 $ eep list children <node id> [--offset=<N>] [--limit=<M>]
 ```
 
+## extensions
+Lists all extensions.
+```sh
+$ eep use ezroot <path>
+$ eep list extensions
+```
+
+## links
+List all ez links, so to review all the outbound links on the site.
+The output is CSV and can take quite a while to generate since it pings all destinations.
+```sh
+  eep use ezroot <path>
+  eep list links <public domain and protocol> <admin domain and protocol> <node view path>
+  where:
+    <public domain and protocol> is for the public side, eg http://foo.com
+    <admin domain and protocol> eg, https://admin.foo.com
+    <node view path> eg, /manage/content/view/full/
+```
+
+## contentclasses
+Lists all content classes.
+```sh
+$ eep use ezroot <path>
+$ eep list contentclasses
+```
+
 ## siteaccesses
 Lists all siteaccesses.
 ```sh
 $ eep use ezroot <path>
 $ eep list siteaccesses
-```
-
-## allinifiles
-Lists all INI files.
-```sh
-$ eep use ezroot <path>
-$ eep list inifiles
 ```
 
 ## subtree
@@ -869,14 +910,6 @@ $ eep list subtreeordered
 or
 $ eep list subtreeordered <node id>
 ```
-
-## extensions
-Lists all extensions.
-```sh
-$ eep use ezroot <path>
-$ eep list extensions
-```
-
 # Modules - section
 > The section module provides methods to display section information.
 

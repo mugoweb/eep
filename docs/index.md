@@ -1,4 +1,4 @@
-#eep - ease eZPublish
+# eep - ease eZPublish
 > eep is a command line tool to support developers using eZPublish.
 
 ## Installation
