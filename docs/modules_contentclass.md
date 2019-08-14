@@ -1,4 +1,4 @@
-#Modules - contentclass
+# Modules - contentclass
 > The contentclass module provides methods to manipulate content classes.
 
 - [appendtogroup](#appendtogroup)
@@ -7,10 +7,13 @@
 - [fetchallinstances](#fetchallinstances)
 - [info](#info)
 - [listattributes](#listattributes)
+- [removefromgroup](#removefromgroup)
 - [setclassobjectidentifier](#setclassobjectidentifier)
 - [setfield](#setfield)
 - [setiscontainer](#setiscontainer)
-- [removefromgroup](#removefromgroup)
+- [translationcreate](#translationcreate)
+- [translationsetmain](#translationsetmain)
+- [translationremove](#translationremove)
 
 ## appendtogroup
 Append the content class to the content class group. Note, a class can exist in more than one group.
@@ -83,4 +86,23 @@ $ eep contentclass setfield <content class identifier> <field name> <new value>
 Sets or unsets the 'is container' flag on the class.
 ```sh
 $ eep contentclass setiscontainer <class identifier> <0|1>
+```
+
+## translationcreate
+Add a new translation for the content class, optionally copy the translation from an existing one.
+Note that 'locale's are, eg., eng-GB or eng-US
+```sh
+$ eep contentclass translationcreate <class identifier> <new locale> [<existing locale>]
+```
+
+## translationsetmain
+Set the main translation, eg. in preparation to removing eng-GB as a supported translation.
+```sh
+$ eep contentclass translationsetmain <class identifier> <locale>
+```
+
+## translationremove
+Remove a translation from the content class.
+```sh
+$ eep contentclass translationremove <class identifier> <locale>
 ```

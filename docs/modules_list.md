@@ -1,21 +1,29 @@
 # Modules - list
 > The list module provides methods to display information for eZPublish content and settings.
 
-- [contentclasses](#contentclass)
-- [attributes](#attributes)
 - [allattributes](#allattributes)
-- [children](#children)
-- [siteaccesses](#siteaccess)
 - [allinifiles](#allinifiles)
+- [attributes](#attributes)
+- [children](#children)
+- [contentclasses](#contentclass)
+- [extensions](#extensions)
+- [links](#links)
+- [siteaccesses](#siteaccess)
 - [subtree](#subtree)
 - [subtreeordered](#subtreeordered)
-- [extensions](#extensions)
 
-## contentclasses
-Lists all content classes.
+## allattributes
+Lists all attributes present in the system.
 ```sh
 $ eep use ezroot <path>
-$ eep list contentclasses
+$ eep list allattributes
+```
+
+## allinifiles
+Lists all INI files.
+```sh
+$ eep use ezroot <path>
+$ eep list inifiles
 ```
 
 ## attributes
@@ -26,13 +34,6 @@ $ eep use contentclass <class identifier>
 $ eep list attributes
 or
 $ eep list attributes <class identifier>
-```
-
-## allattributes
-Lists all attributes present in the system.
-```sh
-$ eep use ezroot <path>
-$ eep list allattributes
 ```
 
 ## children
@@ -47,18 +48,37 @@ or
 $ eep list children <node id> [--offset=<N>] [--limit=<M>]
 ```
 
+## extensions
+Lists all extensions.
+```sh
+$ eep use ezroot <path>
+$ eep list extensions
+```
+
+## links
+List all ez links, so to review all the outbound links on the site.
+The output is CSV and can take quite a while to generate since it pings all destinations.
+```sh
+  eep use ezroot <path>
+  eep list links <public domain and protocol> <admin domain and protocol> <node view path>
+  where:
+    <public domain and protocol> is for the public side, eg http://foo.com
+    <admin domain and protocol> eg, https://admin.foo.com
+    <node view path> eg, /manage/content/view/full/
+```
+
+## contentclasses
+Lists all content classes.
+```sh
+$ eep use ezroot <path>
+$ eep list contentclasses
+```
+
 ## siteaccesses
 Lists all siteaccesses.
 ```sh
 $ eep use ezroot <path>
 $ eep list siteaccesses
-```
-
-## allinifiles
-Lists all INI files.
-```sh
-$ eep use ezroot <path>
-$ eep list inifiles
 ```
 
 ## subtree
@@ -85,11 +105,3 @@ $ eep list subtreeordered
 or
 $ eep list subtreeordered <node id>
 ```
-
-## extensions
-Lists all extensions.
-```sh
-$ eep use ezroot <path>
-$ eep list extensions
-```
-
