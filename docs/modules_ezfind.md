@@ -6,6 +6,7 @@
 - [indexnode](#indexnode)
 - [isobjectindexed](#isobjectindexed)
 - [eject](#eject)
+- [ejectbydocid](#ejectbydocid)
 - [fields](#fields)
 - [lastindexed](#lastindexed)
 - [startsolr](#startsolr)
@@ -46,6 +47,14 @@ Removes a content object's data from the Solr index.
 ```sh
 $ eep ezfind eject <object id>
 ```
+
+## ejectbydocid
+Removes a document from the Solr index using the document id (meta_guid_ms)
+```sh
+$ eep ezfind ejectbydocid <document id> <language code>
+```
+`<document id>` in stored as meta_guid_ms
+`<language code>` is the language locale e.g. eng-CA and is optional unless UseMultiLanguageCores is enabled.
 
 ## fields
 Displays the given content objects fields in the Solr index.

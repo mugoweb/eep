@@ -16,6 +16,7 @@ class ezfind_commands
     const ezfind_indexnode             = "indexnode";
     const ezfind_isobjectindexed       = "isobjectindexed";
     const ezfind_eject                 = "eject";
+    const ezfind_ejectbydocid          = "ejectbydocid";
     const ezfind_fields                = "fields";
     const ezfind_lastindexed           = "lastindexed";
     const ezfind_startsolr             = "startsolr";
@@ -30,20 +31,21 @@ class ezfind_commands
         , self::ezfind_indexnode
         , self::ezfind_isobjectindexed
         , self::ezfind_eject
+        , self::ezfind_ejectbydocid
         , self::ezfind_fields
         , self::ezfind_lastindexed
         , self::ezfind_startsolr
         , self::ezfind_testquery
     );
     var $help = "";                     // used to dump the help string
-    
+
     //--------------------------------------------------------------------------
     public function __construct()
     {
         $parts = explode( "/", __FILE__ );
         array_pop( $parts );
         $command = array_pop( $parts );
-        
+
 $this->help = <<<EOT
 advanced
   eep ezfind advanced <statement> <fields to return> <filter> [--offset=## --limit=## --show-complex=1 --output=xml|csv|json]
@@ -65,10 +67,17 @@ isobjectindexed
 eject
   eep ezfind eject <object id>
 
+ejectbydocid
+  eep ezfind ejectbydocid <document id> <language code>
+
+  <document id> in stored as meta_guid_ms
+  <language code> is the language locale e.g. eng-CA and is optional
+  unless UseMultiLanguageCores is enabled.
+
 fields
   eep ezfind fields <object id>
 
-lastindexed 
+lastindexed
   eep ezfind lastindexed <object id>
 
 startsolr
@@ -80,7 +89,7 @@ testquery
   eep ezfind testquery
 EOT;
     }
-    
+
     //--------------------------------------------------------------------------
     private function advanced( $args, $additional )
     {
@@ -150,7 +159,7 @@ EOT;
                 {
                     $header[] = $index;
                 }
-                
+
                 $results[] = $header;
                 $fieldListCount = count( explode( ',', $parameters['fl'] ) );
                 foreach( $search['response']['docs'] as $doc )
@@ -172,7 +181,7 @@ EOT;
                         }
                         else if( is_object( $attribute ) )
                         {
-                            
+
                             if( $showComplex )
                             {
                                 $result[] = implode( '¦', (array) $attribute );
@@ -252,7 +261,7 @@ EOT;
         $search = eZFunctionHandler::execute( 'ezfind', 'search', array( 'filter' => 'meta_id_si:' . $objectId ) );
         if( $search["SearchCount"] )
         {
-            echo "yes\n";       
+            echo "yes\n";
         }
         else
         {
@@ -271,13 +280,65 @@ EOT;
         else
         {
             echo "invalid object id\n";
-        }        
-        
+        }
+
+    }
+    //--------------------------------------------------------------------------
+    private function ejectbydocid( $docId, $languageCode = null )
+    {
+        if ( $docId )
+        {
+            $engine = new eZSolr();
+
+            /*
+             * @since eZFind 2.2: allow delayed commits if explicitely set as configuration setting and
+             * the parameter $commit it is not set
+             * Default behaviour is as before
+             */
+            if ( !isset( $commit ) && ( $engine->FindINI->variable( 'IndexOptions', 'DisableDeleteCommits' ) === 'true' ) )
+            {
+                $commit = false;
+            }
+            elseif ( !isset( $commit ) )
+            {
+                $commit = true;
+            }
+
+            $optimize = false;
+            if ( $commit && ( $engine->FindINI->variable( 'IndexOptions', 'OptimizeOnCommit' ) === 'enabled' ) )
+            {
+                $optimize = true;
+            }
+            if ( $commitWithin === 0 && $engine->FindINI->variable( 'IndexOptions', 'CommitWithin' ) > 0 )
+            {
+                $commitWithin = $engine->FindINI->variable( 'IndexOptions', 'CommitWithin' );
+            }
+
+            if ( $engine->UseMultiLanguageCores === true )
+            {
+                if ( !$languageCode )
+                {
+                    echo "UseMultiLanguageCores is enabled, but no language code was supplied. aborting\n";
+                }
+                else
+                {
+                    $engine->SolrLanguageShards[$languageCode]->deleteDocs( array( $docId ), false, $commit, $optimize, $commitWithin );
+                }
+            }
+            else
+            {
+                $engine->Solr->deleteDocs( array( $docId ), false, $commit, $optimize, $commitWithin );
+            }
+        }
+        else
+        {
+            echo "invalid doc id\n";
+        }
     }
     //--------------------------------------------------------------------------
     private function fields( $objectId )
     {
-        $parameters = array();       
+        $parameters = array();
         $parameters['q'] = 'meta_id_si:' . $objectId ;
         $query  = array
         (
@@ -310,7 +371,7 @@ EOT;
         }
         else
         {
-            echo "No results\n";        
+            echo "No results\n";
         }
     }
     //--------------------------------------------------------------------------
@@ -324,14 +385,14 @@ EOT;
         if( count( $search["response"]["docs"] ) )
         {
             $datetime = strtotime( $search["response"]["docs"][( count($search["response"]["docs"]) - 1 )]["timestamp"] );
-            echo date( 'Y:m:d H:i:s', $datetime ) . "\n";  
-        }  
+            echo date( 'Y:m:d H:i:s', $datetime ) . "\n";
+        }
         else
         {
             echo "not-indexed\n";
         }
     }
-    
+
     //--------------------------------------------------------------------------
     private function startsolr( $ezRootPath )
     {
@@ -405,9 +466,9 @@ EOT;
     //--------------------------------------------------------------------------
     private function testQuery( $testQuery=null )
     {
-        
+
             $url = $this->getSolrBaseURL() . "select/?";
-            
+
             $parameters_ezpublish = array
             (
                 "q"                 => "article"
@@ -462,7 +523,7 @@ EOT;
                 //, "forceElevation"  => "false"
                 //, "enableElevation" => "true"
                 //, "clustering"      => "false"
-                
+
                 , "df"              => "*"
             );
 
@@ -492,11 +553,11 @@ EOT;
                 , "forceElevation"  => "false"
                 , "enableElevation" => "true"
                 , "clustering"      => "false"
-                
+
                 //, "df"              => "*"
             );
 
-            
+
             $parameterString = "";
             $ampersand = "";
             foreach( $parameters as $key => $value)
@@ -504,22 +565,22 @@ EOT;
                 $parameterString .= $ampersand . $key . "=" . $value;
                 $ampersand = "&";
             }
-            
+
             $finalURL = $url . $parameterString;
             echo "finalURL: " . $finalURL . "\n";
 
             $result = file_get_contents( $url . $parameterString );
-            
+
         /*
         $query = "/ezp-default/select/?";
         $query .= "fl=*&";
         $query .= "start=0&";
-        
+
         $query .= "q=publish";
         $query .= "&";
-        
+
         $query .= "rows=10";
-        
+
         $result = eZFunctionHandler::execute
         (
             'ezfind'
@@ -541,18 +602,18 @@ EOT;
         $command = @$argv[2];
         $param1 = @$argv[3];
         $param2 = @$argv[4];
-        
+
         if( !in_array( $command, $this->availableCommands ) )
         {
             throw new Exception( "Command '" . $command . "' not recognized." );
         }
-        
-        if ( !$this->isSolrRunning() 
+
+        if ( !$this->isSolrRunning()
              && $command != self::ezfind_startsolr
              && $command != "help" )
         {
             echo "solr is not available\n";
-        
+
         }
         else
         {
@@ -565,8 +626,8 @@ EOT;
                     echo "\nAvailable commands:: " . implode( ", ", $this->availableCommands ) . "\n";
                     echo "\n".$this->help."\n";
                     break;
-                
-                case self::ezfind_advanced:                    
+
+                case self::ezfind_advanced:
                     $this->advanced( $argv, $additional );
                     break;
                 case self::ezfind_indexobject:
@@ -601,6 +662,18 @@ EOT;
                     }
                     $this->eject( $objectId );
                     break;
+                case self::ezfind_ejectbydocid:
+                    $docId = $eepCache->readFromCache( eepCache::use_key_object );
+                    if( $param1 )
+                    {
+                        $docIds = $param1;
+                    }
+                    if( $param2 )
+                    {
+                        $languageCode = $param2;
+                    }
+                    $this->ejectbydocid( $docIds, $languageCode );
+                    break;
                 case self::ezfind_fields:
                     $objectId = $eepCache->readFromCache( eepCache::use_key_object );
                     if( $param1 )
@@ -616,12 +689,12 @@ EOT;
                         $objectId = $param1;
                     }
                     $this->lastindexed( $objectId );
-                    break;            
+                    break;
                 case self::ezfind_startsolr:
                     $ezRootPath = $eepCache->readFromCache( eepCache::use_key_ezroot );
                     $this->startsolr( $ezRootPath );
                     break;
-                
+
                 case self::ezfind_testquery:
                     $this->testQuery( $param1 );
                     break;
