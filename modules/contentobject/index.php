@@ -11,18 +11,21 @@ Version 3, 29 June 2007
 
 class contentobject_commands
 {
-    const contentobject_clearcache       = "clearcache";
-    const contentobject_info             = "info";
-    const contentobject_datamap          = "datamap";
-    const contentobject_delete           = "delete";
-    const contentobject_related          = "related";
-    const contentobject_reverserelated   = "reverserelated";
-    const contentobject_contentnode      = "contentnode";
-    const contentobject_republish        = "republish";
-    const contentobject_sitemapxml       = "sitemapxml";
-    const contentobject_deleteversions   = "deleteversions";
-    const contentobject_fetchbyremoteid  = "fetchbyremoteid";
-    const contentobject_setremoteid      = "setremoteid";
+    const contentobject_clearcache         = "clearcache";
+    const contentobject_info               = "info";
+    const contentobject_datamap            = "datamap";
+    const contentobject_delete             = "delete";
+    const contentobject_related            = "related";
+    const contentobject_reverserelated     = "reverserelated";
+    const contentobject_contentnode        = "contentnode";
+    const contentobject_republish          = "republish";
+    const contentobject_sitemapxml         = "sitemapxml";
+    const contentobject_deleteversions     = "deleteversions";
+    const contentobject_fetchbyremoteid    = "fetchbyremoteid";
+    const contentobject_setremoteid        = "setremoteid";
+    const contentobject_translationcreate  = "translationcreate";
+    const contentobject_translationsetmain = "translationsetmain";
+    const contentobject_translationremove  = "translationremove";
     
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -40,6 +43,9 @@ class contentobject_commands
         , self::contentobject_sitemapxml
         , self::contentobject_fetchbyremoteid
         , self::contentobject_setremoteid
+        , self::contentobject_translationcreate
+        , self::contentobject_translationsetmain
+        , self::contentobject_translationremove
     );
     var $help = "";                     // used to dump the help string
     
@@ -138,6 +144,19 @@ sitemapxml
 - note that the sitemap header is: <?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 -           the matching close is: </urlset>
   eep contentobject sitemapxml <object id> <domain> [<change frequency> [<priority>]]
+  
+translationcreate
+- add a new translation for the content object, optionally copy the translation from an existing one
+  note that 'locale's are, eg., eng-GB or eng-US
+  eep contentobject translationcreate <object id> <new locale> [<existing locale>]
+  
+translationsetmain
+- set the main translation, eg. in preparation to removing eng-GB as a supported translation
+  eep contentobject translationsetmain <object id> <locale>
+  
+translationremove
+- remove a translation from the content object
+  eep contentobject translationremove <object id> <locale>
 EOT;
     }
 
@@ -428,11 +447,129 @@ EOT;
     }
     
     //--------------------------------------------------------------------------
+    private function translationcreate( $objectId, $newLocale, $sourceLocale = false )
+    {
+        $contentObject = eZContentObject::fetch( $objectId );
+
+        $newLocalId = false; // just using this for the validation step
+        // validate or create the new locale
+        $languageList = eZContentLanguage::fetchList( true /*force reload*/ );
+        foreach( $languageList as $languageId => $eZContentLanguage )
+        {
+            if( $newLocale == $eZContentLanguage->Locale )
+            {
+                $newLocalId = $languageId;
+            }
+        }
+        if( !($newLocalId > 0) )
+        {
+            throw new Exception( "Failed to locate locale $newLocale" );
+        }
+
+        $copyFromLanguageCode = false;
+        // todo, should validate the $sourceLocale somehow ... make sure that the content object does have that translation?
+        if( $sourceLocale )
+        {
+            $copyFromLanguageCode = $sourceLocale;
+        }
+
+        $newVersion = $contentObject->createNewVersion( $contentObject->CurrentVersion, true, $newLocale, $sourceLocale );
+
+        eZOperationHandler::execute( 'content', 'publish', array( 'object_id' => $contentObject->ID, 'version' => $newVersion->Version ) );
+
+        echo "Added translation $newLocale to $contentObject->ID\n";
+    }
+    
+    //--------------------------------------------------------------------------
+    private function translationsetmain( $objectId, $locale )
+    {
+        $contentObject = eZContentObject::fetch( $objectId );
+        $mainNodeId = $contentObject->attribute('main_node_id');
+        $language = eZContentLanguage::fetchByLocale( $locale );
+
+        if( !$language->ID )
+        {
+            throw new Exception( "Failed to locate language for locale $locale" );
+        }
+
+        $success = false;
+        // from eZContentOperationCollection::updateInitialLanguage(), which unfortunately always returns
+        // a positive response, so we use the code directly
+        if ( $language and !$language->attribute( 'disabled' ) )
+        {
+            $contentObject->setAttribute( 'initial_language_id', $language->ID );
+            $objectName = $contentObject->name( false, $language->attribute( 'locale' ) );
+            $contentObject->setAttribute( 'name', $objectName );
+            $contentObject->store();
+
+            $success = true;
+
+            if ( $contentObject->isAlwaysAvailable() )
+            {
+                $contentObject->setAlwaysAvailableLanguageID( $language->ID );
+            }
+
+            $nodes = $contentObject->assignedNodes();
+            foreach ( $nodes as $node )
+            {
+                $node->updateSubTreePath();
+            }
+        }
+
+        eZContentCacheManager::clearContentCacheIfNeeded( $objectId );
+
+        if( $success )
+        {
+            echo "Set main locale $locale with id $language->ID \n";
+        }
+        else
+        {
+            echo "Failed to locate locale $locale did not set main.\n";
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    private function translationremove( $objectId, $locale )
+    {
+        $contentObject = eZContentObject::fetch( $objectId );
+        $language = eZContentLanguage::fetchByLocale( $locale );
+
+        if( !$language->ID )
+        {
+            throw new Exception( "Failed to locate language for locale: [ $locale ]" );
+        }
+
+        $adminUserObject = eZUser::fetch( eepSetting::PrivilegedAccountId );
+        if( null === $adminUserObject )
+        {
+            throw new Exception( "eepSetting::PrivilegedAccountId value of " . eepSetting::PrivilegedAccountId . " is invalid. Exiting." );
+        }
+        $adminUserObject->loginCurrent();
+
+        // from eZContentOperationCollection::removeTranslation(), which unfortunately always returns
+        // a positive response, so we use the code directly
+        if ( $contentObject->removeTranslation( $language->ID ) )
+        {
+            echo "Removed the translation $locale with language id $language->ID from $objectId\n";
+        }
+        else
+        {
+            echo "Failed to remove the translation $locale with language id $language->ID from $objectId\n";
+        }
+        $adminUserObject->logoutCurrent();
+
+        eZContentOperationCollection::registerSearchObject( $objectId );
+
+        eZContentCacheManager::clearContentCacheIfNeeded( $objectId );
+    }
+
+    //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
         $command = @$argv[2];
         $param1 = @$argv[3];
         $param2 = @$argv[4];
+        $param3 = @$argv[5];
 
         if( !in_array( $command, $this->availableCommands ) )
         {
@@ -575,6 +712,46 @@ EOT;
                 if( preg_replace( "/[^a-zA-Z0-0_]/", "", $remoteId ) != $remoteId )
                     throw new Exception( "This is not an acceptable remote id: [" .$remoteId. "]" );
                 $this->setremoteid( $objectId, $remoteId );
+                break;
+
+            case self::contentobject_translationcreate:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                if( !eepValidate::validateContentObjectId( $objectId ) )
+                {
+                    throw new Exception( "This is not an object id: [" .$objectId. "]" );
+                }
+                $this->translationcreate( $objectId, $param2, $param3 );
+                break;
+
+            case self::contentobject_translationsetmain:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                if( !eepValidate::validateContentObjectId( $objectId ) )
+                {
+                    throw new Exception( "This is not an object id: [" .$objectId. "]" );
+                }
+                $this->translationsetmain( $objectId, $param2 );
+                break;
+
+            case self::contentobject_translationremove:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                if( !eepValidate::validateContentObjectId( $objectId ) )
+                {
+                    throw new Exception( "This is not an object id: [" .$objectId. "]" );
+                }
+                $this->translationremove( $objectId, $param2 );
+                break;
         }
     }
 }

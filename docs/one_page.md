@@ -506,6 +506,9 @@ $ eep contentnode setsortorder <node id> <sort ordering> <sort direction>
 - [sitemapxml](#sitemapxml)
 - [deleteversions](#deleteversions)
 - [fetchbyremoteid](#fetchbyremoteid)
+- [translationcreate](#translationcreate)
+- [translationsetmain](#translationsetmain)
+- [translationremove](#translationremove)
 
 ## clearcache
 Clears the content cache for given content object.
@@ -617,6 +620,25 @@ Fetches a content object by remote id.
 ```sh
 $ eep use ezroot <path>
 $ eep contentobject fetchbyremoteid <remoteid>
+```
+
+## translationcreate
+Adds a new translation for the content object, optionally copies the translation from an existing one
+- Note that 'locale's are, eg., eng-GB or eng-US
+```sh
+$ eep contentobject translationcreate <object id> <new locale> [<existing locale>]
+```
+
+## translationsetmain
+Sets the main translation, eg. in preparation to removing eng-GB as a supported translation
+```sh
+$ eep contentobject translationsetmain <object id> <locale>
+```
+
+## translationremove
+Removes a translation from the content object
+```sh
+$ eep contentobject translationremove <object id> <locale>
 ```
 
 # Modules - create
