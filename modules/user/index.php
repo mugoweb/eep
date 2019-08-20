@@ -12,6 +12,9 @@ class user_commands
 {
     const user_editlog = "editlog";
     const user_visit = "visit";
+    const user_listsubtreenotifications = "listsubtreenotifications";
+    const user_addsubtreenotification = "addsubtreenotification";
+    const user_removesubtreenotification = "removesubtreenotification";
     
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -19,6 +22,9 @@ class user_commands
         "help"
         , self::user_visit
         , self::user_editlog
+        , self::user_listsubtreenotifications
+        , self::user_addsubtreenotification
+        , self::user_removesubtreenotification
     );
     var $help = ""; // used to dump the help string
 
@@ -37,7 +43,19 @@ eep user editlog
 visit
 - return user visit information e.g. last login, login count
 eep user visit <user_id>
-    
+
+addsubtreenotification
+- add a subtree notification
+eep user addsubtreenotification <user_id> <node_id>
+
+removesubtreenotification
+- remove a subtree notification
+eep user removesubtreenotification <user_id> <node_id>
+
+listsubtreenotifications
+- list user's subtree notifications
+eep user listsubtreenotifications <user_id>
+
 EOT;
     }
 
@@ -142,6 +160,89 @@ EOT;
     }
     
     //--------------------------------------------------------------------------
+    private function user_listsubtreenotifications( $userId )
+    {
+        $userId = (integer) $userId;
+
+        if( !$userId )
+        {
+            throw new Exception( "user_id parameter missing" );
+        }
+
+        $nodes = eZSubtreeNotificationRule::fetchNodesForUserID( $userId );
+        $notifications = eZSubtreeNotificationRule::fetchList( $userId );
+
+        $results[] = array
+        (
+            'Id'
+            , 'Use digest?'
+            , 'Node'
+            , 'Remote Id'
+            , 'Identifier'
+            , 'Name'
+        );
+        foreach ( $nodes as $index => $node )
+        {
+            $results[] = array
+            (
+                $node->ContentObjectID
+                , $notifications[ $index ]->UseDigest
+                , $node->NodeID
+                , $node->RemoteID
+                , $node->ClassIdentifier
+                , $node->Name
+            );
+        }
+
+        eep::printTable( $results, "Notifications for user: $userId count: " . count( $nodes ) );
+    }
+    
+    //--------------------------------------------------------------------------
+    private function user_addsubtreenotification( $userId, $nodeId )
+    {
+        $userId = (integer) $userId;
+
+        if( !$userId )
+        {
+            throw new Exception( "user_id parameter missing" );
+        }
+
+        if( !eepValidate::validateContentNodeId( $nodeId ) )
+        {
+            throw new Exception( "This is not a node id: [ $nodeId ]" );
+        }
+
+        $nodeIdList = eZSubtreeNotificationRule::fetchNodesForUserID( $userId, false );
+        if ( !in_array( $nodeId, $nodeIdList ) )
+        {
+            $rule = eZSubtreeNotificationRule::create( $nodeId, $userId );
+            $rule->store();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    private function user_removesubtreenotification( $userId, $nodeId )
+    {
+        $userId = (integer) $userId;
+
+        if( !$userId )
+        {
+            throw new Exception( "user_id parameter missing" );
+        }
+
+        if( !eepValidate::validateContentNodeId( $nodeId ) )
+        {
+            throw new Exception( "This is not a node id: [ $nodeId ]" );
+        }
+
+        $nodeIdList = eZSubtreeNotificationRule::fetchNodesForUserID( $userId, false );
+        if ( in_array( $nodeId, $nodeIdList ) )
+        {
+            eZSubtreeNotificationRule::removeByNodeAndUserID( $userId, $nodeId );
+        }
+    }
+
+    //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
         $command = @$argv[2];
@@ -169,6 +270,18 @@ EOT;
             
             case self::user_editlog:
                 $this->user_editlog( $param1 );
+                break;
+            
+            case self::user_listsubtreenotifications:
+                $this->user_listsubtreenotifications( $param1 );
+                break;
+
+            case self::user_addsubtreenotification:
+                $this->user_addsubtreenotification( $param1, $param2 );
+                break;
+            
+            case self::user_removesubtreenotification:
+                $this->user_removesubtreenotification( $param1, $param2 );
                 break;
         }
     } 
