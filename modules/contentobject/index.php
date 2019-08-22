@@ -11,21 +11,24 @@ Version 3, 29 June 2007
 
 class contentobject_commands
 {
-    const contentobject_clearcache         = "clearcache";
-    const contentobject_info               = "info";
-    const contentobject_datamap            = "datamap";
-    const contentobject_delete             = "delete";
-    const contentobject_related            = "related";
-    const contentobject_reverserelated     = "reverserelated";
-    const contentobject_contentnode        = "contentnode";
-    const contentobject_republish          = "republish";
-    const contentobject_sitemapxml         = "sitemapxml";
-    const contentobject_deleteversions     = "deleteversions";
-    const contentobject_fetchbyremoteid    = "fetchbyremoteid";
-    const contentobject_setremoteid        = "setremoteid";
-    const contentobject_translationcreate  = "translationcreate";
-    const contentobject_translationsetmain = "translationsetmain";
-    const contentobject_translationremove  = "translationremove";
+    const contentobject_clearcache              = "clearcache";
+    const contentobject_info                    = "info";
+    const contentobject_datamap                 = "datamap";
+    const contentobject_delete                  = "delete";
+    const contentobject_related                 = "related";
+    const contentobject_reverserelated          = "reverserelated";
+    const contentobject_contentnode             = "contentnode";
+    const contentobject_republish               = "republish";
+    const contentobject_sitemapxml              = "sitemapxml";
+    const contentobject_deleteversions          = "deleteversions";
+    const contentobject_fetchbyremoteid         = "fetchbyremoteid";
+    const contentobject_setremoteid             = "setremoteid";
+    const contentobject_translationcreate       = "translationcreate";
+    const contentobject_translationsetmain      = "translationsetmain";
+    const contentobject_translationremove       = "translationremove";
+    const contentobject_stateassignbyid         = "stateassignbyid";
+    const contentobject_stateassignbyidentifier = "stateassignbyidentifier";
+    const contentobject_stateview               = "stateview";
     
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -46,6 +49,9 @@ class contentobject_commands
         , self::contentobject_translationcreate
         , self::contentobject_translationsetmain
         , self::contentobject_translationremove
+        , self::contentobject_stateassignbyid
+        , self::contentobject_stateassignbyidentifier
+        , self::contentobject_stateview
     );
     var $help = "";                     // used to dump the help string
     
@@ -157,6 +163,18 @@ translationsetmain
 translationremove
 - remove a translation from the content object
   eep contentobject translationremove <object id> <locale>
+  
+stateassignbyid
+- assign an object state by state id
+  eep contentobject stateassignbyid <object id> <state id>
+  
+stateassignbyidentifier
+- assign an object state by state/group identifier e.g. ez_lock/locked
+  eep contentobject stateassignbyidentifier <object id> <state/group identifier>
+  
+stateview
+- view object state information
+  eep contentobject stateview <object id>
 EOT;
     }
 
@@ -564,6 +582,104 @@ EOT;
     }
 
     //--------------------------------------------------------------------------
+    private function stateassignbyidentifier( $objectId, $stateGroupIdentifier )
+    {
+        $identifierParts = explode( '/', $stateGroupIdentifier ); // group_identifier/state_identifier
+
+        if( !$identifierParts || 2 !== count( $identifierParts ) )
+        {
+            throw new Exception( "Invalid state/group identifier $stateGroupIdentifier" );
+        }
+
+        $group = eZContentObjectStateGroup::fetchByIdentifier( $identifierParts[0] );
+        if( !$group->Identifier )
+        {
+            throw new Exception( "Failed to locate state group $identifierParts[0]" );
+        }
+
+        $state = eZContentObjectState::fetchByIdentifier( $identifierParts[1], $group->ID );
+        if( !$state->Identifier )
+        {
+            throw new Exception( "Failed to locate state $identifierParts[1] in group $identifierParts[0]" );
+        }
+
+        $this->stateassign( $objectId, $state );
+    }
+
+    //--------------------------------------------------------------------------
+    private function stateassignbyid( $objectId, $stateId )
+    {
+        $state = eZContentObjectState::fetchById( $stateId );
+
+        if( !$state->ID )
+        {
+            throw new Exception( "Failed to locate state id $stateId" );
+        }
+
+        $this->stateassign( $objectId, $state );
+    }
+
+    //--------------------------------------------------------------------------
+    private function stateassign( $objectId, $state )
+    {
+        // from eZContentOperationCollection::updateObjectState(), which unfortunately always returns
+        // a positive response, so we use the code directly
+        $object = eZContentObject::fetch( $objectId );
+
+        if( !$state->Identifier )
+        {
+            throw new Exception( "Failed to locate state" );
+        }
+
+        if ( $object->assignState( $state ) )
+        {
+            echo "Assigned state $state->Identifier with id $state->ID and group id $state->GroupID to $objectId\n";
+        }
+        else
+        {
+            echo "Failed to assign state $state->Identifier with id $state->ID and group id $state->GroupID to $objectId\n";
+        }
+        // call appropriate method from search engine
+        eZSearch::updateObjectState( $objectId, array( $state->ID ) );
+
+        eZContentCacheManager::clearContentCacheIfNeeded( $objectId );
+    }
+
+    //--------------------------------------------------------------------------
+    private function stateview( $objectId )
+    {
+        $object = eZContentObject::fetch( $objectId );
+
+        $results[] = array
+        (
+            'Id'
+            , 'Identifier'
+            , 'Group Id'
+            , 'Group Identifier'
+            , 'Name'
+        );
+
+        $stateIds = $object->attribute( 'state_id_array' );
+
+        foreach ( $stateIds as $stateId )
+        {
+            $state = eZContentObjectState::fetchById( $stateId );
+            $group = $state->attribute( 'group' );
+
+            $results[] = array
+            (
+                $state->attribute( 'id' )
+                , $state->attribute( 'identifier' )
+                , $state->attribute( 'group_id' )
+                , $group->attribute( 'identifier' )
+                , $state->attribute('current_translation')->Name
+            );
+        }
+
+        eep::printTable( $results, "States of oid: $objectId" );
+    }
+
+    //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
         $command = @$argv[2];
@@ -751,6 +867,45 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 }
                 $this->translationremove( $objectId, $param2 );
+                break;
+
+            case self::contentobject_stateassignbyid:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                if( !eepValidate::validateContentObjectId( $objectId ) )
+                {
+                    throw new Exception( "This is not an object id: [" .$objectId. "]" );
+                }
+                $this->stateassignbyid( $objectId, $param2 );
+                break;
+
+            case self::contentobject_stateassignbyidentifier:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                if( !eepValidate::validateContentObjectId( $objectId ) )
+                {
+                    throw new Exception( "This is not an object id: [" .$objectId. "]" );
+                }
+                $this->stateassignbyidentifier( $objectId, $param2, $param3 );
+                break;
+
+            case self::contentobject_stateview:
+                $objectId = $eepCache->readFromCache( eepCache::use_key_object );
+                if( $param1 )
+                {
+                    $objectId = $param1;
+                }
+                if( !eepValidate::validateContentObjectId( $objectId ) )
+                {
+                    throw new Exception( "This is not an object id: [" .$objectId. "]" );
+                }
+                $this->stateview( $objectId );
                 break;
         }
     }

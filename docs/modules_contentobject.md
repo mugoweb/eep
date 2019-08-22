@@ -16,6 +16,9 @@
 - [translationcreate](#translationcreate)
 - [translationsetmain](#translationsetmain)
 - [translationremove](#translationremove)
+- [stateassignbyid](#stateassignbyid)
+- [stateassignbyidentifier](#stateassignbyidentifier)
+- [stateview](#stateview)
 
 ## clearcache
 Clears the content cache for given content object.
@@ -146,5 +149,23 @@ $ eep contentobject translationsetmain <object id> <locale>
 Removes a translation from the content object
 ```sh
 $ eep contentobject translationremove <object id> <locale>
+```
+
+## stateassignbyid
+Assigns an object state by state id
+```sh
+eep contentobject stateassignbyid <object id> <state id>
+```
+
+## stateassignbyidentifier
+Assigns an object state by state/group identifier e.g. ez_lock/locked
+```sh
+eep contentobject stateassignbyidentifier <object id> <state/group identifier>
+```
+
+## stateview
+Displays object state information
+```sh
+eep contentobject stateview <object id>
 ```
 
