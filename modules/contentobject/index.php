@@ -170,6 +170,7 @@ stateassignbyid
   
 stateassignbyidentifier
 - assign an object state by state/group identifier e.g. ez_lock/locked
+  all state groups and states can be found in the admin interface: Setup > States
   eep contentobject stateassignbyidentifier <object id> <state/group identifier>
   
 stateview

@@ -652,6 +652,11 @@ eep contentobject stateassignbyid <object id> <state id>
 
 ## stateassignbyidentifier
 Assigns an object state by state/group identifier e.g. ez_lock/locked
+eZ Publish ships with one state group with two states by default
+- ez_lock/locked
+- ez_lock/not_locked
+
+All state groups and states can be found in the admin interface: Setup > States
 ```sh
 eep contentobject stateassignbyidentifier <object id> <state/group identifier>
 ```
