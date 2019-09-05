@@ -509,6 +509,9 @@ $ eep contentnode setsortorder <node id> <sort ordering> <sort direction>
 - [translationcreate](#translationcreate)
 - [translationsetmain](#translationsetmain)
 - [translationremove](#translationremove)
+- [stateassignbyid](#stateassignbyid)
+- [stateassignbyidentifier](#stateassignbyidentifier)
+- [stateview](#stateview)
 
 ## clearcache
 Clears the content cache for given content object.
@@ -639,6 +642,29 @@ $ eep contentobject translationsetmain <object id> <locale>
 Removes a translation from the content object
 ```sh
 $ eep contentobject translationremove <object id> <locale>
+```
+
+## stateassignbyid
+Assigns an object state by state id
+```sh
+eep contentobject stateassignbyid <object id> <state id>
+```
+
+## stateassignbyidentifier
+Assigns an object state by state/group identifier e.g. ez_lock/locked
+eZ Publish ships with one state group with two states by default
+- ez_lock/locked
+- ez_lock/not_locked
+
+All state groups and states can be found in the admin interface: Setup > States
+```sh
+eep contentobject stateassignbyidentifier <object id> <state/group identifier>
+```
+
+## stateview
+Displays object state information
+```sh
+eep contentobject stateview <object id>
 ```
 
 # Modules - create
