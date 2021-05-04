@@ -494,6 +494,7 @@ $ eep contentnode setsortorder <node id> <sort ordering> <sort direction>
 # Modules - contentobject
 > The contentobject module provides methods to manipulate content objects.
 
+- [attributematch](#attributematch)
 - [clearcache](#clearcache)
 - [info](#info)
 - [datamap](#datamap)
@@ -512,6 +513,12 @@ $ eep contentnode setsortorder <node id> <sort ordering> <sort direction>
 - [stateassignbyid](#stateassignbyid)
 - [stateassignbyidentifier](#stateassignbyidentifier)
 - [stateview](#stateview)
+
+## attributematch
+Get list of objects matching the content class and a match on the attribute value.
+```sh
+$ eep contentobject attributematch <content class identifier> <attribute identifier> <search value>
+```
 
 ## clearcache
 Clears the content cache for given content object.
