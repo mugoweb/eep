@@ -29,6 +29,7 @@ class contentobject_commands
     const contentobject_stateassignbyid         = "stateassignbyid";
     const contentobject_stateassignbyidentifier = "stateassignbyidentifier";
     const contentobject_stateview               = "stateview";
+    const contentobject_attributematch          = "attributematch";
     
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -52,6 +53,7 @@ class contentobject_commands
         , self::contentobject_stateassignbyid
         , self::contentobject_stateassignbyidentifier
         , self::contentobject_stateview
+        , self::contentobject_attributematch
     );
     var $help = "";                     // used to dump the help string
     
@@ -63,6 +65,10 @@ class contentobject_commands
         $command = array_pop( $parts );
         
 $this->help = <<<EOT
+attributematch
+- get list of objects matching the content class and a match on the attribute value
+  eep contentobject attributematch <content class identifier> <attribute identifier> <search value>
+
 clearcache
 - clear the content cache for given object
   eep use ezroot <path>
@@ -681,6 +687,57 @@ EOT;
     }
 
     //--------------------------------------------------------------------------
+    private function FetchObjects( $classIdentifier, $attributeIdentifier, $searchValue )
+    {
+        $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
+        if( !$contentClass )
+            throw new Exception( "Invalid content class identifier [" . $classIdentifier . "]" );
+
+        $classDataMap = $contentClass->attribute( "data_map" );
+        if( !isset( $classDataMap[ $attributeIdentifier ] ) )
+            throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $attributeIdentifier . "]" );
+
+        $classAttributeString = $classIdentifier."/".$attributeIdentifier;
+
+        $parms[ "ClassFilterType" ] = "include";
+        $parms[ "ClassFilterArray" ] = array( $classIdentifier );
+        //$parms[ "Depth" ] = 2;
+        $parms[ "MainNodeOnly" ] = true;
+        $parms[ "IgnoreVisibility" ] = true;
+        //$parms[ "AttributeFilter" ] = array( "and", array( $classIdentifier."/".$attributeIdentifier, "=", $searchValue ) );
+        $parms[ "AttributeFilter" ] = array( "and", array( $classAttributeString, "like", "*".$searchValue."*" ) );
+        $nodes = eZContentObjectTreeNode::subTreeByNodeID( $parms, 2 );
+
+        $keepers = array
+        (
+            "ObjectID"
+            , "MainNodeID"
+            , "Object name"
+            //, "SID"
+            , "Value"
+        );
+ 
+        $display[] = $keepers;
+        $rowCount = 0;
+        foreach( $nodes as $node )
+        {
+            $datamap = $node->ContentObject->dataMap();
+
+            $row = array
+            (
+                $node->ContentObjectID
+                , $node->MainNodeID
+                , $node->Name
+                , $datamap[$attributeIdentifier]->toString()
+            );
+            $display[] = $row;
+            $rowCount++;
+        }
+
+        eep::printTable( $display, "Search on " . $classAttributeString . " for: *" .$searchValue."* found " . $rowCount . " results" );
+    }
+
+    //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
         $command = @$argv[2];
@@ -907,6 +964,13 @@ EOT;
                     throw new Exception( "This is not an object id: [" .$objectId. "]" );
                 }
                 $this->stateview( $objectId );
+                break;
+
+            case self::contentobject_attributematch:
+                $classIdentifier = $param1;
+                $attributeIdentifier = $param2;
+                $searchValue = $param3;
+                $this->FetchObjects( $classIdentifier, $attributeIdentifier, $searchValue );
                 break;
         }
     }
