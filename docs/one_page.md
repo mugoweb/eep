@@ -979,6 +979,7 @@ $ eep list subtreeordered <node id>
 
 - [list](#list)
 - [allobjects](#allobjects)
+- [assign](#assign)
 
 ## list
 List all sections.
@@ -992,6 +993,13 @@ Lists all content objects in the section.
 
 ```sh
 $ eep section allobjects <section id>
+```
+
+## assign
+- assign section to subtree
+
+```sh
+$ eep section <section id> <node id>
 ```
 
 # Modules - trash
