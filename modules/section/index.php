@@ -12,6 +12,7 @@ class section_commands
 {
     const section_list = "list";
     const section_allobjects = "allobjects";
+    const section_assign = "assign";
     
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -19,6 +20,7 @@ class section_commands
         "help"
         , self::section_allobjects
         , self::section_list
+        , self::section_assign
     );
     var $help = "";                     // used to dump the help string
 
@@ -38,7 +40,11 @@ allobjects
 list
 - list all sections
   eep section list
-    
+
+assign
+- assign section to subtree
+  eep section <section id> <node id>
+
 EOT;
     }
 
@@ -90,6 +96,25 @@ EOT;
         //var_dump($list);
     }
 
+    private function section_assign( $sectionId, $nodeId )
+    {
+        $section = eZSection::fetch( $sectionId );
+        if ( !is_object( $section ) )
+        {
+            throw new Exception( "Section '" . $sectionId . "' is not a valid section id." );
+        }
+        else
+        {
+            $db = eZDB::instance();
+            $db->begin();
+            eZContentObjectTreeNode::assignSectionToSubTree( $nodeId, $sectionId );
+            $db->commit();
+
+            // clear content caches
+            eZContentCacheManager::clearAllContentCache(); 
+        }
+    }
+
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
     {
@@ -119,6 +144,12 @@ EOT;
             case self::section_allobjects:
                 $sectionId = $param1;
                 $this->allobjects( $sectionId, $additional );
+                break;
+
+            case self::section_assign:
+                $sectionId = $param1;
+                $nodeId = $param2;
+                $this->section_assign( $sectionId, $nodeId );
                 break;
         }
     } 
