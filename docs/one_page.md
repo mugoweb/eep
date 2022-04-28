@@ -143,7 +143,9 @@ You can override the settings by copying ```.../eep/eepSettings.php``` into your
 - [fromstring](#fromstring)
 - [tostring](#tostring)
 - [setfield](#setfield)
+- [getfield](#getfield)
 - [set](#set)
+- [get](#get)
 - [info](#info)
 - [createalias](#createalias)
 - [contentobjectid](#contentobjectid)
@@ -176,13 +178,13 @@ $ eep attribute update <class identifier> <path to newattributexml file>
 ```
 
 ## fromstring
-Calls FromString() on the content object's attribute.
+Calls FromString() on the content object data_map's attribute.
 ```sh
 $ eep attribute fromstring <content object id> <attribute identifier> <new value>
 ```
 
 ## tostring
-Calls ToString() on the content object's attribute.
+Calls ToString() on the content object data_map's attribute.
 ```sh
 $ eep attribute tostring <content object id> <attribute identifier>
 ```
@@ -193,10 +195,22 @@ Directly sets one of the content class attribute fields (e.g. ```data_int```, ``
 $ eep attribute setfield <class identifier> <attributename> <fieldname> <fieldvalue>
 ```
 
+## getfield
+Directly gets one of the content class attribute fields (e.g. ```data_int```, ```data_text1``` etc.)
+```sh
+$ eep attribute getfield <class identifier> <attributename> <fieldname> <fieldvalue>
+```
+
 ## set
 Directly sets one of the contentobject attributes (e.g. owner_id, published etc.)
 ```sh
 $ eep attribute set <content object id> <attribute identifier> <attribute value>
+```
+
+## get
+Directly gets one of the contentobject attributes (e.g. owner_id, published etc.)
+```sh
+$ eep attribute get <content object id> <attribute identifier> <attribute value>
 ```
 
 ## info
@@ -1093,7 +1107,9 @@ eep user listsubtreenotifications <user_id>
 - [toString](#tostring)
 - [createAlias](#createalias)
 - [setField](#setfield)
+- [getField](#getfield)
 - [set](#set)
+- [get](#get)
 - [info](#info)
 - [contentobjectid](#contentobjectid)
 
@@ -1244,7 +1260,7 @@ Currently supported datatypes: `ezstring ezobjectrelationlist ezinteger ezselect
 
 
 ## fromString
-> Updates a content object's attribute value.
+> Updates a content object data_map attribute value.
 
 *Parameters:*
 - `$contentObjectId` Integer
@@ -1258,7 +1274,7 @@ Currently supported datatypes: `ezstring ezobjectrelationlist ezinteger ezselect
 
 
 ## toString
-> Returns string representation of a content object attribute value.
+> Returns string representation of a content object data_map attribute value.
 
 *Parameters:*
 - `$contentObjectId` Integer
@@ -1266,12 +1282,20 @@ Currently supported datatypes: `ezstring ezobjectrelationlist ezinteger ezselect
 
 
 ## setField
-> Directly sets one of the attribute fields (e.g. data_int, data_text1 etc.)
+> Directly sets one of the content class attribute fields (e.g. data_int, data_text1 etc.)
 
 - `$classIdentifier` Integer
 - `$attributeIdentifier` String
 - `$fieldIdentifier` String
 - `$fieldValue` String
+
+
+## getField
+> Directly gets one of the content class attribute fields (e.g. data_int, data_text1 etc.)
+
+- `$classIdentifier` Integer
+- `$attributeIdentifier` String
+- `$fieldIdentifier` String
 
 
 ## set
@@ -1280,6 +1304,13 @@ Currently supported datatypes: `ezstring ezobjectrelationlist ezinteger ezselect
 - `$contentObjectId` Integer
 - `$attributeIdentifier` String
 - `$attributeValue` Mixed
+
+
+## get
+> Directly gets one of the contentobject attributes (e.g. owner_id, published etc.)
+
+- `$contentObjectId` Integer
+- `$attributeIdentifier` String
 
 
 ## createAlias
