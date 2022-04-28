@@ -11,7 +11,9 @@
 - [toString](#tostring)
 - [createAlias](#createalias)
 - [setField](#setfield)
+- [getField](#getfield)
 - [set](#set)
+- [get](#get)
 - [info](#info)
 - [contentobjectid](#contentobjectid)
 
@@ -162,7 +164,7 @@ Currently supported datatypes: `ezstring ezobjectrelationlist ezinteger ezselect
 
 
 ## fromString
-> Updates a content object's attribute value.
+> Updates a content object data_map attribute value.
 
 *Parameters:*
 - `$contentObjectId` Integer
@@ -176,7 +178,7 @@ Currently supported datatypes: `ezstring ezobjectrelationlist ezinteger ezselect
 
 
 ## toString
-> Returns string representation of a content object attribute value.
+> Returns string representation of a content object data_map attribute value.
 
 *Parameters:*
 - `$contentObjectId` Integer
@@ -184,12 +186,20 @@ Currently supported datatypes: `ezstring ezobjectrelationlist ezinteger ezselect
 
 
 ## setField
-> Directly sets one of the attribute fields (e.g. data_int, data_text1 etc.)
+> Directly sets one of the content class attribute fields (e.g. data_int, data_text1 etc.)
 
 - `$classIdentifier` Integer
 - `$attributeIdentifier` String
 - `$fieldIdentifier` String
 - `$fieldValue` String
+
+
+## getField
+> Directly gets one of the content class attribute fields (e.g. data_int, data_text1 etc.)
+
+- `$classIdentifier` Integer
+- `$attributeIdentifier` String
+- `$fieldIdentifier` String
 
 
 ## set
@@ -198,6 +208,13 @@ Currently supported datatypes: `ezstring ezobjectrelationlist ezinteger ezselect
 - `$contentObjectId` Integer
 - `$attributeIdentifier` String
 - `$attributeValue` Mixed
+
+
+## get
+> Directly gets one of the contentobject attributes (e.g. owner_id, published etc.)
+
+- `$contentObjectId` Integer
+- `$attributeIdentifier` String
 
 
 ## createAlias

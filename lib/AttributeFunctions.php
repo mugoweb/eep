@@ -712,6 +712,34 @@ class AttributeFunctions
     }
 
     //--------------------------------------------------------------------------
+    public static function getField( $classIdentifier, $attributeIdentifier, $fieldIdentifier )
+    {
+        $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
+
+        if( !$contentClass )
+            throw new Exception( "Failed to instantiate content class [" . $classIdentifier . "]" );
+
+        $classDataMap = $contentClass->attribute( "data_map" );
+
+        if( !isset( $classDataMap[ $attributeIdentifier ] ) )
+            throw new Exception( "Content class '" . $classIdentifier . "' does not contain this attribute: [" . $attributeIdentifier . "]" );
+
+        $fieldValue     = $classDataMap[ $attributeIdentifier ]->attribute( $fieldIdentifier );
+        $fieldValueType = gettype( $fieldValue );
+
+        if ( in_array( $fieldValueType, array( 'array', 'object' ) ) )
+        {
+            $fieldValue = serialize( $fieldValue );
+        }
+        elseif ( $fieldValueType == 'boolean' )
+        {
+            $fieldValue = (integer) $fieldValue;
+        }
+
+        return $fieldValue;
+    }
+
+    //--------------------------------------------------------------------------
     public static function setAttribute( $contentObjectId, $attributeIdentifier, $attributeValue )
     {
         $contentObject = eZContentObject::fetch( $contentObjectId );
@@ -723,11 +751,42 @@ class AttributeFunctions
 
         if ( !$contentObject->hasAttribute( $attributeIdentifier ) )
         {
-            throw new Exception( "This is not a content object attribute identifier [" . $attributeIdentifier . "]" );   
+            throw new Exception( "This is not a content object attribute identifier [" . $attributeIdentifier . "]" );
         }
 
         $contentObject->setAttribute( $attributeIdentifier, $attributeValue );
         $contentObject->store();
+    }
+
+    //--------------------------------------------------------------------------
+    public static function getAttribute( $contentObjectId, $attributeIdentifier )
+    {
+        $contentObject = eZContentObject::fetch( $contentObjectId );
+
+        if ( !$contentObject )
+        {
+            throw new Exception( "This is not a content object [" . $contentObjectId . "]" );
+        }
+
+        if ( !$contentObject->hasAttribute( $attributeIdentifier ) )
+        {
+            throw new Exception( "This is not a content object attribute identifier [" . $attributeIdentifier . "]" );
+        }
+
+        $attributeValue     = $contentObject->attribute( $attributeIdentifier );
+        $attributeValueType = gettype( $attributeValue );
+        $attributeValue     = "";
+
+        if ( in_array( $attributeValueType, array( 'array', 'object' ) ) )
+        {
+            $attributeValue = serialize( $attributeValue );
+        }
+        elseif ( $attributeValueType == 'boolean' )
+        {
+            $attributeValue = (integer) $attributeValue;
+        }
+
+        return $attributeValue;
     }
 
     //--------------------------------------------------------------------------
