@@ -775,7 +775,6 @@ class AttributeFunctions
 
         $attributeValue     = $contentObject->attribute( $attributeIdentifier );
         $attributeValueType = gettype( $attributeValue );
-        $attributeValue     = "";
 
         if ( in_array( $attributeValueType, array( 'array', 'object' ) ) )
         {
