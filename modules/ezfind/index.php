@@ -339,7 +339,8 @@ EOT;
     private function fields( $objectId )
     {
         $parameters = array();
-        $parameters['q'] = 'meta_id_si:' . $objectId ;
+        $parameters['q'] = 'meta_id_si:' . $objectId;
+        $parameters['fl'] = '*';
         $query  = array
         (
             'baseURL'       => false
