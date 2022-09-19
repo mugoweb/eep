@@ -617,6 +617,10 @@ class AttributeFunctions
         {
             throw new Exception( "This is not an attribute identifer [" .$attributeIdentifier. "] on content class '" . $contentObject->ClassIdentifier . "'"  );
         }
+        if( in_array( $dataMap[ $attributeIdentifier ]->DataTypeString, array( 'ezimage', 'ezbinaryfile' ) ) && !file_exists( $value ) )
+        {
+            throw new Exception( "File not found [" .$value. "]" );
+        }
 
         if( "ezxmltext" == $dataMap[ $attributeIdentifier ]->DataTypeString )
         {
