@@ -284,37 +284,59 @@ EOT;
     //--------------------------------------------------------------------------
     private function fetchRelated( $objectId, $reverse, $additional )
     {
-        $object = eZContentObject::fetch( $objectId );
+        $fetchType = ( $reverse )? 'reverse_' : '';
 
-        // some other parameters:
-        // LoadDataMap
-        // Limit
-        // Offset
-        // AsObject
-        // SortBy
-        // IgnoreVisibility
-        $parameters = array();
-        $parameters[ "AllRelations" ] = true;
-        $parameters[ "IgnoreVisibility" ] = true;
+        $parameters = array
+        (
+            'object_id' => $objectId
+            , 'all_relations' => true
+            , 'ignore_visibility' => true
+            , 'group_by_attribute' => true
+        );
         if( isset($additional["limit"]) )
         {
-            $parameters[ "Limit" ] = $additional["limit"];
+            $parameters[ "limit" ] = $additional["limit"];
         }
         if( isset($additional["offset"]) )
         {
-            $parameters[ "Offset" ] = $additional["offset"];
+            $parameters[ "offset" ] = $additional["offset"];
         }
-        
-        $reverseRelated = $object->relatedObjects
-        (
-            false                           // use current version of object
-            , false                         // use current object id
-            , 0                             // attribute id, but we are going to use 'all relations' instead
-            , false                         // return array of objects or a grouped list ... ?
-            , $parameters
-            , $reverse                      // true->reverse-related and false->related
-        );
-        
+
+        $relatedObjectsGrouped = eZFunctionHandler::execute('content', $fetchType . 'related_objects', $parameters );
+        $relatedObjectsIdTyped = eZFunctionHandler::execute('content', $fetchType . 'related_objects_ids', array( 'object_id' => $objectId ) );
+
+        $relationsSummary = array();
+        foreach( $relatedObjectsGrouped as $attributeId => $relatedObjectsArray )
+        {
+            if( $attributeId !== 0 )
+            {
+                $attr = eZFunctionHandler::execute('content', 'class_attribute', array( 'attribute_id' => $attributeId ) );
+            }
+
+            foreach( $relatedObjectsArray as $relatedObject )
+            {
+                if( $attributeId !== 0 && in_array( $relatedObject->ID, $relatedObjectsIdTyped[ 'attribute' ] ) )
+                {
+                    $relationsSummary[ $relatedObject->ID ][] = "attribute:{$attr->Identifier}";
+                }
+                elseif( $attributeId == 0 )
+                {
+                    $relationNameArray = array();
+                    foreach( $relatedObjectsIdTyped as $relationType => $relationIdArray )
+                    {
+                        if( $relationType !== 'attribute' && in_array( $relatedObject->ID, $relationIdArray ) )
+                        {
+                            $relationNameArray[] = $relationType;
+                        }
+                    }
+                    $relationsSummary[ $relatedObject->ID ][] = implode( ', ', $relationNameArray );
+                }
+            }
+        }
+
+        // remove the grouping for output
+        $relatedObjects = array_merge( array(), ...$relatedObjectsGrouped );
+
         $keepers = array
         (
             "ObjectID"
@@ -323,30 +345,32 @@ EOT;
             //, "StateIDArray"
             , "SID"
             , "Name"
+            , "Rel. Type(s)"
         );
-        
+
         $results[] = $keepers;
         $rowCount = 0;
-        foreach( $reverseRelated as $revObject )
+        foreach( $relatedObjects as $relatedObject )
         {
             $row = array
             (
-                $revObject->ID
-                , $revObject->mainNodeId()
-                , $revObject->ClassIdentifier
-                //, serialize( $revObject->stateIdentifierArray() )
-                , $revObject->SectionID
-                , $revObject->Name
+                $relatedObject->ID
+                , $relatedObject->mainNodeId()
+                , $relatedObject->ClassIdentifier
+                //, serialize( $relatedObject->stateIdentifierArray() )
+                , $relatedObject->SectionID
+                , $relatedObject->Name
+                , implode( ', ', $relationsSummary[ $relatedObject->ID ] )
             );
             $results[] = $row;
             $rowCount++;
         }
 
         $methodPrefix = "Reverse related";
-		if( !$reverse )
-		{
-			$methodPrefix = "Related";
-		}
+        if( !$reverse )
+        {
+	    $methodPrefix = "Related";
+        }
         eep::printTable( $results, $methodPrefix . " objects of oid: " .$objectId. " count: " . $rowCount . "" );
     }
 
