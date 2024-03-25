@@ -99,6 +99,7 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
              <hideroot>1</hideroot>
              <dropdown>0</dropdown>
              <maxtags>0</maxtags>
+             <editview>Default</editview>
         </eztags>
 
         <ezmatrix>
@@ -383,6 +384,7 @@ class AttributeFunctions
                 $classAttribute->setAttribute( eZTagsType::SHOW_DROPDOWN_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/dropdown" )->item( 0 )->nodeValue ) );
                 $classAttribute->setAttribute( eZTagsType::HIDE_ROOT_TAG_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/hideroot" )->item( 0 )->nodeValue ) );
                 $classAttribute->setAttribute( eZTagsType::MAX_TAGS_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/maxtags" )->item( 0 )->nodeValue ) );
+                $classAttribute->setAttribute( eZTagsType::EDIT_VIEW_FIELD, (string )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/editview" )->item( 0 )->nodeValue ) );
                 break;
 
             case "ezmatrix":
