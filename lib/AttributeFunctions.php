@@ -94,6 +94,7 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
             </browse_location>
         </ezobjectrelationlist>
 
+        <!-- options depend on the eZ Tags version used; some may not or no longer be available; check extension/eztags/datatypes/eztags/eztagstype.php -->
         <eztags>
              <subtree>0</subtree>
              <hideroot>1</hideroot>
@@ -380,11 +381,26 @@ class AttributeFunctions
                 break;
 
             case "eztags":
-                $classAttribute->setAttribute( eZTagsType::SUBTREE_LIMIT_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/subtree" )->item( 0 )->nodeValue ) );
-                $classAttribute->setAttribute( eZTagsType::SHOW_DROPDOWN_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/dropdown" )->item( 0 )->nodeValue ) );
-                $classAttribute->setAttribute( eZTagsType::HIDE_ROOT_TAG_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/hideroot" )->item( 0 )->nodeValue ) );
-                $classAttribute->setAttribute( eZTagsType::MAX_TAGS_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/maxtags" )->item( 0 )->nodeValue ) );
-                $classAttribute->setAttribute( eZTagsType::EDIT_VIEW_FIELD, (string )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/editview" )->item( 0 )->nodeValue ) );
+                if( defined( 'eZTagsType::SUBTREE_LIMIT_FIELD' ) )
+                {
+                    $classAttribute->setAttribute( eZTagsType::SUBTREE_LIMIT_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/subtree" )->item( 0 )->nodeValue ) );
+                }
+                if( defined( 'eZTagsType::SHOW_DROPDOWN_FIELD' ) )
+                {
+                    $classAttribute->setAttribute( eZTagsType::SHOW_DROPDOWN_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/dropdown" )->item( 0 )->nodeValue ) );
+                }
+                if( defined( 'eZTagsType::HIDE_ROOT_TAG_FIELD' ) )
+                {
+                    $classAttribute->setAttribute( eZTagsType::HIDE_ROOT_TAG_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/hideroot" )->item( 0 )->nodeValue ) );
+                }
+                if( defined( 'eZTagsType::MAX_TAGS_FIELD' ) )
+                {
+                    $classAttribute->setAttribute( eZTagsType::MAX_TAGS_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/maxtags" )->item( 0 )->nodeValue ) );
+                }
+                if( defined( 'eZTagsType::EDIT_VIEW_FIELD' ) )
+                {
+                    $classAttribute->setAttribute( eZTagsType::EDIT_VIEW_FIELD, (string )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/editview" )->item( 0 )->nodeValue ) );
+                }
                 break;
 
             case "ezmatrix":
