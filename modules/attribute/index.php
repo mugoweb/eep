@@ -4,7 +4,6 @@ EEP is a command line tool to support developers using ezpublish
 Copyright © 2012  Mugo Web
 GNU GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
-// 
 */
 /**
  * eep/modules/attribute/index.php
@@ -16,6 +15,7 @@ class attribute_commands
     const attribute_newattributexml = "newattributexml";
     const attribute_migrate         = "migrate";
     const attribute_update          = "update";
+    const attribute_setpassword     = "setpassword";
     const attribute_fromstring      = "fromstring";
     const attribute_tostring        = "tostring";
     const attribute_setfield        = "setfield";
@@ -31,6 +31,7 @@ class attribute_commands
     (
         "help"
         , self::attribute_delete
+	, self::attribute_setpassword
         , self::attribute_fromstring
         , self::attribute_tostring
         , self::attribute_migrate
@@ -57,6 +58,10 @@ $this->help = <<<EOT
 delete
 - deletes an attribute from class and objects
   eep attribute delete <class identifier> <attribute identifier>
+
+setpassword
+- sets password on given user object
+  eep attribute setpassword <user id> <new password>
 
 fromstring
 - calls FromString() on the content object data_map's attribute
@@ -275,6 +280,21 @@ EOT;
                 $classIdentifier = $eepCache->readFromCache( eepCache::use_key_contentclass );
                 $this->attribute_migrate( $classIdentifier, $srcAttribute, $conversion, $destAttribute );
                 break;
+
+	    case self::attribute_setpassword:
+		$userId = $param1;
+		$newPassword = $param2;
+
+	        $res = eZUserOperationCollection::password( $userId, $newPassword );
+		if( 1 == $res[ "status" ] )
+		{
+			echo "password changed ok\n";
+		}
+		else
+		{
+			echo "password change failed\n";
+		}
+		break;
 
             case self::attribute_fromstring:
                 $contentObjectId = $param1;
