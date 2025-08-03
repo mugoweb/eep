@@ -12,6 +12,9 @@ class role_commands
 {
     const role_createrole = "createrole";
     const role_listroles = "listroles";
+    const role_deleterole = "deleterole";
+    const role_assignrole = "assignrole";
+    const role_addmodulepolicy = "addmodulepolicy";
 
     //--------------------------------------------------------------------------
     var $availableCommands = array
@@ -19,6 +22,9 @@ class role_commands
         "help"
         , self::role_createrole
         , self::role_listroles
+        , self::role_deleterole
+        , self::role_assignrole
+        , self::role_addmodulepolicy
     );
     var $help = ""; // used to dump the help string
 
@@ -37,6 +43,18 @@ eep role createrole <new role name>
 listrole
 - list all roles, including temporary ones
 eep role listroles
+
+deleterole
+- remove role based on the role id
+eep role deleterole <role id>
+
+assignrole
+- assign role to either user group or user object
+eep role assignrole <role id> <user object id>
+
+addmodulepolicy
+- create new policy and add to role
+eep role addmodulepolicy <role id> <module name> <function name or *>
 
 EOT;
     }
@@ -72,10 +90,6 @@ EOT;
 		{
 			$roleObj = eZRole::fetch( $roledata->ID );
 
-
-//print_r( $roleObj->policyList() );
-
-
 			$results[] = array
 			(
 				$roledata->Name
@@ -85,6 +99,61 @@ EOT;
 		}
 		eep::printTable( $results, "User roles" );
     }
+
+    //--------------------------------------------------------------------------
+	private function role_deleterole( $roleid )
+    {
+		$role = eZRole::fetch( $roleid );
+		if( $role )
+		{
+			eZRole::removeRole( $roleid );
+			echo "Removed role id: " . $roleid . " ok\n";
+		}
+		else
+		{
+			throw new Exception( "Failed to locate role: $roleid" );
+		}
+	}
+
+    //--------------------------------------------------------------------------
+	private function role_assignrole( $roleid, $objectid )
+    {
+		$role = eZRole::fetch( $roleid );
+		if( !$role ) throw new Exception( "Failed to locate role: $roleid" );
+
+        $obj = eZContentObject::fetch( $objectid );
+		if( !$obj ) throw new Exception( "Failed to locate user or user-group object with oid: " . $objectid . "\n" );
+
+        $role->assignToUser( $objectid );
+    
+        echo "ok\n";
+	}
+
+    //--------------------------------------------------------------------------
+	private function role_addmodulepolicy( $roleid, $modulename, $functionname )
+	{
+		$role = eZRole::fetch( $roleid );
+		if( !$role ) throw new Exception( "Failed to locate role: $roleid" );
+			
+		$role->appendPolicy( $modulename, $functionname );
+
+/*
+
+		// how to validate the module name?
+
+		$policyData = array
+		(
+			"module_name"	  => "b2b"
+			, "function_name" => "*"
+		);
+
+        $newPolicy = eZPolicy::createNew( $roleID , $policyData );
+
+print_r( $newPolicy );
+ */
+
+
+	}
 
     //--------------------------------------------------------------------------
     public function run( $argv, $additional )
@@ -114,6 +183,18 @@ EOT;
 
             case self::role_listroles:
                 $this->role_listroles();
+                break;
+
+            case self::role_deleterole:
+                $this->role_deleterole( $param1 );
+                break;
+
+            case self::role_assignrole:
+                $this->role_assignrole( $param1, $param2 );
+                break;
+
+            case self::role_addmodulepolicy:
+                $this->role_addmodulepolicy( $param1, $param2, $param3 );
                 break;
 
         }
