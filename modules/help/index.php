@@ -53,7 +53,7 @@ EOT;
         {
             case "help":
                 sort( $availableModules );
-                echo "\nAvailable modules: " . implode( $availableModules, ", " ) . "\n";
+                echo "\nAvailable modules: " . implode( ", ", $availableModules ) . "\n";
                 echo "\nModules path: " . $eepPath . "/modules/\n";
                 echo "\n". $this->help . "\n";
                 $aliases = eep::getListOfAliases();

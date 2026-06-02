@@ -17,8 +17,9 @@ class eepLog
     var $maxLogRotateFiles = 3;
     var $maxLogFileSize = 204800; // 200*1024
 
+
     //--------------------------------------------------------------------------
-    function eepLog( $path, $file )
+    function __construct( $path, $file )
     {
         $this->setPath( $path );
         $this->setFile( $file );
