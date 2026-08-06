@@ -244,7 +244,7 @@ class AttributeFunctions
         switch( $classAttribute->DataTypeString )
         {
             case "ezstring":
-                $maxStringLength = (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezstring/maxstringlength" )->item( 0 )->nodeValue );
+                $maxStringLength = (int )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezstring/maxstringlength" )->item( 0 )->nodeValue );
                 if( $maxStringLength < 1 )
                 {
                     $maxStringLength = 1;
@@ -257,7 +257,7 @@ class AttributeFunctions
                 break;
 
             case "ezxmltext":
-                $numberOfLines = (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezxmltext/numberoflines" )->item( 0 )->nodeValue );
+                $numberOfLines = (int )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezxmltext/numberoflines" )->item( 0 )->nodeValue );
                 if( $numberOfLines < 1 )
                 {
                     $numberOfLines = 1;
@@ -383,19 +383,19 @@ class AttributeFunctions
             case "eztags":
                 if( defined( 'eZTagsType::SUBTREE_LIMIT_FIELD' ) )
                 {
-                    $classAttribute->setAttribute( eZTagsType::SUBTREE_LIMIT_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/subtree" )->item( 0 )->nodeValue ) );
+                    $classAttribute->setAttribute( eZTagsType::SUBTREE_LIMIT_FIELD, (int )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/subtree" )->item( 0 )->nodeValue ) );
                 }
                 if( defined( 'eZTagsType::SHOW_DROPDOWN_FIELD' ) )
                 {
-                    $classAttribute->setAttribute( eZTagsType::SHOW_DROPDOWN_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/dropdown" )->item( 0 )->nodeValue ) );
+                    $classAttribute->setAttribute( eZTagsType::SHOW_DROPDOWN_FIELD, (int )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/dropdown" )->item( 0 )->nodeValue ) );
                 }
                 if( defined( 'eZTagsType::HIDE_ROOT_TAG_FIELD' ) )
                 {
-                    $classAttribute->setAttribute( eZTagsType::HIDE_ROOT_TAG_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/hideroot" )->item( 0 )->nodeValue ) );
+                    $classAttribute->setAttribute( eZTagsType::HIDE_ROOT_TAG_FIELD, (int )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/hideroot" )->item( 0 )->nodeValue ) );
                 }
                 if( defined( 'eZTagsType::MAX_TAGS_FIELD' ) )
                 {
-                    $classAttribute->setAttribute( eZTagsType::MAX_TAGS_FIELD, (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/maxtags" )->item( 0 )->nodeValue ) );
+                    $classAttribute->setAttribute( eZTagsType::MAX_TAGS_FIELD, (int )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/eztags/maxtags" )->item( 0 )->nodeValue ) );
                 }
                 if( defined( 'eZTagsType::EDIT_VIEW_FIELD' ) )
                 {
@@ -428,7 +428,7 @@ class AttributeFunctions
                     $classAttribute->setContent( $matrix );
                 }
             
-                $classAttribute->setAttribute( "data_int1", (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezmatrix/default_row_count" )->item( 0 )->nodeValue ) );
+                $classAttribute->setAttribute( "data_int1", (int )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezmatrix/default_row_count" )->item( 0 )->nodeValue ) );
                 $classAttribute->store();
                 break;
 
@@ -755,7 +755,7 @@ class AttributeFunctions
         }
         elseif ( $fieldValueType == 'boolean' )
         {
-            $fieldValue = (integer) $fieldValue;
+            $fieldValue = (int )$fieldValue;
         }
 
         return $fieldValue;
@@ -804,7 +804,7 @@ class AttributeFunctions
         }
         elseif ( $attributeValueType == 'boolean' )
         {
-            $attributeValue = (integer) $attributeValue;
+            $attributeValue = (int )$attributeValue;
         }
 
         return $attributeValue;
@@ -848,8 +848,8 @@ class AttributeFunctions
     {
         $db = eZDB::instance();
         $query = 'SELECT `contentobject_id` FROM `ezcontentobject_attribute`';
-        $query .= ' WHERE `ezcontentobject_attribute`.`id` = ' . (integer) $contentObjectAttributeId;
-        $query .= ' AND `ezcontentobject_attribute`.`version` = ' . (integer) $version;
+        $query .= ' WHERE `ezcontentobject_attribute`.`id` = ' . (int )$contentObjectAttributeId;
+        $query .= ' AND `ezcontentobject_attribute`.`version` = ' . (int )$version;
         $query .= ' LIMIT 1';
         $result = $db->arrayQuery( $query );
 

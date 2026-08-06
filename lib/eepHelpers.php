@@ -444,7 +444,7 @@ class eep
     //--------------------------------------------------------------------------
     static function addTask( $taskType, $task, $priority=500 )
     {
-        $priority = (integer )$priority;
+        $priority = (int )$priority;
         if( 0 == $priority ) return false;
 
         $db = eZDB::instance();

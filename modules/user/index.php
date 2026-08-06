@@ -62,7 +62,7 @@ EOT;
     //--------------------------------------------------------------------------
     private function user_visit( $userId )
     {
-        $userId = (integer) $userId;
+        $userId = (int )$userId;
 
         if( !$userId )
         {
@@ -115,9 +115,9 @@ EOT;
     private function user_editlog( $durationOverride )
     {
         $months = 3;
-        if( 0 < (integer )$durationOverride )
+        if( 0 < (int )$durationOverride )
         {
-            $months = (integer )$durationOverride;
+            $months = (int )$durationOverride;
         }
         $duration = 30 * 24 * 60 * 60 * $months;
         
@@ -162,7 +162,7 @@ EOT;
     //--------------------------------------------------------------------------
     private function user_listsubtreenotifications( $userId )
     {
-        $userId = (integer) $userId;
+        $userId = (int )$userId;
 
         if( !$userId )
         {
@@ -200,7 +200,7 @@ EOT;
     //--------------------------------------------------------------------------
     private function user_addsubtreenotification( $userId, $nodeId )
     {
-        $userId = (integer) $userId;
+        $userId = (int )$userId;
 
         if( !$userId )
         {
@@ -223,7 +223,7 @@ EOT;
     //--------------------------------------------------------------------------
     private function user_removesubtreenotification( $userId, $nodeId )
     {
-        $userId = (integer) $userId;
+        $userId = (int )$userId;
 
         if( !$userId )
         {

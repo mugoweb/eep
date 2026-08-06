@@ -43,9 +43,9 @@ class eepValidate
     //--------------------------------------------------------------------------
     static function validateContentObjectId( $id )
     {
-        if( is_numeric($id) && 0 < (integer )$id )
+        if( is_numeric($id) && 0 < (int )$id )
         {
-            $id = (integer )$id;
+            $id = (int )$id;
             if( eZContentObject::fetch( $id, false ) )
             {
                 return true;
@@ -57,9 +57,9 @@ class eepValidate
     //--------------------------------------------------------------------------
     static function validateContentNodeId( $id )
     {
-        if( is_numeric($id) && 0 < (integer )$id )
+        if( is_numeric($id) && 0 < (int )$id )
         {
-            $id = (integer )$id;
+            $id = (int )$id;
             if( eZContentObjectTreeNode::fetch( $id, false, false, false ) )
             {
                 return true;

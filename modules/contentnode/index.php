@@ -802,19 +802,19 @@ EOT;
                 break;
             
             case self::contentnode_setsortorder:
-                $nodeId = (integer )$param1;
+                $nodeId = (int )$param1;
                 $sortField = $param2;
                 $sortOrder = $param3;
                 $this->setSortOrder( $nodeId, $sortField, $sortOrder );
                 break;
 
             case self::contentnode_hidesubtree:
-                $nodeId = (integer )$param1;
+                $nodeId = (int )$param1;
                 $this->hidesubtree( $nodeId );
                 break;
             
             case self::contentnode_unhidesubtree:
-                $nodeId = (integer )$param1;
+                $nodeId = (int )$param1;
                 $this->unhidesubtree( $nodeId );
                 break;
         }

@@ -775,7 +775,7 @@ EOT;
     //--------------------------------------------------------------------------
     private function generateCSVLinksReport( $publicDomainAndProtocol, $adminDomainAndProtocol, $nodeViewPath, $delay=0 )
     {
-        $delay = (integer )$delay;
+        $delay = (int )$delay;
         $debugListUrls = false;
         //$debugListUrlsURLObjectId = 1230;
 
@@ -819,12 +819,12 @@ EOT;
         
         foreach( $linkList as $n => $linkRecord )
         {
-            if( $debugListUrlsURLObjectId && $debugListUrlsURLObjectId != (integer )$linkRecord->ID ) continue;
+            if( $debugListUrlsURLObjectId && $debugListUrlsURLObjectId != (int )$linkRecord->ID ) continue;
             
             if( $debugListUrls ) echo "\n-------------------------\n";
             $urlTarget = $linkRecord->URL;
             $urlParts = parse_url( $urlTarget );
-            if( $debugListUrls ) echo "ezurl object id: " . (integer )$linkRecord->ID . "\n";
+            if( $debugListUrls ) echo "ezurl object id: " . (int )$linkRecord->ID . "\n";
             
             // if there is no host, we have to assume that the URL is on the current server, specifically, on the public ui
             if( 0 == strlen( $urlParts[ "host" ] ) )
@@ -890,7 +890,7 @@ EOT;
             if( $debugListUrls ) echo "targetPageStatus: " . $targetPageStatus . "\n";
         
             // figure out the associated content objects
-            $sql = "select * from ezurl_object_link where url_id=" . (integer )$linkRecord->ID;
+            $sql = "select * from ezurl_object_link where url_id=" . (int )$linkRecord->ID;
         
             $query = $db->query( $sql );
         
@@ -900,7 +900,7 @@ EOT;
             {
                 $reportRows[ $count ][ "status" ] = "\"" . $targetPageStatus . "\"";
                 $reportRows[ $count ][ "target" ] = "=HYPERLINK(\"" . $urlTarget . "\")";
-                $reportRows[ $count ][ "linkid" ] = "\"" . (integer )$linkRecord->ID . "\"";
+                $reportRows[ $count ][ "linkid" ] = "\"" . (int )$linkRecord->ID . "\"";
                 
                 // fetch the actual url object because it contains the data required to locate the associated content objects
                 // static function fetch( $urlID, $contentObjectAttributeID, $contentObjectAttributeVersion, $asObject = true )
