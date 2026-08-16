@@ -20,16 +20,20 @@ class eep
             foreach( $row as $column => $part )
             {
                 // trim the value - suppress the warning if looking at an object
-                $table[ $r ][ $column ] = @trim( $part );
-                // and calc the widths - continue to suppress warnings
-                if( !isset( $widths[$column] ) )
-                {
-                    $widths[ $column ] = @strlen( $part );
-                }
-                elseif( $widths[ $column ] < @strlen( $part ) )
-                {
-                    $widths[ $column ] = @strlen( $part );
-                }
+		    if( !is_object( $part ) ) 
+		    {
+		        $table[ $r ][ $column ] = trim( $part );
+
+			// and calc the widths - continue to suppress warnings
+			if( !isset( $widths[$column] ) )
+			{
+			    $widths[ $column ] = strlen( $part );
+			}
+			elseif( $widths[ $column ] < strlen( $part ) )
+			{
+			    $widths[ $column ] = strlen( $part );
+			}
+		    }
             }
         }
 
@@ -58,6 +62,8 @@ class eep
             foreach( $row as $column => $part )
             {
                 if( 2==count($row) && 1==$column ) $align = "-";
+		if( is_object($part)) $part="<obj>";
+
                 echo $pipe. sprintf( "% ".$align.$widths[$column]."s", $part);
                 $pipe = " | ";
             }

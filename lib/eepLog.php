@@ -120,7 +120,8 @@ class eepLog
         $logFile = @fopen( $fileName, "a" );
         if( $logFile )
         {
-            $time = strftime( "%b %d %Y %H:%M:%S", strtotime( "now" ) );
+            //$time = strftime( "%b %d %Y %H:%M:%S", strtotime( "now" ) );
+            $time = date( 'Y-M-d H:i:s' );
             $logMessage = "[ " . $time . " ] $message\n";
             @fwrite( $logFile, $logMessage );
             @fclose( $logFile );
